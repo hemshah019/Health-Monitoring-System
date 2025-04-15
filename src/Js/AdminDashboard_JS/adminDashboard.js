@@ -183,8 +183,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".search-box input").forEach(input => {
         input.addEventListener("keyup", function () {
             const searchTerm = this.value.toLowerCase();
-            const tableClass = this.dataset.table; // Get table class from data attribute
-            const searchFields = this.dataset.fields.split(","); // Get searchable fields
+            const tableClass = this.dataset.table;
+            const searchFields = this.dataset.fields.split(",");
 
             const rows = document.querySelectorAll(`.${tableClass} tbody tr`);
 
@@ -193,8 +193,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 searchFields.forEach((field, index) => {
                     let cell = field === "first" 
-                        ? row.querySelector(`td:first-child`) // Handle ID search
-                        : row.querySelector(`td:nth-child(${index + 1})`); // Handle other fields
+                        ? row.querySelector(`td:first-child`) 
+                        : row.querySelector(`td:nth-child(${index + 1})`); 
 
                     if (cell && cell.textContent.toLowerCase().includes(searchTerm)) {
                         match = true;
@@ -243,18 +243,19 @@ function togglePasswordVisibility() {
     const eyeClosed = document.getElementById('eye-closed');
 
     if (passwordField.type === "password") {
-        passwordField.type = "text";  // Show password
-        eyeOpen.style.display = "block";  // Hide open eye
-        eyeBall.style.display = "block";  // Hide eye ball
-        eyeClosed.style.display = "block";  // Show closed eye
+        passwordField.type = "text";  
+        eyeOpen.style.display = "block";  
+        eyeBall.style.display = "block";  
+        eyeClosed.style.display = "block"; 
     } else {
-        passwordField.type = "password";  // Hide password
-        eyeOpen.style.display = "block";  // Show open eye
-        eyeBall.style.display = "block";  // Show eye ball
-        eyeClosed.style.display = "none";  // Hide closed eye
+        passwordField.type = "password"; 
+        eyeOpen.style.display = "block"; 
+        eyeBall.style.display = "block"; 
+        eyeClosed.style.display = "none"; 
     }
 }
 
+// LOGOUT
 // Get elements
 const logoutButton = document.getElementById('logout-button');
 const logoutDialog = document.getElementById('logout-dialog');
@@ -273,8 +274,7 @@ cancelButton.addEventListener('click', function() {
 
 // Handle logout confirmation
 confirmButton.addEventListener('click', function() {
-    alert('Logging out...');
-    // window.location.href = 'login.html'; // Redirect to login page
+    window.location.href = '/auth/logout';
     logoutDialog.style.display = 'none';
 });
 

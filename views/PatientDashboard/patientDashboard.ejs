@@ -70,7 +70,7 @@
             </div>
         </div>
         
-        <!-- Empty State (initially hidden) -->
+        <!-- Empty State -->
         <div class="notification-empty" id="emptyNotifications" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
@@ -160,7 +160,7 @@
             <div class="patient-profile">
                 <img class="patient-image" src="/image/admin.png" alt="Patient">
                 <div class="patient-info">
-                    <h3>Dr. Hem Shah</h3>
+                    <h3><%= patientData.First_Name %> <%= patientData.Last_Name %></h3>
                     <p>Patient</p>
                 </div>
             </div>
@@ -1407,9 +1407,9 @@
                         <h3>Profile Information</h3>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="username">Username</label>
+                                <label for="settings_username">Username</label>
                                 <div class="date-input-container">
-                                    <input type="text" id="username" value="hemshah019">
+                                    <input type="text" id="settings_username" value="<%= patientData.Username %>" readonly>
                                     <button class="user-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1436,29 +1436,37 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" value="Dr. Hem">
+                                <input type="text" id="firstName" value="<%= patientData.First_Name %>">
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" value="Shah">
+                                <input type="text" id="lastName" value="<%= patientData.Last_Name %>">
                             </div>
                         </div>
                     
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="age">Age</label>
-                                <input type="number" id="age" value="35">
+                                <input type="number" id="age" value="<%= patientData.Age %>">
                             </div>
                             <div class="form-group">
                                 <label for="dob">Date of Birth</label>
-                                <input type="date" id="dob" value="1990-05-20">
+                                <input type="date" id="dob" value="<%= patientData.Date_Of_Birth ? patientData.Date_Of_Birth.toISOString().split('T')[0] : '' %>">
                             </div>
                         </div>
                     
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="gender">Gender</label>
-                                <input type="gender" id="gender" value="Male">
+                                <input type="gender" id="gender" value="<%= patientData.Gender %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <input type="status" id="status" value="Enrolled">
+                            </div>
+                            <div class="form-group">
+                                <label for="enrollment-date">Enrollment Date</label>
+                                <input type="enrollment-date" id="enrollment-date" value="<%= patientData.Enrollment_DateTime %>" readonly>
                             </div>
                         </div>
                     
@@ -1466,13 +1474,13 @@
                         <h3>Contact Info</h3>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="phoneNumber">Phone Number</label>
-                                <input type="text" id="phoneNumber" value="+977-9824715019">
+                                <label for="settings_phoneNumber">Phone Number</label>
+                                <input type="text" id="settings_phoneNumber" value="<%= patientData.Phone_Number %>">
                             </div>
                             <div class="form-group">
-                                <label for="email">Email Address</label>
+                                <label for="settings_email">Email Address</label>
                                 <div class="email-input-container">
-                                    <input type="email" id="email" value="hemshah019@mail.com">
+                                    <input type="email" id="settings_email" value="<%= patientData.Email %>" readonly>
                                     <button class="email-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1485,8 +1493,8 @@
                     
                         <div class="form-row">
                             <div class="form-group" style="width: 100%;">
-                                <label for="address">Address</label>
-                                <input type="text" id="address" value="Kathmandu, Nepal">
+                                <label for="settings_address">Address</label>
+                                <input type="text" id="settings_address" value="<%= patientData.Address %>">
                             </div>
                         </div>
                     

@@ -676,25 +676,25 @@ body {
 
 /* Backgrounds for individual cards */
 .program-card.heart-rate {
-    background-image: url('/FrontEnd/Image/heart-rate.png');
+    background-image: url('/image/heart-rate.png');
 }
 .program-card.temperature {
-    background-image: url('/FrontEnd/Image/tempreature.png');
+    background-image: url('/image/tempreature.png');
 }
 .program-card.oxygen {
-    background-image: url('/FrontEnd/Image/Oxygen.jpg');
+    background-image: url('/image/Oxygen.jpg');
 }
 .program-card.fall-detection {
-    background-image: url('/FrontEnd/Image/accident.png');
+    background-image: url('/image/accident.png');
 }
 .program-card.messages {
-    background-image: url('/FrontEnd/Image/comments.png');
+    background-image: url('/image/comments.png');
 }
 .program-card.compliances {
-    background-image: url('/FrontEnd/Image/compliant.png');
+    background-image: url('/image/compliant.png');
 }
 .program-card.improvements {
-    background-image: url('/FrontEnd/Image/improvement.png');
+    background-image: url('/image/improvement.png');
 }
 
 /* Tasks section */
@@ -777,26 +777,26 @@ body {
 }
 
 .heart-rate-box {
-    background-image: url('/FrontEnd/Image/heart.jpg');
+    background-image: url('/image/heart.jpg');
 }
 .temp-box {
-    background-image: url('/FrontEnd/Image/temp.jpg');
+    background-image: url('/image/temp.jpg');
 }
 .oxygen-box {
-    background-image: url('/FrontEnd/Image/spo2.jpg');
+    background-image: url('/image/spo2.jpg');
 }
 .fall-box {
-    background-image: url('/FrontEnd/Image/BodyFall.png');
+    background-image: url('/image/BodyFall.png');
 }
 
 .messages-box {
-    background-image: url('/FrontEnd/Image/message.png');
+    background-image: url('/image/message.png');
 }
 .compliances-box {
-    background-image: url('/FrontEnd/Image/Compliances.jpg');
+    background-image: url('/image/Compliances.jpg');
 }
 .improvements-box {
-    background-image: url('/FrontEnd/Image/improve.jpg');
+    background-image: url('/image/improve.jpg');
 }
 
 .vital-box {

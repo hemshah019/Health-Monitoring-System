@@ -145,7 +145,7 @@
             <div class="admin-profile">
                 <img class="admin-image" src="/image/admin.png" alt="Admin">
                 <div class="admin-info">
-                    <h3>Dr. Hem Shah</h3>
+                    <h3><%= adminData.firstName %> <%= adminData.lastName %></h3>
                     <p>Administrator</p>
                 </div>
             </div>
@@ -535,50 +535,36 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <% if (patients && patients.length > 0) { %>
+                                <% patients.forEach(patient => { %>
                             <tr>
-                                <td>#P1001</td>
+                                <td>#P<%= patient.Patient_ID %></td>
                                 <td>
                                     <div class="patient-name">
                                         <div class="patient-avatar">
                                             <img src="/image/admin.png" alt="Patient">
                                         </div>
-                                        <span>John Doe</span>
+                                        <span><%= patient.First_Name %> <%= patient.Last_Name %></span>
                                     </div>
                                 </td>
-                                <td>68 years</td>
-                                <td>Male</td>
-                                <td>123 Main St, Anytown, CA</td>
+                                <td><%= patient.Age %> years</td>
+                                <td><%= patient.Gender %></td>
+                                <td><%= patient.Address %></td>
                                 <td class="enrolled-status">Enrolled</td>
-                                <td>15-01-2023</td>
+                                <td><%= patient.Enrollment_DateTime %></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="view-btn patient-view-btn" data-id="P1001">View</button>
-                                        <button class="delete-btn" data-id="P1001">Delete</button>
+                                        <button class="view-btn patient-view-btn" data-id="<%= patient.Patient_ID %>">View</button>
+                                        <button class="delete-btn" data-id="<%= patient.Patient_ID %>">Delete</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>#P1002</td>
-                                <td>
-                                    <div class="patient-name">
-                                        <div class="patient-avatar">
-                                            <img src="/image/admin.png" alt="Patient">
-                                        </div>
-                                        <span>Sarah Johnson</span>
-                                    </div>
-                                </td>
-                                <td>45 years</td>
-                                <td>Female</td>
-                                <td>456 Oak St, Sometown, NY</td>
-                                <td class="enrolled-status">Enrolled</td>
-                                <td>22-03-2023</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn patient-view-btn" data-id="P1002">View</button>
-                                        <button class="delete-btn" data-id="P1002">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 20px;">No patients found.</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -644,6 +630,14 @@
                         <div class="info-field">
                             <span class="info-field-label">Address</span>
                             <span class="info-field-value" id="view_address">123 Main St, Anytown, CA 91234</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Status</span>
+                            <span class="info-field-value" id="view_status">Enrolled</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Enrollment Date</span>
+                            <span class="info-field-value" id="view_date">Tuesday, 15th April 2025 1:02 PM</span>
                         </div>
                     </div>
                 </div>
@@ -857,9 +851,6 @@
                                 <td>#M2001</td>
                                 <td>
                                     <div class="patient-name">
-                                        <div class="patient-avatar">
-                                            <img src="/FrontEnd/Image/admin.png" alt="Patient">
-                                        </div>
                                         <span>Jane Smith</span>
                                     </div>
                                 </td>
@@ -1062,9 +1053,6 @@
                                 <td>#A2001</td>
                                 <td>
                                     <div class="patient-name">
-                                        <div class="patient-avatar">
-                                            <img src="/FrontEnd/Image/admin.png" alt="Patient">
-                                        </div>
                                         <span>John Doe</span>
                                     </div>
                                 </td>
@@ -1675,23 +1663,23 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" value="Dr. Hem">
+                                <input type="text" id="firstName" value="<%= adminData.firstName %>">
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" value="Shah">
+                                <input type="text" id="lastName" value="<%= adminData.lastName %>">
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="phoneNumber">Phone Number</label>
-                                <input type="text" id="phoneNumber" value="+977-9824715019">
+                                <input type="text" id="phoneNumber" value="<%= adminData.phoneNumber %>">
                             </div>
                             <div class="form-group">
                                 <label for="email">Email Address</label>
                                 <div class="email-input-container">
-                                    <input type="email" id="email" value="hemshah019@mail.com">
+                                    <input type="email" id="email" value="<%= adminData.email %>">
                                     <button class="email-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1706,7 +1694,7 @@
                             <div class="form-group">
                                 <label for="username">Username</label>
                                 <div class="date-input-container">
-                                    <input type="text" id="username" value="hemshah019">
+                                    <input type="text" id="username" value="<%= adminData.username %>">
                                     <button class="user-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1718,7 +1706,7 @@
                             <div class="form-group">
                                 <label for="password">Password</label>
                                 <div class="password-input-container">
-                                    <input type="password" id="password" value="12345">
+                                    <input type="password" id="password" placeholder="••••••••">
                                     <button class="toggle-password-btn" type="button" onclick="togglePasswordVisibility()">
                                         <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path id="eye-open" d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

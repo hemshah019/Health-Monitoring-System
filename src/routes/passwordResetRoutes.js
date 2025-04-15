@@ -1,7 +1,8 @@
 const express = require('express');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
-const collection = require('../config');
+// const collection = require('../config');
+const { Patient, Admin } = require('../config');
 
 const router = express.Router();
 
@@ -16,12 +17,20 @@ module.exports = (transporter, otpStore) => {
     router.post('/forgot-password', async (req, res) => {
         try {
             const { email } = req.body;
+            console.log('Received email:', email);
 
             if (!email) {
                 return res.render('Verification/ForgotPassword', { error: 'Email address is required.' });
             }
 
-            const user = await collection.findOne({ Email: email });
+             // Check if the email belongs to a Patient or Admin
+             let user;
+             if (email.includes('admin')) { 
+                user = await Admin.findOne({ email });
+            } 
+            else {
+                user = await Patient.findOne({ Email: email });
+            }
 
             if (!user) {
                  return res.render('Verification/ForgotPassword', { message: 'If your email is registered, you will receive a password reset code.' });
@@ -153,7 +162,6 @@ module.exports = (transporter, otpStore) => {
                     </html>
                 `
             };
-
             try {
                 await transporter.sendMail(mailOptions);
                 console.log(`OTP email sent successfully to ${email}`);
@@ -233,7 +241,13 @@ module.exports = (transporter, otpStore) => {
                 return res.render('Verification/NewPassword', { email: email, error: 'Passwords do not match.' });
             }
 
-            const user = await collection.findOne({ Email: email });
+            let user;
+            if (email.includes('admin')) { 
+                user = await Admin.findOne({ email: email });
+            } else {
+                user = await Patient.findOne({ Email: email });
+            }
+
             if (!user) {
                 console.error(`Attempt to update password for non-existent user: ${email}`);
                 return res.redirect('/forgot-password?error=user_not_found');
@@ -243,10 +257,17 @@ module.exports = (transporter, otpStore) => {
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
             // Update the user's password in the database
-            await collection.updateOne(
-                { Email: email },
-                { $set: { Password: hashedPassword } }
-            );
+            if (email.includes('admin')) {
+                await Admin.updateOne(
+                    { email: email },
+                    { $set: { password: hashedPassword } }
+                );
+            } else {
+                await Patient.updateOne(
+                    { Email: email },
+                    { $set: { Password: hashedPassword } }
+                );
+            }
 
             console.log(`Password updated successfully for ${email}`);
 
@@ -254,7 +275,7 @@ module.exports = (transporter, otpStore) => {
 
         } catch (error) {
             console.error('Error updating password:', error);
-             res.render('Verification/NewPassword', { email: req.body.email, error: 'An server error occurred. Please try again later.' });
+            res.render('Verification/NewPassword', { email: req.body.email, error: 'An server error occurred. Please try again later.' });
         }
     });
 

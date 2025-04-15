@@ -366,6 +366,7 @@ function togglePasswordVisibility() {
     }
 }
 
+// Logout Section
 // Get elements
 const logoutButton = document.getElementById('logout-button');
 const logoutDialog = document.getElementById('logout-dialog');
@@ -384,8 +385,7 @@ cancelButton.addEventListener('click', function() {
 
 // Handle logout confirmation
 confirmButton.addEventListener('click', function() {
-    alert('Logging out...');
-    // window.location.href = 'login.html'; // Redirect to login page
+    window.location.href = '/auth/logout';
     logoutDialog.style.display = 'none';
 });
 

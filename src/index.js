@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
 const collection = require('./config');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
@@ -9,8 +10,15 @@ const authRoutes = require('./routes/authRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
-
 const app = express();
+
+//  Express-session middleware setup
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+}));
 
 // Middleware
 app.use(express.json());
@@ -20,11 +28,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.static(path.join(__dirname, '..', 'src')));
 
-
 // View Engine Setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
-
 
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
@@ -36,12 +42,12 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verify transporter configuration on startup.
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error("Nodemailer configuration error:", error);
-  } else {
-    console.log("Nodemailer is ready to send emails");
-  }
+transporter.verify(function (error, success) {
+    if (error) {
+        console.error("Nodemailer configuration error:", error);
+    } else {
+        console.log("Nodemailer is ready to send emails");
+    }
 });
 
 // In-memory OTP Store
