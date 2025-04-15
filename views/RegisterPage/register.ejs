@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Monitoring System - Register</title>
+    <link rel="stylesheet" href="/CSS/RegisterPage_CSS/register.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div style="display: flex; align-items: center;">
+                <img src="/image/logo.png" alt="Health Monitoring System Logo" class="logo">
+                <h2>Health Monitoring System</h2>
+            </div>
+            <a href="/" class="create-account">Already have an account? Sign In</a>
+        </div>
+
+        <div class="container">
+            <h1>Register</h1>
+            <form action="/register" method="post">
+                <h3>Your Basic Information</h3>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="First_Name">First Name</label>
+                        <input type="text" name="First_Name" placeholder="Enter your first name..." required>
+                    </div>
+                    <div class="input-group">
+                        <label for="Last_Name">Last Name</label>
+                        <input type="text" name="Last_Name" placeholder="Enter your last name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="Age">Age</label>
+                        <input type="number" name="Age" placeholder="Enter your age..." required>
+                    </div>
+                    <div class="input-group">
+                        <label for="Date_Of_Birth">Date of Birth</label>
+                        <input type="date" name="Date_Of_Birth" placeholder="Date of Birth" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="Email">Email</label>
+                        <div class="input-with-icon">
+                            <input type="email" name="Email" placeholder="Enter your email..." required>
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="Phone_Number">Phone Number</label>
+                        <div class="input-with-icon">
+                            <input type="tel" name="Phone_Number" placeholder="Enter your phone number.." required>
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h4l2 5l-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="Gender">Gender</label>
+                        <select name="Gender" required>
+                            <option value="">Select your gender...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="Address">Address</label>
+                        <div class="input-with-icon">
+                            <input type="text" name="Address" placeholder="Enter your address..." required>
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/>
+                                <circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Account Credentials</h3>
+                
+                <div class="form-group single-item">
+                    <div class="input-group">
+                        <label for="Username">Username</label>
+                        <div class="input-with-icon">
+                            <input type="text" name="Username" placeholder="Enter your username..." required>
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-7 7.73C5 16.27 8.13 15 12 15s7 1.27 7 3.73V21H5v-2.27z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="Password">Password</label>
+                        <div class="input-with-icon">
+                            <input type="password" name="Password" placeholder="Enter your password..." required>
+                            <span class="icon toggle-password" onclick="togglePasswordVisibility()">
+                                <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M6.71277 6.7226C3.66479 8.79527 2 12 2 12C2 12 5.63636 19 12 19C14.0503 19 15.8174 18.2734 17.2711 17.2884M11 5.05822C11.3254 5.02013 11.6588 5 12 5C18.3636 5 22 12 22 12C22 12 21.3082 13.3317 20 14.8335" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 14.2362C13.4692 14.7112 12.7684 15.0001 12 15.0001C10.3431 15.0001 9 13.657 9 12.0001C9 11.1764 9.33193 10.4303 9.86932 9.88818" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                    <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="Confirm_Password">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <input type="password" name="Confirm_Password" placeholder="Enter your confirm password..." required>
+                            <span class="icon toggle-password" onclick="togglePasswordVisibility()">
+                                <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 2L22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M6.71277 6.7226C3.66479 8.79527 2 12 2 12C2 12 5.63636 19 12 19C14.0503 19 15.8174 18.2734 17.2711 17.2884M11 5.05822C11.3254 5.02013 11.6588 5 12 5C18.3636 5 22 12 22 12C22 12 21.3082 13.3317 20 14.8335" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 14.2362C13.4692 14.7112 12.7684 15.0001 12 15.0001C10.3431 15.0001 9 13.657 9 12.0001C9 11.1764 9.33193 10.4303 9.86932 9.88818" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                                    <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="terms-and-register">
+                    <div class="form-terms">
+                        <input type="checkbox" name="terms" required>
+                        <label for="terms">I've confirmed that I have read and agree to the <a href="#">terms and <br> conditions</a> of registering in this Health Monitoring System</label>
+                    </div>
+                    <button type="submit">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/src/Js/RegisterPage_JS/register.js"></script>
+</body>
+</html>

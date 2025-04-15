@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="/CSS/Verification_CSS/OTPVerification.css">
+</head>
+<body>
+    <div class="header">
+        <div style="display: flex; align-items: center;">
+            <img src="/image/logo.png" alt="Health Monitoring System Logo" class="logo">
+            <h2>Health Monitoring System</h2>
+        </div>
+        <a href="/register" class="create-account">Create an account</a>
+    </div>
+    <div class="container">
+        <img src="/image/OTP.png" alt="OTP Icon" class="icon-image">
+        <h2>OTP Verification</h2>
+        <p>We have sent an OTP to your email. Please enter it below to continue.</p>
+        
+        <form action="/verify-otp" method="post">
+            <input type="hidden" name="email" value="<%= email %>">
+            
+            <div class="otp-input-container">
+                <input type="text" class="otp-input" maxlength="1" id="otp-input-1">
+                <input type="text" class="otp-input" maxlength="1" id="otp-input-2">
+                <input type="text" class="otp-input" maxlength="1" id="otp-input-3">
+                <input type="text" class="otp-input" maxlength="1" id="otp-input-4">
+            </div>
+            
+            <input type="hidden" name="otp" id="full-otp">
+            
+            <button type="submit" class="btn">Verify OTP</button>
+        </form>
+        
+        <p class="resend-link">Didn't receive the OTP? <a href="/forgot-password">Click to resend</a></p>
+        <p class="back-link"><a href="/">← Back to sign in</a></p>
+        <div class="progress-bar">
+            <div class="bar"></div>
+            <div class="bar active"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+    <script src="/Js/Verification_JS/OTPVerification.js"></script>
+</body>
+</html>

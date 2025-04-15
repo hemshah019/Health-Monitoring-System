@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/CSS/AdminDashboard_CSS/adminDashboard.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <img src="/image/logo.png" alt="Company Logo" class="logo">
+        </div>
+        
+        <div class="title">Health Monitoring System</div>
+
+        <div class="notification-icon" id="notificationToggle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+            </svg>
+            <div class="notification-badge" id="notificationBadge">3</div>
+        </div>
+    </header>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-header">
+            <h2>Notifications</h2>
+            <div class="notification-header-buttons">
+                <button class="btn btn-clear" id="clearNotifications">Clear All</button>
+                <button class="btn btn-close" id="closeNotifications">Close</button>
+            </div>
+        </div>
+        <div class="notification-content" id="notificationContent">
+            <div class="notification-item">
+                <div class="notification-icon-small">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M20.5 4.5c-2.49 0-4.24 1.55-5.5 3.09C13.24 6.05 11.49 4.5 9 4.5 5.78 4.5 3 7.1 3 10.32c0 2.21 1.02 4.21 2.39 5.76 1.33 1.5 3.07 2.77 4.86 4.09l1.25.89c.34.25.8.25 1.14 0l1.25-.89c1.79-1.32 3.53-2.59 4.86-4.09 1.37-1.55 2.39-3.55 2.39-5.76C21 7.1 18.22 4.5 15 4.5z"/>
+                    </svg>
+                </div>
+                <div class="notification-text">
+                    <h4>Heart Rate Alert</h4>
+                    <p>Your heart rate reached 120 bpm during your morning exercise.</p>
+                    <div class="notification-time">Today, 9:45 AM</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon-small">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
+                </div>
+                <div class="notification-text">
+                    <h4>Medication Reminder</h4>
+                    <p>It's time to take your afternoon medication.</p>
+                    <div class="notification-time">Today, 2:00 PM</div>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-icon-small">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
+                    </svg>
+                </div>
+                <div class="notification-text">
+                    <h4>Appointment Confirmed</h4>
+                    <p>Your appointment with Dr. Johnson has been confirmed for tomorrow at 10:30 AM.</p>
+                    <div class="notification-time">Yesterday, 5:30 PM</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State (initially hidden) -->
+        <div class="notification-empty" id="emptyNotifications" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+            </svg>
+            <h3>No notifications</h3>
+            <p>You're all caught up!</p>
+        </div>
+    </div>
+
+    <!-- Overlay backdrop -->
+    <div class="overlay" id="overlay"></div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="nav-items">
+                <div class="nav-item active">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                    Dashboard
+                </div>
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    Patients
+                </div>
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M19 3h-4.18C14.4 2.4 13.3 2 12 2s-2.4.4-2.82 1H5c-1.1 0-2 .9-2 2v15c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm5 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V9h10v2z"/>
+                    </svg>
+                    Tasks
+                </div>  
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                    </svg>
+                    Messages
+                </div>
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                    </svg>
+                    Alerts
+                </div>
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
+                    </svg>
+                    Compliances
+                </div>
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
+                    Improvements
+                </div>
+                <div class="nav-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
+                    Settings
+                </div>
+                <div class="nav-item" id="logout-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    Logout
+                </div>
+            </div>
+            
+            <div class="admin-profile">
+                <img class="admin-image" src="/image/admin.png" alt="Admin">
+                <div class="admin-info">
+                    <h3>Dr. Hem Shah</h3>
+                    <p>Administrator</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Logout Confirmation Dialog -->
+        <div id="logout-dialog" class="dialog-overlay">
+            <div class="dialog-box">
+                <h3>Logout Confirmation</h3>
+                <p>Are you sure you want to logout?</p>
+                <div class="dialog-buttons">
+                    <button id="cancel-logout" class="btn-cancel">Cancel</button>
+                    <button id="confirm-logout" class="btn-confirm">Yes, Logout</button>
+                </div>
+            </div>
+        </div>
+        
+        <main class="content">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <!-- Patient Enrolled Card -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon" style="background-color: #1abc9c;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="stat-title">Patient Enrolled</div>
+                    </div>
+                    <div class="stat-value">XXX</div>
+                    <div class="stat-footer">
+                        <div class="stat-trend up">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/>
+                            </svg>
+                            <span class="percentage">10%</span>
+                        </div>
+                        Since last month
+                    </div>
+                </div>
+                
+                <!-- Message Card -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon" style="background-color: #3498db;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="stat-title">Messages</div>
+                    </div>
+                    <div class="stat-value">XXX</div>
+                    <div class="stat-footer">
+                        <div class="stat-trend up">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/>
+                            </svg>
+                            <span class="percentage">12%</span>
+                        </div>
+                        Since last week
+                    </div>
+                </div>
+                
+                <!-- Alerts Card -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon" style="background-color: #e74c3c;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="stat-title">Alerts</div>
+                    </div>
+                    <div class="stat-value">XXX</div>
+                    <div class="stat-footer">
+                        <div class="stat-trend down">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z" fill="currentColor"/>
+                            </svg>
+                            <span class="percentage">15%</span>
+                        </div>
+                        Since last week
+                    </div>
+                </div>
+                
+                <!-- Compliance Card -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon" style="background-color: #9b59b6;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="stat-title">Compliances</div>
+                    </div>
+                    <div class="stat-value">XXX</div>
+                    <div class="stat-footer">
+                        <div class="stat-trend down">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z" fill="currentColor"/>
+                            </svg>
+                            <span class="percentage">10%</span>
+                        </div>
+                        Since last month
+                    </div>
+                </div>
+                
+                <!-- Improvement Card -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon" style="background-color: #f1c40f;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="white"/>
+                            </svg>
+                        </div>
+                        <div class="stat-title">Improvements</div>
+                    </div>
+                    <div class="stat-value">XXX</div>
+                    <div class="stat-footer">
+                        <div class="stat-trend up">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/>
+                            </svg>
+                            <span class="percentage">28%</span>
+                        </div>
+                        Since last month
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Sections -->
+            <div class="dashboard-sections">
+                <!-- Program Section -->
+                <div class="dashboard-section program-section">
+                    <div class="section-header">
+                        <h2>Program</h2>
+                    </div>
+                    
+                    <div class="program-cards">
+                        <div class="program-card">
+                            <div class="card-title">New Enrollments Patients</div>
+                            <div class="card-value">XXX</div>
+                        </div>
+                        
+                        <div class="program-card">
+                            <div class="card-title">Initial Care Plan Assigned</div>
+                            <div class="card-value">XXX</div>
+                        </div>
+                        
+                        <div class="program-card">
+                            <div class="card-title">Health Monitoring Devices Supplied</div>
+                            <div class="card-value">XXX</div>
+                        </div>
+                        
+                        <div class="program-card">
+                            <div class="card-title">Initial 20 Mins Monitoring</div>
+                            <div class="card-value">XXX</div>
+                        </div>
+                        
+                        <div class="program-card">
+                            <div class="card-title">Add 20 Mins Monitoring</div>
+                            <div class="card-value">XXX</div>
+                        </div>
+                        
+                        <div class="program-card">
+                            <div class="card-title">Initial 30 Mins Personal Monitoring</div>
+                            <div class="card-value">XXX</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tasks Section -->
+                <div class="dashboard-section tasks-section">
+                    <div class="section-header">
+                        <h2>Today Task's</h2>
+                        <div class="view-all">View All</div>
+                    </div>
+                    
+                    <div class="task-list">
+                        <div class="task-item">
+                            <div class="task-avatar">
+                                <img src="/image/admin.png" alt="Avatar">
+                            </div>
+                            <div class="task-details">
+                                <div class="task-description">Reach out to patient</div>
+                                <div class="task-person">Hanna Westervelt</div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="task-avatar">
+                                <img src="/image/admin.png" alt="Avatar">
+                            </div>
+                            <div class="task-details">
+                                <div class="task-description">Review Check-Ins</div>
+                                <div class="task-person">Cooper Franci</div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="task-avatar">
+                                <img src="/image/admin.png" alt="Avatar">
+                            </div>
+                            <div class="task-details">
+                                <div class="task-description">Assign new CGM devices</div>
+                                <div class="task-person">Jocelyn Wilkens</div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="task-avatar">
+                                <img src="/image/admin.png" alt="Avatar">
+                            </div>
+                            <div class="task-details">
+                                <div class="task-description">Reach out to patient</div>
+                                <div class="task-person">Ryan Westervelt</div>
+                            </div>
+                        </div>
+                        
+                        <div class="task-item">
+                            <div class="task-avatar">
+                                <img src="/image/admin.png" alt="Avatar">
+                            </div>
+                            <div class="task-details">
+                                <div class="task-description">Check Alerts</div>
+                                <div class="task-person">John Phiel Madsen</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patients List Section -->
+            <div class="patients-list-section">
+                <div class="section-header">
+                    <h2>Patients Details</h2>
+                    <div class="view-all">View All</div>
+                </div>
+                
+                <div class="patients-table-container">
+                    <table class="patients-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Enrolled Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#P1234</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>Alex Smith</span>
+                                    </div>
+                                </td>
+                                <td>74 years</td>
+                                <td>Male</td>
+                                <td>Kritipur-19 Kathamandu, Nepal</td>
+                                <td class="enrolled-status">Enrolled</td>
+                                <td>29-04-2022</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn" data-id="P1001">View</button>
+                                        <button class="delete-btn" data-id="P1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr>
+                                <td>#P1234</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>Alex Smith</span>
+                                    </div>
+                                </td>
+                                <td>74 years</td>
+                                <td>Male</td>
+                                <td>Kritipur-19 Kathamandu, Nepal</td>
+                                <td class="enrolled-status">Enrolled</td>
+                                <td>29-04-2022</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn" data-id="P1001">View</button>
+                                        <button class="delete-btn" data-id="P1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr>
+                                <td>#P1234</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>Alex Smith</span>
+                                    </div>
+                                </td>
+                                <td>74 years</td>
+                                <td>Male</td>
+                                <td>Kritipur-19 Kathamandu, Nepal</td>
+                                <td class="enrolled-status">Enrolled</td>
+                                <td>29-04-2022</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn" data-id="P1001">View</button>
+                                        <button class="delete-btn" data-id="P1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Patients Content -->
+        <main class="content patients-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Patients Details</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="patients-container">
+                <div class="patients-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search patients..." id="searchPatients" data-table="patients-table" data-fields="first,2,4">
+                    </div>
+                </div>
+
+                <div class="patients-table-container full-width">
+                    <table class="patients-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Address</th>
+                                <th>Status</th>
+                                <th>Enrollment Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#P1001</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>John Doe</span>
+                                    </div>
+                                </td>
+                                <td>68 years</td>
+                                <td>Male</td>
+                                <td>123 Main St, Anytown, CA</td>
+                                <td class="enrolled-status">Enrolled</td>
+                                <td>15-01-2023</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn patient-view-btn" data-id="P1001">View</button>
+                                        <button class="delete-btn" data-id="P1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#P1002</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>Sarah Johnson</span>
+                                    </div>
+                                </td>
+                                <td>45 years</td>
+                                <td>Female</td>
+                                <td>456 Oak St, Sometown, NY</td>
+                                <td class="enrolled-status">Enrolled</td>
+                                <td>22-03-2023</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn patient-view-btn" data-id="P1002">View</button>
+                                        <button class="delete-btn" data-id="P1002">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination" data-pagination="patients">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Patient View Modal -->
+        <div class="modal-overlay" id="patientViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Patient Information</h2>
+                    <button class="close-modal" id="closePatientModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="patient-info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Patient ID</span>
+                            <span class="info-field-value" id="view_patient_id">#P1001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Username</span>
+                            <span class="info-field-value" id="view_username">johndoe123</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">First Name</span>
+                            <span class="info-field-value" id="view_first_name">John</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Last Name</span>
+                            <span class="info-field-value" id="view_last_name">Doe</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Age</span>
+                            <span class="info-field-value" id="view_age">68 years</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Date of Birth</span>
+                            <span class="info-field-value" id="view_dob">05-06-1955</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Gender</span>
+                            <span class="info-field-value" id="view_gender">Male</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Phone Number</span>
+                            <span class="info-field-value" id="view_phone">(555) 123-4567</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Email</span>
+                            <span class="info-field-value" id="view_email">john.doe@example.com</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Address</span>
+                            <span class="info-field-value" id="view_address">123 Main St, Anytown, CA 91234</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closePatientModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Content -->
+        <main class="content tasks-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Tasks Details</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="tasks-container">
+                <div class="tasks-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search tasks..." id="searchTasks" data-table="tasks-table" data-fields="first,2,5,6">
+                    </div>
+                </div>
+
+                <div class="tasks-table-container full-width">
+                    <table class="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient Name</th>
+                                <th>Age</th>
+                                <th>Alert Type</th>
+                                <th>Task Name</th>
+                                <th>Task Priority</th>
+                                <th>Alert Date & Time</th>
+                                <th>Completion Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#T1001</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <span>John Doe</span>
+                                    </div>
+                                </td>
+                                <td>68 years</td>
+                                <td>Heart Rate</td>
+                                <td>Rest for 10 minutes</td>
+                                <td>High</td>
+                                <td>16-01-2023</td>
+                                <td>16-01-2023 11:00 AM</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn task-view-btn" data-id="T1001">View</button>
+                                        <button class="delete-btn" data-id="T1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" data-pagination="tasks">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Task View Modal -->
+        <div class="modal-overlay" id="taskViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Task & Alert Details</h2>
+                    <button class="close-modal" id="closeTaskModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h3 class="section-title">Patient Details</h3>
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Patient ID</span>
+                            <span class="info-field-value" id="task_view_patient_id">#P1001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Name</span>
+                            <span class="info-field-value" id="task_view_patient_name">John Doe</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Age</span>
+                            <span class="info-field-value" id="task_view_patient_age">68 years</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Contact Information</span>
+                            <span class="info-field-value" id="task_view_contact_info">(555) 123-4567 | john.doe@example.com</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Health Alert Details Section -->
+                    <h3 class="section-title">Health Alert Details</h3>
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Alert Type</span>
+                            <span class="info-field-value" id="task_view_alert_type">Heart Rate</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Current Value</span>
+                            <span class="info-field-value" id="task_view_current_value">110 BPM</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Normal Range</span>
+                            <span class="info-field-value" id="task_view_normal_range">60-100 BPM</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Alert Date & Time</span>
+                            <span class="info-field-value" id="task_view_alert_datetime">16-01-2023 10:30 AM</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Task Assignment Details Section -->
+                    <h3 class="section-title">Task Assignment Details</h3>
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Task Name</span>
+                            <span class="info-field-value" id="task_view_task_name">Rest for 10 minutes</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Task Priority</span>
+                            <span class="info-field-value" id="task_view_task_priority">
+                                <span class="priority-badge priority-high">High</span>
+                            </span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Completion Time</span>
+                            <span class="info-field-value" id="task_view_completion_time">16-01-2023 11:00 AM</span>
+                        </div>
+                        <div class="info-field info-field-full">
+                            <span class="info-field-label">Task Description</span>
+                            <span class="info-field-value" id="task_view_task_description">Patient should stop any physical activity and rest in a seated or lying position for at least 10 minutes. Monitor heart rate after rest period and report if still elevated.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeTaskModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Content -->
+        <main class="content messages-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Messages Details</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        
+            <div class="messages-container">
+                <div class="messages-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search messages..." id="searchMessages" data-table="messages-table" data-fields="first,2,3">
+                    </div>
+                </div>
+        
+                <div class="messages-table-container full-width">
+                    <table class="messages-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient Name</th>
+                                <th>Message Type</th>
+                                <th>Message Content</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#M2001</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/FrontEnd/Image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>Jane Smith</span>
+                                    </div>
+                                </td>
+                                <td>Inquiry</td>
+                                <td>What should I do if my heart rate remains high?</td>
+                                <td>17-01-2023</td>
+                                <td>Resolved</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn message-view-btn" data-id="M2001">View</button>
+                                        <button class="response-btn" data-id="M2001">Response</button>
+                                        <button class="delete-btn" data-id="M2001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="pagination" data-pagination="messages">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Messages View Modal -->
+        <div class="modal-overlay" id="messageViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Message Details</h2>
+                    <button class="close-modal" id="closeMessageModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Message ID</span>
+                            <span class="info-field-value" id="message_view_id">#M2001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Name</span>
+                            <span class="info-field-value" id="message_view_patient_name">Jane Smith</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Message Type</span>
+                            <span class="info-field-value" id="message_view_type">Inquiry</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Date & Time</span>
+                            <span class="info-field-value" id="message_view_datetime">17-01-2023</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Resolution Status</span>
+                            <span class="info-field-value" id="message_view_status">Resolved</span>
+                        </div>
+                        <div class="info-field info-field-full">
+                            <span class="info-field-label">Message Content</span>
+                            <span class="info-field-value" id="message_view_content">What should I do if my heart rate remains high?</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Admin Response</span>
+                            <span class="info-field-value" id="message_view_response">Follow relaxation exercises</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Response Date</span>
+                            <span class="info-field-value" id="message_view_responsedate">18-01-2023</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeMessageModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Response Form -->
+        <div class="modal-overlay" id="messageResponseModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Respond to Message</h2>
+                    <button class="close-modal" id="closeMessageResponseModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="messageResponseForm">
+                        <div class="form-section">
+                            <div class="form-section-title">Message Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Message ID</label>
+                                    <input type="text" id="response_message_id" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Patient Name</label>
+                                    <input type="text" id="response_patient_name" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Message Type</label>
+                                    <input type="text" id="response_message_type" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Date</label>
+                                    <input type="text" id="response_message_date" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label>Message Content</label>
+                                    <textarea id="response_message_content" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="form-section-title">Admin Response</div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label for="admin_response">Your Response*</label>
+                                    <textarea id="admin_response" name="admin_response" rows="4" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="response_status">Status*</label>
+                                    <select id="response_status" name="response_status" required>
+                                        <option value="Pending">Pending</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Resolved">Resolved</option>
+                                    </select>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="response_date">Response Date*</label>
+                                    <input type="date" id="response_date" name="response_date" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button type="button" class="cancel" id="cancelMessageResponse">Cancel</button>
+                            <button type="submit" class="save">Submit Response</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Content -->
+        <main class="content alerts-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Alerts Details</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        
+            <div class="alerts-container">
+                <div class="alerts-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search alerts..." id="searchAlerts" data-table="alerts-table" data-fields="first,2,3">
+
+                    </div>
+                </div>
+        
+                <div class="alerts-table-container full-width">
+                    <table class="alerts-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient Name</th>
+                                <th>Alert Type</th>
+                                <th>Current Value</th>
+                                <th>Normal Range</th>
+                                <th>Alert Date & Time</th>
+                                <th>Alert Status</th>
+                                <th>Task Assigned</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#A2001</td>
+                                <td>
+                                    <div class="patient-name">
+                                        <div class="patient-avatar">
+                                            <img src="/FrontEnd/Image/admin.png" alt="Patient">
+                                        </div>
+                                        <span>John Doe</span>
+                                    </div>
+                                </td>
+                                <td>High Blood Pressure</td>
+                                <td>160/100 mmHg</td>
+                                <td>120/80 mmHg</td>
+                                <td>17-01-2023</td>
+                                <td>Unresolved</td>
+                                <td>Yes</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn alert-view-btn" data-id="A2001">View</button>
+                                        <button class="tasks-btn" data-id="P1001">Add Tasks</button>
+                                        <button class="delete-btn" data-id="A2001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="pagination" data-pagination="alerts">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Alerts View Modal -->
+        <div class="modal-overlay" id="alertViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Alert Details</h2>
+                    <button class="close-modal" id="closeAlertModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Alert ID</span>
+                            <span class="info-field-value" id="alert_view_id">#A2001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Name</span>
+                            <span class="info-field-value" id="alert_view_patient_name">John Doe</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Alert Type</span>
+                            <span class="info-field-value" id="alert_view_type">High Blood Pressure</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Current Value</span>
+                            <span class="info-field-value" id="alert_view_current_value">160/100 mmHg</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Normal Range</span>
+                            <span class="info-field-value" id="alert_view_normal_range">120/80 mmHg</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Alert Date & Time</span>
+                            <span class="info-field-value" id="alert_view_datetime">17-01-2023</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Alert Status</span>
+                            <span class="info-field-value" id="alert_view_status">Unresolved</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Task Assigned</span>
+                            <span class="info-field-value" id="alert_view_task_assigned">Yes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeAlertModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Assignment Popup Form -->
+        <div class="popup-overlay" id="taskPopup">
+            <div class="popup-container">
+                <button class="close-popup">&times;</button>
+                <div class="form-container">
+                    <h1>Patient Task Assignment Form</h1>
+                    
+                    <form id="healthAlertForm">
+                        <div class="form-section">
+                            <div class="form-section-title">Patient Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="patientId">Patient ID</label>
+                                    <input type="text" id="patientId" name="patientId" required>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="patientName">Patient Name</label>
+                                    <input type="text" id="patientName" name="patientName" required>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="patientAge">Patient Age</label>
+                                    <input type="number" id="patientAge" name="patientAge" min="0" max="120" required>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="contactInfo">Contact Information</label>
+                                    <input type="text" id="contactInfo" name="contactInfo" placeholder="Email or Phone" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Health Alert Details Section -->
+                        <div class="form-section">
+                            <div class="form-section-title">Health Alert Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="alertType">Alert Type</label>
+                                    <select id="alertType" name="alertType" required>
+                                        <option value="">Select Alert Type</option>
+                                        <option value="Heart Rate">Heart Rate</option>
+                                        <option value="Oxygen Level">Oxygen Level (SpO2)</option>
+                                        <option value="Body Temperature">Body Temperature</option>
+                                        <option value="Other">Body Fall-Detection</option>
+                                    </select>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="currentValue">Current Value</label>
+                                    <input type="text" id="currentValue" name="currentValue" required>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="normalRange">Normal Range</label>
+                                    <input type="text" id="normalRange" name="normalRange" required>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="alertDateTime">Alert Date & Time</label>
+                                    <input type="datetime-local" id="alertDateTime" name="alertDateTime" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Task Assignment Details Section -->
+                        <div class="form-section">
+                            <div class="form-section-title">Task Assignment Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="taskName">Task Name</label>
+                                    <input type="text" id="taskName" name="taskName" required>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="taskPriority">Task Priority</label>
+                                    <select id="taskPriority" name="taskPriority" required>
+                                        <option value="">Select Priority</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="taskDescription">Task Description</label>
+                                    <textarea id="taskDescription" name="taskDescription" rows="3" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="completionTime">Completion Time</label>
+                                    <input type="datetime-local" id="completionTime" name="completionTime" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button type="button" class="cancel" id="resetBtn">Reset</button>
+                            <button type="submit" class="save">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Content -->
+        <main class="content compliance-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Compliance Details</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        
+            <div class="compliance-container">
+                <div class="compliance-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search compliance..." id="searchCompliance" data-table="compliance-table" data-fields="first,2,4">
+                    </div>
+                </div>
+        
+                <div class="compliance-table-container full-width">
+                    <table class="compliance-table">
+                        <thead>
+                            <tr>
+                                <th>IDs</th>
+                                <th>Patient Name</th>
+                                <th>Patient Email</th>
+                                <th>Compliance Notes</th>
+                                <th>Compliance Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#C1001</td>
+                                <td>John Doe</td>
+                                <td>johndoe@example.com</td>
+                                <td>Followed prescribed medication plan</td>
+                                <td>20-01-2023</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn compliance-view-btn" data-id="C1001">View</button>
+                                        <button class="response-btn" data-id="C1001">Response</button>
+                                        <button class="delete-btn" data-id="C1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="pagination" data-pagination="completions">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Compliance View Modal -->
+        <div class="modal-overlay" id="complianceViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Compliance Details</h2>
+                    <button class="close-modal" id="closeComplianceModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Compliance ID</span>
+                            <span class="info-field-value" id="compliance_view_id">#C1001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Name</span>
+                            <span class="info-field-value" id="compliance_view_patient_name">John Doe</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Name</span>
+                            <span class="info-field-value" id="compliance_view_patient_email">johndoe@example.com</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Compliance Date</span>
+                            <span class="info-field-value" id="compliance_view_date">20-01-2023</span>
+                        </div>
+                        <div class="info-field info-field-full">
+                            <span class="info-field-label">Compliance Notes</span>
+                            <span class="info-field-value" id="compliance_view_notes">Followed prescribed medication plan</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Admin Feedback</span>
+                            <span class="info-field-value" id="compliance_view_feedback">Good job maintaining your medication schedule</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Response Date</span>
+                            <span class="info-field-value" id="compliance_view_response">221-01-2023</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeComplianceModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Response Form -->
+        <div class="modal-overlay" id="complianceResponseModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Provide Feedback for Compliance</h2>
+                    <button class="close-modal" id="closeComplianceResponseModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="complianceResponseForm">
+                        <div class="form-section">
+                            <div class="form-section-title">Compliance Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Compliance ID</label>
+                                    <input type="text" id="response_compliance_id" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Patient Name</label>
+                                    <input type="text" id="response_compliance_patient" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Compliance Date</label>
+                                    <input type="text" id="response_compliance_date" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label>Compliance Notes</label>
+                                    <textarea id="response_compliance_notes" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="form-section-title">Admin Feedback</div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label for="admin_feedback">Your Feedback*</label>
+                                    <textarea id="admin_feedback" name="admin_feedback" rows="4" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="feedback_date">Feedback Date*</label>
+                                    <input type="date" id="feedback_date" name="feedback_date" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button type="button" class="cancel" id="cancelComplianceResponse">Cancel</button>
+                            <button type="submit" class="save">Submit Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Improvement Content -->
+        <main class="content improvement-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Improvement Suggestions</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        
+            <div class="improvement-container">
+                <div class="improvement-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search improvements..." id="searchImprovements" data-table="improvement-table" data-fields="first,2,4">
+                    </div>
+                </div>
+        
+                <div class="improvement-table-container full-width">
+                    <table class="improvement-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Submitted By</th>
+                                <th>Email</th>
+                                <th>Category</th>
+                                <th>Suggestion Description</th>
+                                <th>Date Submitted</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#I1001</td>
+                                <td>John Doe</td>
+                                <td>johndoe@example.com</td>
+                                <td>System Improvement</td>
+                                <td>Enhance dashboard responsiveness</td>
+                                <td>10-01-2023</td>
+                                <td>Pending</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn improvement-view-btn" data-id="I1001">View</button>
+                                        <button class="response-btn" data-id="I1001">Response</button>
+                                        <button class="delete-btn" data-id="I1001">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="pagination" data-pagination="improvements">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Improvement View Modal -->
+        <div class="modal-overlay" id="improvementViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Improvement Suggestion Details</h2>
+                    <button class="close-modal" id="closeImprovementModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Improvement ID</span>
+                            <span class="info-field-value" id="improvement_view_id">#I1001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Submitted By</span>
+                            <span class="info-field-value" id="improvement_view_submitted_by">John Doe</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Email</span>
+                            <span class="info-field-value" id="improvement_view_email">johndoe@example.com</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Category</span>
+                            <span class="info-field-value" id="improvement_view_category">System Improvement</span>
+                        </div>
+                        <div class="info-field info-field-full">
+                            <span class="info-field-label">Suggestion Description</span>
+                            <span class="info-field-value" id="improvement_view_description">Enhance dashboard responsiveness</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Date Submitted</span>
+                            <span class="info-field-value" id="improvement_view_date">10-01-2023</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Status</span>
+                            <span class="info-field-value" id="improvement_view_status">Pending</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Admin Response</span>
+                            <span class="info-field-value" id="improvement_view_response">Thank you for your suggestion. We'll review it.</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Implementation Date</span>
+                            <span class="info-field-value" id="improvement_view_implementation_date">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeImprovementModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Improvement Response Form -->
+        <div class="modal-overlay" id="improvementResponseModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Respond to Improvement Suggestion</h2>
+                    <button class="close-modal" id="closeImprovementResponseModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="improvementResponseForm">
+                        <div class="form-section">
+                            <div class="form-section-title">Suggestion Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Improvement ID</label>
+                                    <input type="text" id="response_improvement_id" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Submitted By</label>
+                                    <input type="text" id="response_improvement_submitter" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Category</label>
+                                    <input type="text" id="response_improvement_category" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Date Submitted</label>
+                                    <input type="text" id="response_improvement_date" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label>Suggestion Description</label>
+                                    <textarea id="response_improvement_description" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="form-section-title">Admin Response</div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label for="improvement_response">Your Response*</label>
+                                    <textarea id="improvement_response" name="improvement_response" rows="4" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="improvement_status">Status*</label>
+                                    <select id="improvement_status" name="improvement_status" required>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Under Review">Under Review</option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Rejected">Rejected</option>
+                                        <option value="Implemented">Implemented</option>
+                                    </select>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="implementation_date">Implementation Date</label>
+                                    <input type="date" id="implementation_date" name="implementation_date">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button type="button" class="cancel" id="cancelImprovementResponse">Cancel</button>
+                            <button type="submit" class="save">Submit Response</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setting Content -->
+        <main class="content setting-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Settings</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <div class="account-section">
+                    <h2>Account</h2>
+                    <p>Get notified what's happening right now, you can turn off at any time</p>
+                </div>
+                
+                <hr class="divider">
+                
+                <div class="profile-section">
+                    <h3>My Profile</h3>
+                    <div class="profile-image-container">
+                        <div class="profile-image">
+                            <img src="/image/admin.png" alt="Profile Image">
+                        </div>
+                        <div class="profile-buttons">
+                            <button class="upload-btn">Upload new</button>
+                            <button class="delete-btn">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" value="Dr. Hem">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" value="Shah">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phoneNumber">Phone Number</label>
+                                <input type="text" id="phoneNumber" value="+977-9824715019">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <div class="email-input-container">
+                                    <input type="email" id="email" value="hemshah019@mail.com">
+                                    <button class="email-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M22 6L12 13L2 6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <div class="date-input-container">
+                                    <input type="text" id="username" value="hemshah019">
+                                    <button class="user-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M4 20C4 16.6863 7.58172 14 12 14C16.4183 14 20 16.6863 20 20" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <div class="password-input-container">
+                                    <input type="password" id="password" value="12345">
+                                    <button class="toggle-password-btn" type="button" onclick="togglePasswordVisibility()">
+                                        <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path id="eye-open" d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path id="eye-open-ball" d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path id="eye-closed" d="M3 3L21 21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>                            
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="cancel-btn">Cancel</button>
+                            <button class="save-btn">Save</button>
+                        </div>
+                    </div>
+                    
+                    <hr class="divider">
+                    
+                    <div class="delete-account-section">
+                        <div class="delete-account-content">
+                            <h3>Delete account</h3>
+                            <p>When you delete your account, you lose access to Front account services, and we permanently delete your personal data. You can cancel the deletion for 14 days.</p>
+                        </div>
+                        <div class="delete-account-actions">
+                            <button class="delete-account-btn">Delete Account</button>
+                            <a href="#" class="learn-more-link">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/Js/AdminDashboard_JS/adminDashboard.js"></script>
+</body>
+</html>
