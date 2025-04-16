@@ -937,6 +937,11 @@
                     </div>
                     <div class="messages-actions"><button class="add-new-btn">Add Message</button></div>
                 </div>
+
+                <!-- No Messages Placeholder -->
+                <div class="no-messages" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                    You don't have any messages yet.
+                </div>
         
                 <div class="messages-table-container full-width">
                     <table class="messages-table">
@@ -945,25 +950,13 @@
                                 <th>ID</th>
                                 <th>Message Type</th>
                                 <th>Message Content</th>
-                                <th>Date & Time</th>
+                                <th>Message Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#M2001</td>
-                                <td>Inquiry</td>
-                                <td>What should I do if my heart rate remains high?</td>
-                                <td>17-01-2023</td>
-                                <td>Resolved</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn message-view-btn" data-id="M2001">View</button>
-                                        <button class="delete-btn" data-id="M2001">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -1026,7 +1019,6 @@
             </div>
         </div>
 
-        <!-- Message Form -->
         <div id="newMessagePopup" class="popup-overlay">
             <div class="popup-form">
                 <div class="popup-header">
@@ -1037,16 +1029,20 @@
                     <form id="newMessageForm">
                         <div class="form-group">
                             <label for="messageType">Message Type</label>
-                            <input type="text" class="form-control" id="messageType" placeholder="Enter message type..." required>
+                            <select class="form-control" id="messageType" required>
+                                <option value="">Select message type</option>
+                                <option value="Inquiry">Inquiry</option>
+                                <option value="Feedback">Feedback</option>
+                                <option value="Request">Request</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="messageContent">Message Content</label>
-                            <textarea class="form-control" id="messageContent" placeholder="Enter message content..." required></textarea>
+                            <textarea class="form-control" id="messageContent" placeholder="Enter message content..." required minlength="10"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="messageStatus">Status</label>
                             <input type="text" class="form-control" id="messageStatus" value="Pending" disabled>
-                            <input type="hidden" name="messageStatus" value="Pending">
                         </div>
                         <div class="form-group">
                             <label for="messageDate">Date & Time</label>
@@ -1089,6 +1085,11 @@
                     </div>
                     <div class="compliance-actions"><button class="add-new-btn">Add Compliance</button></div>
                 </div>
+
+                <!-- No compliances Placeholder -->
+                <div class="no-compliances" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                    You don't have any compliances yet.
+                </div>
         
                 <div class="compliance-table-container full-width">
                     <table class="compliance-table">
@@ -1103,19 +1104,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#C1001</td>
-                                <td>Medication Plan</td>
-                                <td>Followed prescribed medication plan</td>
-                                <td>20-01-2023</td>
-                                <td>Pending</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn compliance-view-btn" data-id="C1001">View</button>
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -1241,6 +1230,11 @@
                     </div>
                     <div class="improvement-actions"><button class="add-new-btn">Add Improvement</button></div>
                 </div>
+
+                <!-- No improvement Placeholder -->
+                <div class="no-improvements" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                    You don't have any improvements yet.
+                </div>
         
                 <div class="improvement-table-container full-width">
                     <table class="improvement-table">
@@ -1255,19 +1249,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#I1001</td>
-                                <td>System Improvement</td>
-                                <td>Enhance dashboard responsiveness</td>
-                                <td>10-01-2023</td>
-                                <td>Pending</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn improvement-view-btn" data-id="I1001">View</button>
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>

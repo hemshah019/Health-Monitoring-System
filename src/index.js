@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const collection = require('./config');
+const { Patient, Admin } = require('./config');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -9,15 +9,20 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const patientActionsRoutes = require('./routes/patientActionsRoutes'); 
 
 const app = express();
 
 //  Express-session middleware setup
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'a_default_secret_key_for_development',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24
+       }
 }));
 
 // Middleware
@@ -53,12 +58,13 @@ transporter.verify(function (error, success) {
 // In-memory OTP Store
 const otpStore = new Map();
 
-// Routes
+// Routes Mounting
 app.use('/', authRoutes);
 app.use('/', passwordResetRoutes(transporter, otpStore));
 app.use('/', dashboardRoutes);
+app.use('/', patientActionsRoutes);
 
-// Server Start 
+// Server Start
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server running on Port: ${port}`);

@@ -397,7 +397,7 @@ logoutDialog.addEventListener('click', function(event) {
 });
 
 
-
+// VIEW DATA
 // Sample task data
 const taskData = {
     "T1001": {                
@@ -715,4 +715,272 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // Message Submit
+    const submitMessageBtn = document.getElementById('submitMessage');
+    submitMessageBtn.addEventListener('click', async function (e) {
+        e.preventDefault();
+
+        const messageType = document.getElementById('messageType').value;
+        const messageContent = document.getElementById('messageContent').value;
+        const messageDate = document.getElementById('messageDate').value;
+
+        if (!messageType || messageContent.length < 10) {
+            alert("Please fill in all fields properly.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/submit-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messageType,
+                    messageContent,
+                    messageDate
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert("Message submitted successfully!");
+                document.getElementById('newMessageForm').reset();
+                document.getElementById('newMessagePopup').classList.remove('active');
+                // Optionally refresh messages list here
+            } else {
+                alert("Failed to submit message: " + result.message);
+            }
+
+        } catch (error) {
+            console.error('Error submitting message:', error);
+            alert("Something went wrong. Try again later.");
+        }
+    });
+
+    // Submit Compliance
+    const submitComplianceBtn = document.getElementById('submitCompliance');
+    submitComplianceBtn.addEventListener('click', async function (e) {
+        e.preventDefault();
+
+        const complianceType = document.getElementById('complianceType').value;
+        const complianceNotes = document.getElementById('complianceNotes').value;
+        const complianceDate = document.getElementById('complianceDate').value;
+
+        if (!complianceType || complianceNotes.length < 10) {
+            alert("Please fill in all fields properly.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/submit-compliance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    complianceType,
+                    complianceNotes,
+                    complianceDate
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert("Compliance submitted successfully!");
+                document.getElementById('newComplianceForm').reset();
+                document.getElementById('newCompliancePopup').classList.remove('active');
+                // Optionally refresh compliances list here
+            } else {
+                alert("Failed to submit compliance: " + result.message);
+            }
+
+        } catch (error) {
+            console.error('Error submitting compliance:', error);
+            alert("Something went wrong. Try again later.");
+        }
+    });
+
+    // Submit Improvement
+    const submitImprovementBtn = document.getElementById('submitImprovement');
+    submitImprovementBtn.addEventListener('click', async function (e) {
+        e.preventDefault();
+    
+        const improvementCategory = document.getElementById('improvementCategory').value.trim();
+        const improvementDescription = document.getElementById('improvementDescription').value.trim();
+        const improvementDate = document.getElementById('improvementDate').value;
+    
+        if (!improvementCategory || improvementDescription.length < 10) {
+            alert("Please fill in all fields properly. Description should be at least 10 characters.");
+            return;
+        }
+    
+        try {
+            const response = await fetch('/submit-improvement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    improvementCategory,
+                    improvementDescription,
+                    improvementDate
+                })
+            });
+    
+            const result = await response.json();
+    
+            if (result.success) {
+                alert("Improvement submitted successfully!");
+                document.getElementById('newImprovementForm').reset();
+                document.getElementById('newImprovementPopup').classList.remove('active');
+                fetchImprovements();
+            } else {
+                alert("Failed to submit improvement: " + result.message);
+            }
+    
+        } catch (error) {
+            console.error('Error submitting improvement:', error);
+            alert("Something went wrong. Please try again later.");
+        }
+    });
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Fetch Messages
+    function fetchMessages() {
+        fetch('/messages')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('.messages-table tbody');
+                const noMessagesDiv = document.querySelector('.no-messages');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    noMessagesDiv.style.display = 'block';
+                    document.querySelector('.messages-table').style.display = 'none';
+                } else {
+                    noMessagesDiv.style.display = 'none';
+                    document.querySelector('.messages-table').style.display = 'table';
+
+                    data.forEach(message => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>#M${message.Message_ID ?? '----'}</td>
+                            <td>${message.Message_Type}</td>
+                            <td>${message.Message_Content}</td>
+                            <td>${message.Message_Sent_DateTime}</td>
+                            <td>${message.Status}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="view-btn message-view-btn" data-id="${message.Message_ID}">View</button>
+                                    <button class="delete-btn" data-id="${message.Message_ID}">Delete</button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+            });
+    }
+
+    // Fetch Compliance
+    function fetchCompliances() {
+        fetch('/compliances')
+            .then(response => {
+                console.log('Server Response for Compliances:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Compliance Data:', data); // Log the fetched data
+                const tbody = document.querySelector('.compliance-table tbody');
+                const noCompliancesDiv = document.querySelector('.no-compliances');
+                tbody.innerHTML = '';
+    
+                if (data.length === 0) {
+                    noCompliancesDiv.style.display = 'block';
+                    document.querySelector('.compliance-table').style.display = 'none';
+                } else {
+                    noCompliancesDiv.style.display = 'none';
+                    document.querySelector('.compliance-table').style.display = 'table';
+    
+                    data.forEach(compliance => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>#C${compliance.Compliance_ID ?? '----'}</td>
+                            <td>${compliance.Compliance_Type}</td>
+                            <td>${compliance.Compliance_Notes}</td>
+                            <td>${compliance.Compliance_Date}</td>
+                            <td>${compliance.Status}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="view-btn compliance-view-btn" data-id="${compliance.Compliance_ID}">View</button>
+                                    <button class="delete-btn" data-id="${compliance.Compliance_ID}">Delete</button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading compliances:', error);
+            });
+    }
+    
+    // Fetch Improvements
+    function fetchImprovements() {
+        fetch('/improvements')
+            .then(response => {
+                console.log('Server Response for Improvements:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Improvement Data:', data);
+                const tbody = document.querySelector('.improvement-table tbody');
+                const noImprovementsDiv = document.querySelector('.no-improvements');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    noImprovementsDiv.style.display = 'block';
+                    document.querySelector('.improvement-table').style.display = 'none';
+                } else {
+                    noImprovementsDiv.style.display = 'none';
+                    document.querySelector('.improvement-table').style.display = 'table';
+
+                    data.forEach(improvement => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>#I${improvement.Improvement_ID ?? '----'}</td>
+                            <td>${improvement.Category}</td>
+                            <td>${improvement.Suggestion_Description}</td>
+                            <td>${improvement.Date_Submitted}</td>
+                            <td>${improvement.Status}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="view-btn improvement-view-btn" data-id="${improvement.Improvement_ID}">View</button>
+                                    <button class="delete-btn" data-id="${improvement.Improvement_ID}">Delete</button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading improvements:', error);
+            });
+    }
+    fetchMessages();
+    fetchCompliances();
+    fetchImprovements();
+});
+
+
