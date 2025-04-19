@@ -1441,3 +1441,48 @@ button:hover {
     background-color: #66CC99;
     color: white;
 }
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: capitalize;
+    color: white;
+}
+
+.status-pending { background-color: #ffc107; color: #333; }
+.status-resolved { background-color: #28a745; }
+.status-in-progress { background-color: #ff01f2; }
+.status-viewed { background-color: #17a2b8; }
+.status-unknown { background-color: #6c757d; }
+.status-under-review { background-color: #044648; color: white; }
+.status-approved { background-color: #28a745; color: white; }
+.status-rejected { background-color: #dc3545; color: white; }
+.status-implemented { background-color: #007bff; color: white; }
+
+/* Style for row during deletion */
+tr.deleting {
+    opacity: 0.5;
+    background-color: #ffe0e0;
+    transition: opacity 0.3s ease;
+}
+
+/* Simple button styling */
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+.action-btn:hover svg {
+    opacity: 0.7;
+}
+.message-delete-btn svg {
+    fill: #dc3545;
+}
+.message-view-btn svg {
+     fill: #007bff;
+}

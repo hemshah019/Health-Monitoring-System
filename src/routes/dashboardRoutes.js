@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Admin, Patient } = require('../config');
+const { Admin, Patient, Message, Compliance, Improvement } = require('../config'); 
+const dayjs = require('dayjs');
 
 function requireLogin(role) {
     return (req, res, next) => {
@@ -17,15 +18,76 @@ function requireLogin(role) {
     };
 }
 
+// --- Aggregation Pipeline Helper ---
+const patientLookupPipeline = [
+    {
+        $lookup: {
+            from: "patients",
+            localField: "Patient_ID",
+            foreignField: "Patient_ID",
+            as: "patientInfo"
+        }
+    },
+    {
+        $unwind: {
+            path: "$patientInfo",
+            preserveNullAndEmptyArrays: true
+        }
+    }
+];
+
 // Admin dashboard (GET)
 router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
     try {
         const adminId = req.session.user.id;
         console.log(`Fetching data for admin ID: ${adminId}`);
 
-        const [adminData, allPatients] = await Promise.all([
+        // Fetch all data concurrently
+        const [
+            adminData,
+            allPatients, 
+            allMessages,
+            allCompliances,
+            allImprovements,
+            patientCount,
+            messageCount,
+            complianceCount,
+            improvementCount,
+            pendingMessageCount, 
+            pendingComplianceCount, 
+            pendingImprovementCount 
+        ] = await Promise.all([
             Admin.findOne({ adminID: adminId }).lean(),
-            Patient.find({}).sort({ Patient_ID: 1 }).lean()
+            Patient.find({}).sort({ Patient_ID: 1 }).lean(), 
+
+            // Fetch Messages with Patient Info for message table
+            Message.aggregate([
+                { $sort: { Message_ID: -1 } },
+                ...patientLookupPipeline
+            ]),
+
+            // Fetch Compliances with Patient Info for compliance table
+            Compliance.aggregate([
+                { $sort: { Compliance_ID: -1 } },
+                ...patientLookupPipeline
+            ]),
+
+            // Fetch Improvements with Patient Info for improvement table
+            Improvement.aggregate([
+                { $sort: { Improvement_ID: -1 } },
+                ...patientLookupPipeline
+            ]),
+
+            // Counts for Stat Cards
+            Patient.countDocuments(),
+            Message.countDocuments(),
+            Compliance.countDocuments(),
+            Improvement.countDocuments(),
+
+            // Counts for 'Alerts' (Pending items)
+            Message.countDocuments({ Status: 'Pending' }),
+            Compliance.countDocuments({ Status: 'Pending' }),
+            Improvement.countDocuments({ Status: 'Pending' })
         ]);
 
         if (!adminData) {
@@ -37,16 +99,35 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             return;
         }
 
+        // Calculate total 'Alerts' count (sum of pending items)
+        const alertCount = pendingMessageCount + pendingComplianceCount + pendingImprovementCount;
+
         console.log(`✅ Admin data fetched successfully for ${adminData.username}`);
-        console.log(`✅ Fetched ${allPatients.length} patients for the admin dashboard.`);
+        console.log(`✅ Counts - Patients: ${patientCount}, Messages: ${messageCount}, Compliances: ${complianceCount}, Improvements: ${improvementCount}, Alerts (Pending): ${alertCount}`);
+        console.log(`✅ Fetched ${allPatients.length} total patients details.`);
+        console.log(`✅ Fetched ${allMessages.length} messages details.`);
+        console.log(`✅ Fetched ${allCompliances.length} compliances details.`);
+        console.log(`✅ Fetched ${allImprovements.length} improvements details.`);
+
 
         res.render('AdminDashboard/adminDashboard', {
             adminData: adminData,
-            patients: allPatients
+            patients: allPatients,       
+            messages: allMessages,       
+            compliances: allCompliances, 
+            improvements: allImprovements,
+
+            // Data for the main dashboard content
+            patientCount: patientCount,
+            messageCount: messageCount,
+            complianceCount: complianceCount,
+            improvementCount: improvementCount,
+            alertCount: alertCount,
+            dashboardPatients: allPatients.slice(0, 3)
         });
 
     } catch (error) {
-        console.error("❌ Error fetching admin data for dashboard:", error);
+        console.error("❌ Error fetching data for admin dashboard:", error);
         res.status(500).render('Errors/500', { errorMsg: "An error occurred while loading the admin dashboard."});
     }
 });
@@ -57,7 +138,12 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
         const patientId = req.session.user.id;
         console.log(`Fetching data for patient ID: ${patientId}`);
 
-        const patientData = await Patient.findOne({ Patient_ID: patientId }).lean(); // Use .lean()
+        const [patientData, messageCount, complianceCount, improvementCount] = await Promise.all([
+            Patient.findOne({ Patient_ID: patientId }).lean(),
+            Message.countDocuments({ Patient_ID: patientId }),
+            Compliance.countDocuments({ Patient_ID: patientId }),
+            Improvement.countDocuments({ Patient_ID: patientId })
+        ]);
 
         if (!patientData) {
             console.error(`❌ ERROR: Patient data not found in DB for logged-in patient ID: ${patientId}`);
@@ -69,14 +155,22 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
         }
 
         console.log(`✅ Patient data fetched successfully for ${patientData.Username}`);
+        console.log(`✅ Counts - Messages: ${messageCount}, Compliances: ${complianceCount}, Improvements: ${improvementCount}`);
 
         res.render('PatientDashboard/patientDashboard', {
-            patientData: patientData
+            title: 'Patient Dashboard',
+            patientData: patientData,
+            messageCount: messageCount,
+            complianceCount: complianceCount,
+            improvementCount: improvementCount
         });
 
     } catch (error) {
-        console.error("❌ Error fetching patient data for dashboard:", error);
-        res.status(500).render('Errors/500', { errorMsg: "An error occurred while loading the patient dashboard."});
+        console.error(`❌ Error fetching patient data or counts for dashboard (ID: ${req.session.user?.id}):`, error);
+        res.status(500).render('Errors/500', {
+            title: 'Server Error',
+            errorMsg: "An error occurred while loading your dashboard."
+        });
     }
 });
 

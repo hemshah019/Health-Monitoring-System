@@ -39,7 +39,7 @@ PatientSchema.pre('save', async function (next) {
         this.Patient_ID = lastPatient ? lastPatient.Patient_ID + 1 : 1000; 
 
         if (!this.Enrollment_DateTime) {
-            this.Enrollment_DateTime = dayjs().format('dddd, Do MMMM YYYY h:mm A');
+            this.Enrollment_DateTime = dayjs().format('dddd, D MMMM YYYY h:mm A');
         }
     }
     next();
@@ -63,7 +63,7 @@ const AdminSchema = new mongoose.Schema({
 AdminSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastAdmin = await Admin.findOne({}, {}, { sort: { 'adminID': -1 } });
-        this.adminID = lastAdmin ? lastAdmin.adminID + 1 : 100;
+        this.adminID = lastAdmin ? lastAdmin.adminID + 1 : 2000;
     }
     next();
 });
@@ -154,11 +154,125 @@ ImprovementSchema.pre('save', async function (next) {
 const Improvement = mongoose.model("improvements", ImprovementSchema);
 
 
+/* ====== Heart Rate Schema ====== */
+const HeartRateSchema = new mongoose.Schema({
+    Heart_Rate_ID: { type: Number, unique: true },
+    Patient_ID: { type: Number, required: true, index: true }, 
+    Current_Heart_Rate: { type: Number, required: true }, 
+    Average_Heart_Rate: { type: Number, required: true }, 
+    Normal_Heart_Rate: { type: String, required: true },
+    Date_Time: { type: String },
+    Status: { type: String, required: true }
+});
+
+// Pre-save hook for Heart Rate ID and DateTime
+HeartRateSchema.pre('save', async function (next) {
+    if (this.isNew) {
+        const lastHeartRate = await this.constructor.findOne({}, {}, { sort: { 'Heart_Rate_ID': -1 } });
+        this.Heart_Rate_ID = lastHeartRate ? lastHeartRate.Heart_Rate_ID + 1 : 5000;
+
+        if (!this.Date_Time) {
+            this.Date_Time = dayjs().format('dddd, Do MMMM YYYY h:mm A');
+        }
+    }
+    next();
+});
+
+const HeartRate = mongoose.model("heart_rates", HeartRateSchema);
+
+
+/* ====== SpO2 (Oxygen Saturation) Schema ====== */
+const SpO2Schema = new mongoose.Schema({
+    SpO2_ID: { type: Number, unique: true },
+    Patient_ID: { type: Number, required: true, index: true }, 
+    Current_SpO2: { type: Number, required: true },
+    Average_SpO2: { type: Number, required: true }, 
+    Normal_SpO2: { type: String, required: true }, 
+    Date_Time: { type: String },
+    Status: { type: String, required: true }
+});
+
+// Pre-save hook for SpO2 ID and DateTime
+SpO2Schema.pre('save', async function (next) {
+    if (this.isNew) {
+        const lastSpO2 = await this.constructor.findOne({}, {}, { sort: { 'SpO2_ID': -1 } });
+        this.SpO2_ID = lastSpO2 ? lastSpO2.SpO2_ID + 1 : 6000;
+
+        if (!this.Date_Time) {
+            this.Date_Time = dayjs().format('dddd, Do MMMM YYYY h:mm A');
+        }
+    }
+    next();
+});
+
+const SpO2 = mongoose.model("spo2", SpO2Schema);
+
+
+/* ====== Body Temperature Schema ====== */
+const BodyTemperatureSchema = new mongoose.Schema({
+    Temperature_ID: { type: Number, unique: true },
+    Patient_ID: { type: Number, required: true, index: true },
+    Current_Temperature: { type: Number, required: true },
+    Average_Temperature: { type: Number, required: true },
+    Normal_Temperature: { type: String, required: true }, 
+    Date_Time: { type: String }, 
+    Status: { type: String, required: true } 
+});
+
+// Pre-save hook for Temperature ID and DateTime
+BodyTemperatureSchema.pre('save', async function (next) {
+    if (this.isNew) {
+        const lastTemperature = await this.constructor.findOne({}, {}, { sort: { 'Temperature_ID': -1 } });
+        this.Temperature_ID = lastTemperature ? lastTemperature.Temperature_ID + 1 : 7000;
+
+        if (!this.Date_Time) {
+            this.Date_Time = dayjs().format('dddd, Do MMMM YYYY h:mm A');
+        }
+    }
+    next();
+});
+
+const BodyTemperature = mongoose.model("body_temperatures", BodyTemperatureSchema);
+
+
+const AlertSchema = new mongoose.Schema({
+    Alert_ID: { type: Number, unique: true },
+    Patient_ID: { type: Number, required: true, index: true },
+    Alert_Type: { type: String, required: true, enum: ['Heart Rate', 'Body Temperature', 'Oxygen Saturation (SpO2)', 'Body Fall Detection'] },
+    Current_Value: { type: Number, required: true },
+    Normal_Range: { type: String, required: true },
+    Alert_DateTime: { type: String },
+    Alert_Status: { type: String, required: true, enum: ['Normal', 'Critical', 'Resolved'], default: 'Normal' },
+    Task_Assigned: { type: String, default: 'No' },
+    Admin_Response: { type: String, default: null },
+    Response_Date: { type: Date, default: null }
+});
+
+// Pre-save hook for auto-incrementing Alert_ID and setting Alert_DateTime
+AlertSchema.pre('save', async function (next) {
+    if (this.isNew) {
+        const lastAlert = await Alert.findOne({}, {}, { sort: { 'Alert_ID': -1 } });
+        this.Alert_ID = lastAlert ? lastAlert.Alert_ID + 1 : 8000;
+
+        if (!this.Alert_DateTime) {
+            this.Alert_DateTime = dayjs().format('dddd, Do MMMM YYYY h:mm A');
+        }
+    }
+    next();
+});
+
+const Alert = mongoose.model("alerts", AlertSchema);
+
+
 /* ====== Export All Models ====== */
 module.exports = {
     Patient,
     Admin,
     Message,
     Compliance,
-    Improvement
+    Improvement,
+    HeartRate,      
+    SpO2,          
+    BodyTemperature,
+    Alert
 };

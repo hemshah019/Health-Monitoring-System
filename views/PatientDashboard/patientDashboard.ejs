@@ -287,15 +287,15 @@
                         <div class="program-cards customer-care-cards">
                             <div class="program-card messages">
                                 <div class="card-title">Messages</div>
-                                <div class="card-value">XXX</div>
+                                <div class="card-value"><%= messageCount %></div>
                             </div>
                             <div class="program-card compliances">
                                 <div class="card-title">Compliances</div>
-                                <div class="card-value">XXX</div>
+                                <div class="card-value"><%= complianceCount %></div>
                             </div>
                             <div class="program-card improvements">
                                 <div class="card-title">Improvements</div>
-                                <div class="card-value">XXX</div>
+                                <div class="card-value"><%= improvementCount %></div>
                             </div>
                         </div>
                     </div>
@@ -550,7 +550,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Current SpO₂</th>
-                                <th>Maximum SpO₂</th>
+                                <th>Average SpO₂</th>
                                 <th>Normal SpO₂</th>
                                 <th>Date & Time</th>
                                 <th>Status</th>
@@ -1504,5 +1504,8 @@
         </main>
     </div>
     <script src="/Js/PatientDashboard_JS/patientDashboard.js"></script>
+    <script src="/Js/PatientDashboard_JS/patientAction.js"></script>
+    <script src="/Js/PatientDashboard_JS/patientHealthData.js"></script>
+    <script src="/Js/PatientDashboard_JS/patientsAlertData.js"></script>
 </body>
 </html>

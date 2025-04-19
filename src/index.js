@@ -10,6 +10,9 @@ const authRoutes = require('./routes/authRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const patientActionsRoutes = require('./routes/patientActionsRoutes'); 
+const adminActionsRoutes = require('./routes/adminActionsRoutes');
+const healthDataRoutes = require('./routes/healthDataRoutes'); 
+const patientAlertRoutes = require('./routes/patientAlertRoutes'); 
 
 const app = express();
 
@@ -63,6 +66,9 @@ app.use('/', authRoutes);
 app.use('/', passwordResetRoutes(transporter, otpStore));
 app.use('/', dashboardRoutes);
 app.use('/', patientActionsRoutes);
+app.use('/admin', adminActionsRoutes);
+app.use('/health', healthDataRoutes);
+app.use('/alerts', patientAlertRoutes);
 
 // Server Start
 const port = process.env.PORT || 3000;

@@ -3,7 +3,21 @@ const router = express.Router();
 const { Message, Compliance, Improvement, Patient } = require('../config');
 const dayjs = require('dayjs');
 
-// Submit new message
+
+const ensurePatient = (req, res, next) => {
+    if (!req.session.user || req.session.user.role !== 'patient') {
+        console.warn('Unauthorized access attempt to patient action.');
+        return res.status(403).json({ success: false, message: 'Unauthorized access. Please log in as a patient.' });
+    }
+    if (!req.session.user.id) {
+        console.error('Session is missing user ID.');
+        return res.status(401).json({ success: false, message: 'Authentication error. Please log in again.' });
+    }
+    req.patientId = req.session.user.id;
+    next();
+};
+
+// Submit New Message
 router.post('/submit-message', async (req, res) => {
     try {
         console.log('Session Data:', req.session);
@@ -21,7 +35,6 @@ router.post('/submit-message', async (req, res) => {
             Message_Sent_DateTime: dayjs(messageDate).format('dddd, Do MMMM YYYY h:mm A'),
             Status: 'Pending'
         });
-
         await newMessage.save();
         res.status(200).json({ success: true, message: 'Message saved successfully' });
 
@@ -31,7 +44,7 @@ router.post('/submit-message', async (req, res) => {
     }
 });
 
-// Fetch all messages for the logged-in patient
+// Fetch Messages
 router.get('/messages', async (req, res) => {
     try {
         console.log('Session Data:', req.session);
@@ -40,9 +53,7 @@ router.get('/messages', async (req, res) => {
         if (!patient || patient.role !== 'patient') {
             return res.status(403).json({ success: false, message: 'Unauthorized access' });
         }
-
         const messages = await Message.find({ Patient_ID: patient.id }).sort({ Message_ID: -1 });
-
         res.status(200).json(messages);
 
     } catch (error) {
@@ -51,7 +62,67 @@ router.get('/messages', async (req, res) => {
     }
 });
 
-// Submit new compliance
+// View Message
+router.get('/messages/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const messageId = parseInt(req.params.id, 10); 
+
+        if (isNaN(messageId)) {
+             return res.status(400).json({ success: false, message: 'Invalid message ID format.' });
+        }
+        console.log(`Attempting to fetch message ID: ${messageId} for Patient_ID: ${patientId}`);
+
+        const message = await Message.findOne({
+            Message_ID: messageId,
+            Patient_ID: patientId
+        }).lean();
+
+        if (!message) {
+            console.warn(`Message not found or access denied for ID: ${messageId}, Patient_ID: ${patientId}`);
+            return res.status(404).json({ success: false, message: 'Message not found or you do not have permission to view it.' });
+        }
+
+        console.log(`Successfully fetched message ID: ${messageId}`);
+        res.status(200).json(message);
+
+    } catch (error) {
+        console.error(`Error fetching single message ID ${req.params.id} for Patient_ID ${req.patientId}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while fetching message details.' });
+    }
+});
+
+// Delete Messages
+router.delete('/messages/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const messageId = parseInt(req.params.id, 10);
+
+         if (isNaN(messageId)) {
+             return res.status(400).json({ success: false, message: 'Invalid message ID format.' });
+        }
+        console.log(`Attempting to delete message ID: ${messageId} for Patient_ID: ${patientId}`);
+
+        const result = await Message.findOneAndDelete({
+            Message_ID: messageId,
+            Patient_ID: patientId
+        });
+
+        if (!result) {
+            console.warn(`Message not found or access denied for deletion. ID: ${messageId}, Patient_ID: ${patientId}`);
+            return res.status(404).json({ success: false, message: 'Message not found or you do not have permission to delete it.' });
+        }
+        console.log(`Successfully deleted message ID: ${messageId} for Patient_ID: ${patientId}`);
+        res.status(200).json({ success: true, message: 'Message deleted successfully.' });
+
+    } catch (error) {
+        console.error(`Error deleting message ID ${req.params.id} for Patient_ID ${req.patientId}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while deleting message.' });
+    }
+});
+
+
+// Submit New Compliances
 router.post('/submit-compliance', async (req, res) => {
     try {
         const { complianceType, complianceNotes, complianceDate } = req.body;
@@ -77,7 +148,7 @@ router.post('/submit-compliance', async (req, res) => {
     }
 });
 
-// Fetch all compliances for the logged-in patient
+// Fetch Compliances
 router.get('/compliances', async (req, res) => {
     try {
         const patient = req.session.user;
@@ -94,7 +165,62 @@ router.get('/compliances', async (req, res) => {
     }
 });
 
-// Submit new improvement
+// View Compliances
+router.get('/compliances/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const complianceId = parseInt(req.params.id, 10);
+
+        if (isNaN(complianceId)) {
+            return res.status(400).json({ success: false, message: 'Invalid compliance ID format.' });
+        }
+
+        console.log(`Fetching Compliance ID: ${complianceId} for Patient_ID: ${patientId}`);
+
+        const compliance = await Compliance.findOne({
+            Compliance_ID: complianceId,
+            Patient_ID: patientId
+        }).lean();
+
+        if (!compliance) {
+            return res.status(404).json({ success: false, message: 'Compliance not found or unauthorized access.' });
+        }
+
+        res.status(200).json(compliance);
+    } catch (error) {
+        console.error(`Error fetching compliance ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while fetching compliance.' });
+    }
+});
+
+// Delete Compliances
+router.delete('/compliances/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const complianceId = parseInt(req.params.id, 10);
+
+        if (isNaN(complianceId)) {
+            return res.status(400).json({ success: false, message: 'Invalid compliance ID format.' });
+        }
+
+        const result = await Compliance.findOneAndDelete({
+            Compliance_ID: complianceId,
+            Patient_ID: patientId
+        });
+
+        if (!result) {
+            return res.status(404).json({ success: false, message: 'Compliance not found or unauthorized deletion.' });
+        }
+
+        res.status(200).json({ success: true, message: 'Compliance deleted successfully.' });
+    } catch (error) {
+        console.error(`Error deleting compliance ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while deleting compliance.' });
+    }
+});
+
+
+// Submit New Improvement
 router.post('/submit-improvement', async (req, res) => {
     try {
         const { improvementCategory, improvementDescription, improvementDate } = req.body;
@@ -120,7 +246,7 @@ router.post('/submit-improvement', async (req, res) => {
     }
 });
 
-// Fetch all improvements for the logged-in patient
+// Fetch Improvements
 router.get('/improvements', async (req, res) => {
     try {
         const patient = req.session.user;
@@ -134,6 +260,58 @@ router.get('/improvements', async (req, res) => {
     } catch (error) {
         console.error('Error fetching improvements:', error);
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// View Improvements
+router.get('/improvements/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const improvementId = parseInt(req.params.id, 10);
+
+        if (isNaN(improvementId)) {
+            return res.status(400).json({ success: false, message: 'Invalid improvement ID format.' });
+        }
+
+        const improvement = await Improvement.findOne({
+            Improvement_ID: improvementId,
+            Patient_ID: patientId
+        }).lean();
+
+        if (!improvement) {
+            return res.status(404).json({ success: false, message: 'Improvement not found or unauthorized access.' });
+        }
+
+        res.status(200).json(improvement);
+    } catch (error) {
+        console.error(`Error fetching improvement ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while fetching improvement.' });
+    }
+});
+
+// Delete Improvements
+router.delete('/improvements/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const improvementId = parseInt(req.params.id, 10);
+
+        if (isNaN(improvementId)) {
+            return res.status(400).json({ success: false, message: 'Invalid improvement ID format.' });
+        }
+
+        const result = await Improvement.findOneAndDelete({
+            Improvement_ID: improvementId,
+            Patient_ID: patientId
+        });
+
+        if (!result) {
+            return res.status(404).json({ success: false, message: 'Improvement not found or unauthorized deletion.' });
+        }
+
+        res.status(200).json({ success: true, message: 'Improvement deleted successfully.' });
+    } catch (error) {
+        console.error(`Error deleting improvement ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while deleting improvement.' });
     }
 });
 
