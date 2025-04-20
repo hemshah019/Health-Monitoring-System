@@ -1397,7 +1397,7 @@
                             <div class="form-group">
                                 <label for="settings_username">Username</label>
                                 <div class="date-input-container">
-                                    <input type="text" id="settings_username" value="<%= patientData.Username %>" readonly>
+                                    <input type="text" id="settings_username" value="<%= patientData.Username %>">
                                     <button class="user-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1407,17 +1407,8 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="password">Password</label>
-                                <div class="password-input-container">
-                                    <input type="password" id="password" value="12345">
-                                    <button class="toggle-password-btn" type="button" onclick="togglePasswordVisibility()">
-                                        <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path id="eye-open" d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path id="eye-open-ball" d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path id="eye-closed" d="M3 3L21 21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"/>
-                                        </svg>
-                                    </button>
-                                </div>
+                                <label for="status">Status</label>
+                                <input type="status" id="status" value="Enrolled" readonly>
                             </div>
                         </div>
                     
@@ -1449,10 +1440,6 @@
                                 <input type="gender" id="gender" value="<%= patientData.Gender %>">
                             </div>
                             <div class="form-group">
-                                <label for="status">Status</label>
-                                <input type="status" id="status" value="Enrolled">
-                            </div>
-                            <div class="form-group">
                                 <label for="enrollment-date">Enrollment Date</label>
                                 <input type="enrollment-date" id="enrollment-date" value="<%= patientData.Enrollment_DateTime %>" readonly>
                             </div>
@@ -1468,7 +1455,7 @@
                             <div class="form-group">
                                 <label for="settings_email">Email Address</label>
                                 <div class="email-input-container">
-                                    <input type="email" id="settings_email" value="<%= patientData.Email %>" readonly>
+                                    <input type="email" id="settings_email" value="<%= patientData.Email %>">
                                     <button class="email-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1513,5 +1500,6 @@
     <script src="/Js/PatientDashboard_JS/patientAction.js"></script>
     <script src="/Js/PatientDashboard_JS/patientHealthData.js"></script>
     <script src="/Js/PatientDashboard_JS/patientsAlertData.js"></script>
+    <script src="/Js/PatientDashboard_JS/patientSettings.js"></script>
 </body>
 </html>

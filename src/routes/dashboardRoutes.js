@@ -125,6 +125,63 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
     }
 });
 
+// Update admin profile (POST)
+router.post('/updateAdminProfile', requireLogin('admin'), async (req, res) => {
+    try {
+        const adminId = req.session.user.id;
+        const { firstName, lastName, phoneNumber, email, username, password } = req.body;
+
+        // Create update object with only the fields that are provided
+        const updateData = {};
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (email) updateData.email = email;
+        if (username) updateData.username = username;
+        if (password) updateData.password = password;
+
+        const updatedAdmin = await Admin.findOneAndUpdate(
+            { adminID: adminId },
+            updateData,
+            { new: true }
+        );
+
+        if (!updatedAdmin) {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error('Error updating admin profile:', error);
+        res.status(500).json({ message: 'Failed to update profile' });
+    }
+});
+
+// Delete admin account (POST)
+router.post('/deleteAdminAccount', requireLogin('admin'), async (req, res) => {
+    try {
+        const adminId = req.session.user.id;
+
+        const result = await Admin.deleteOne({ adminID: adminId });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        // Destroy the session
+        req.session.destroy(err => {
+            if (err) {
+                console.error('Error destroying session:', err);
+                return res.status(500).json({ message: 'Error during account deletion' });
+            }
+            res.json({ message: 'Account deleted successfully' });
+        });
+    } catch (error) {
+        console.error('Error deleting admin account:', error);
+        res.status(500).json({ message: 'Failed to delete account' });
+    }
+});
+
 // Patient Dashboard (GET)
 router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
     try {
@@ -162,6 +219,66 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
             title: 'Server Error',
             errorMsg: "An error occurred while loading your dashboard."
         });
+    }
+});
+
+// Update patient profile (POST)
+router.post('/updatePatientProfile', requireLogin('patient'), async (req, res) => {
+    try {
+        const patientId = req.session.user.id;
+        const { username, firstName, lastName, age, dob, gender, phoneNumber, email, address } = req.body;
+
+        // Create update object
+        const updateData = {
+            Username: username,
+            First_Name: firstName,
+            Last_Name: lastName,
+            Age: age,
+            Date_Of_Birth: dob,
+            Gender: gender,
+            Phone_Number: phoneNumber,
+            Email: email,
+            Address: address
+        };
+
+        const updatedPatient = await Patient.findOneAndUpdate(
+            { Patient_ID: patientId },
+            updateData,
+            { new: true }
+        );
+
+        if (!updatedPatient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        res.json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error('Error updating patient profile:', error);
+        res.status(500).json({ message: 'Failed to update profile' });
+    }
+});
+
+// Delete patient account (POST)
+router.post('/deletePatientAccount', requireLogin('patient'), async (req, res) => {
+    try {
+        const patientId = req.session.user.id;
+        const result = await Patient.deleteOne({ Patient_ID: patientId });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        // Destroy the session
+        req.session.destroy(err => {
+            if (err) {
+                console.error('Error destroying session:', err);
+                return res.status(500).json({ message: 'Error during account deletion' });
+            }
+            res.json({ message: 'Account deleted successfully' });
+        });
+    } catch (error) {
+        console.error('Error deleting patient account:', error);
+        res.status(500).json({ message: 'Failed to delete account' });
     }
 });
 
