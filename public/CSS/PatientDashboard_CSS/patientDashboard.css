@@ -1004,6 +1004,14 @@ body {
 
 
 /* PAGINATION */
+
+.no-results td {
+    text-align: center !important;
+    color: #777;
+    font-style: italic;
+    padding: 20px !important;
+}
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -1031,14 +1039,25 @@ body {
     border-color: #6699CC;
 }
 
-.pagination-btn:hover:not(.active) {
+.pagination-btn:hover:not(.active):not(:disabled) {
     background-color: #f1f1f1;
 }
 
-.pagination-btn.next {
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn.next, .pagination-btn.prev {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* .pagination-btn.next {
     width: auto;
     padding: 0 10px;
-}
+} */
 
 
 /* SETTINGS PAGE */
@@ -1583,3 +1602,26 @@ tr.deleting {
     font-style: italic;
     color: #555;
 }
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .toast button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+  }

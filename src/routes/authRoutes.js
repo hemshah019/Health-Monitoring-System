@@ -8,8 +8,12 @@ const router = express.Router();
 router.get('/', (req, res) => {
     const message = req.query.message;
     let successMessage = '';
-    if (message === 'password-reset-success') {
+    if (message === 'logout-success') {
+        successMessage = 'You have been logged out successfully.';
+    } else if (message === 'password-reset-success') {
         successMessage = 'Password reset successfully! Please log in.';
+    } else if (message === 'registration-success') {
+        successMessage = 'Registration successful! Please sign in with your credentials.';
     }
     res.render('SignInPage/signIn', { successMessage });
 });
@@ -55,9 +59,7 @@ router.post('/register', async (req, res) => {
             Password: hashedPassword
         });
         await newPatient.save();
-
-        console.log(`✅ Patient registered: ${Username} (ID: ${newPatientID})`);
-        res.redirect('/');
+        res.redirect('/?message=registration-success');
     } 
     catch (error) {
         console.error("❌ Error registering patient:", error);
@@ -71,10 +73,8 @@ router.post('/SignInPage/signIn', async (req, res) => {
         const { Username, Password, role } = req.body;
 
         if (!Username || !Password || !role || role === 'Select a Role...') {
-            return res.render('SignInPage/signIn', { error: "All fields are required, including selecting a role." });
+            return res.redirect('/?message=missing-fields');
         }
-
-        console.log(`🔐 Sign-in attempt | Username: ${Username} | Role: ${role}`);
 
         let user;
         if (role === 'admin') {
@@ -84,18 +84,16 @@ router.post('/SignInPage/signIn', async (req, res) => {
             user = await Patient.findOne({ Username: Username });
         } 
         else {
-            return res.render('SignInPage/signIn', { error: "Invalid role selected" });
+            return res.redirect('/?message=invalid-role');
         }
 
         if (!user) {
-            console.log(`❌ Sign-in failed: User not found for username: ${Username}`);
-            return res.render('SignInPage/signIn', { error: "Invalid username or password" });
+            return res.redirect('/?message=invalid-username');
         }
 
         const isMatch = await bcrypt.compare(Password, user.Password || user.password);
         if (!isMatch) {
-            console.log(`❌ Sign-in failed: Incorrect password for user: ${Username}`);
-            return res.render('SignInPage/signIn', { error: "Invalid username or password" });
+            return res.redirect('/?message=invalid-password');
         }
 
         // Set session
@@ -104,14 +102,12 @@ router.post('/SignInPage/signIn', async (req, res) => {
             role: role
         };
 
-        console.log(`✅ Sign-in successful | Username: ${Username} | Role: ${role}`);
-
-        // Redirect based on role (no query params)
-        return res.redirect(role === 'admin' ? '/adminDashboard' : '/patientDashboard');
+        // Redirect based on role with success message
+        return res.redirect(`/${role}Dashboard?message=login-success`);
     } 
     catch (error) {
         console.error("❌ Error during sign-in:", error);
-        return res.render('SignInPage/signIn', { error: "An error occurred during sign-in. Please try again." });
+        return res.redirect('/?message=signin-error');
     }
 });
 
@@ -127,9 +123,8 @@ router.get('/auth/logout', (req, res) => {
             return res.send("Logout failed");
         }
         res.clearCookie('connect.sid');
-        res.redirect('/');
+        res.redirect('/?message=logout-success');
     });
 });
 
 module.exports = router;
-

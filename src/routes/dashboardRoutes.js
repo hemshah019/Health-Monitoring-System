@@ -40,7 +40,7 @@ const patientLookupPipeline = [
 router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
     try {
         const adminId = req.session.user.id;
-        console.log(`Fetching data for admin ID: ${adminId}`);
+        const message = req.query.message;
 
         // Fetch all data concurrently
         const [
@@ -102,14 +102,6 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
         // Calculate total 'Alerts' count (sum of pending items)
         const alertCount = pendingMessageCount + pendingComplianceCount + pendingImprovementCount;
 
-        console.log(`✅ Admin data fetched successfully for ${adminData.username}`);
-        console.log(`✅ Counts - Patients: ${patientCount}, Messages: ${messageCount}, Compliances: ${complianceCount}, Improvements: ${improvementCount}, Alerts (Pending): ${alertCount}`);
-        console.log(`✅ Fetched ${allPatients.length} total patients details.`);
-        console.log(`✅ Fetched ${allMessages.length} messages details.`);
-        console.log(`✅ Fetched ${allCompliances.length} compliances details.`);
-        console.log(`✅ Fetched ${allImprovements.length} improvements details.`);
-
-
         res.render('AdminDashboard/adminDashboard', {
             adminData: adminData,
             patients: allPatients,       
@@ -123,7 +115,8 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             complianceCount: complianceCount,
             improvementCount: improvementCount,
             alertCount: alertCount,
-            dashboardPatients: allPatients.slice(0, 3)
+            dashboardPatients: allPatients.slice(0, 3),
+            message: message
         });
 
     } catch (error) {
@@ -136,7 +129,7 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
 router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
     try {
         const patientId = req.session.user.id;
-        console.log(`Fetching data for patient ID: ${patientId}`);
+        const message = req.query.message;
 
         const [patientData, messageCount, complianceCount, improvementCount] = await Promise.all([
             Patient.findOne({ Patient_ID: patientId }).lean(),
@@ -154,15 +147,13 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
             return;
         }
 
-        console.log(`✅ Patient data fetched successfully for ${patientData.Username}`);
-        console.log(`✅ Counts - Messages: ${messageCount}, Compliances: ${complianceCount}, Improvements: ${improvementCount}`);
-
         res.render('PatientDashboard/patientDashboard', {
             title: 'Patient Dashboard',
             patientData: patientData,
             messageCount: messageCount,
             complianceCount: complianceCount,
-            improvementCount: improvementCount
+            improvementCount: improvementCount,
+            message: message
         });
 
     } catch (error) {

@@ -10,7 +10,7 @@ module.exports = (transporter, otpStore) => {
 
     // GET route for Forgot Password page
     router.get('/forgot-password', (req, res) => {
-        res.render('Verification/ForgotPassword');
+        res.render('Verification/ForgotPassword', { error: null, message: null });
     });
 
     // POST route to handle Forgot Password request (send OTP)
@@ -20,7 +20,10 @@ module.exports = (transporter, otpStore) => {
             console.log('Received email:', email);
 
             if (!email) {
-                return res.render('Verification/ForgotPassword', { error: 'Email address is required.' });
+                return res.render('Verification/ForgotPassword', {
+                    error: 'Please enter your email address.',
+                    message: null
+                });
             }
 
              // Check if the email belongs to a Patient or Admin
@@ -33,13 +36,16 @@ module.exports = (transporter, otpStore) => {
             }
 
             if (!user) {
-                 return res.render('Verification/ForgotPassword', { message: 'If your email is registered, you will receive a password reset code.' });
+                return res.render('Verification/ForgotPassword', {
+                    error: 'No account found with that email.',
+                    message: null
+                });
             }
 
             const otp = crypto.randomInt(1000, 9999).toString();
             const expiresAt = Date.now() + 10 * 60 * 1000;
-
             otpStore.set(email, { otp, expiresAt });
+
             console.log(`OTP for ${email}: ${otp}`);
 
             // Send the OTP via email
@@ -168,54 +174,76 @@ module.exports = (transporter, otpStore) => {
                 res.redirect(`/otp-verification?email=${encodeURIComponent(email)}`);
             } catch (mailError) {
                 console.error('Error sending OTP email:', mailError);
-                res.render('Verification/ForgotPassword', { error: 'Could not send OTP email. Please try again later.' });
+                return res.render('Verification/ForgotPassword', {
+                    error: 'Failed to send OTP. Please try again later.',
+                    message: null
+                });
             }
 
         } catch (error) {
             console.error('Error in forgot password process:', error);
-            res.status(500).render('Verification/ForgotPassword', { error: 'An internal server error occurred. Please try again later.' });
+            res.status(500).render('Verification/ForgotPassword', {
+                error: 'An error occurred. Please try again later.',
+                message: null
+            });
         }
     });
 
-    // GET route for OTP Verification page
+    // GET - OTP Verification
     router.get('/otp-verification', (req, res) => {
         const email = req.query.email;
         if (!email) {
             return res.redirect('/forgot-password');
         }
-        res.render('Verification/OTPVerification', { email });
+        res.render('Verification/OTPVerification',  { email, error: null, message: null });
     });
 
-    // POST route to verify the OTP
+    // POST - Verify OTP
     router.post('/verify-otp', async (req, res) => { 
         try {
             const { email, otp } = req.body;
 
             if (!email || !otp) {
-                 return res.render('Verification/OTPVerification', { email: email, error: 'Email and OTP are required.' });
+                return res.render('Verification/OTPVerification', {
+                    email,
+                    error: 'Both email and OTP are required.',
+                    message: null
+                });
             }
 
             const storedOTPData = otpStore.get(email);
 
             if (!storedOTPData) {
-                 return res.render('Verification/OTPVerification', { email: email, error: 'Invalid or expired OTP. Please request a new one.' });
+                return res.render('Verification/OTPVerification', {
+                    email,
+                    error: 'OTP has expired or is invalid. Please try again.',
+                    message: null
+                });
             }
 
             if (Date.now() > storedOTPData.expiresAt) {
                 otpStore.delete(email);
-                return res.render('Verification/OTPVerification', { email: email, error: 'OTP has expired. Please request a new one.' });
+                return res.render('Verification/OTPVerification', {
+                    email,
+                    error: 'OTP has expired. Please request a new one.',
+                    message: null
+                });
             }
 
             if (otp === storedOTPData.otp) {
                 otpStore.delete(email);
                 res.redirect(`/new-password?email=${encodeURIComponent(email)}`);
             } else {
-                return res.render('Verification/OTPVerification', { email: email, error: 'Invalid OTP code. Please try again.' });
+                return res.render('Verification/OTPVerification', {
+                    email,
+                    error: 'Invalid OTP. Please try again.',
+                    message: null
+                });
             }
 
         } catch (error) {
             console.error('Error in OTP verification:', error);
-             res.render('Verification/OTPVerification', { email: req.body.email, error: 'An server error occurred. Please try again later.' });
+             res.render('Verification/OTPVerification', { email: req.body.email, error: 'An server error occurred. Please try again later.', message: null });
         }
     });
 
@@ -225,7 +253,7 @@ module.exports = (transporter, otpStore) => {
         if (!email) {
             return res.redirect('/forgot-password');
         }
-        res.render('Verification/NewPassword', { email });
+        res.render('Verification/NewPassword', { email, error: null, message: null });
     });
 
     // POST route to update the password
@@ -234,23 +262,35 @@ module.exports = (transporter, otpStore) => {
             const { email, password, confirmPassword } = req.body;
 
             if (!email || !password || !confirmPassword) {
-                return res.render('Verification/NewPassword', { email: email, error: 'All fields are required.' });
+                return res.render('Verification/NewPassword', {
+                    email,
+                    error: 'All fields are required.',
+                    message: null
+                });
             }
 
             if (password !== confirmPassword) {
-                return res.render('Verification/NewPassword', { email: email, error: 'Passwords do not match.' });
+                return res.render('Verification/NewPassword', {
+                    email,
+                    error: 'Passwords do not match.',
+                    message: null
+                });
             }
 
             let user;
             if (email.includes('admin')) { 
-                user = await Admin.findOne({ email: email });
+                user = await Admin.findOne({ email });
             } else {
                 user = await Patient.findOne({ Email: email });
             }
 
             if (!user) {
                 console.error(`Attempt to update password for non-existent user: ${email}`);
-                return res.redirect('/forgot-password?error=user_not_found');
+                return res.render('Verification/NewPassword', {
+                    email,
+                    error: 'No account found. Please try again.',
+                    message: null
+                });
             }
 
             const saltRounds = 10;
@@ -275,7 +315,11 @@ module.exports = (transporter, otpStore) => {
 
         } catch (error) {
             console.error('Error updating password:', error);
-            res.render('Verification/NewPassword', { email: req.body.email, error: 'An server error occurred. Please try again later.' });
+            res.status(500).render('Verification/NewPassword', {
+                email,
+                error: 'Failed to update password. Please try again later.',
+                message: null
+            });
         }
     });
 

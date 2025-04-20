@@ -235,6 +235,32 @@ BodyTemperatureSchema.pre('save', async function (next) {
 const BodyTemperature = mongoose.model("body_temperatures", BodyTemperatureSchema);
 
 
+/* ====== Fall Detection Schema ====== */
+const FallDetectionSchema = new mongoose.Schema({
+    Fall_ID: { type: Number, unique: true },
+    Patient_ID: { type: Number, required: true, index: true },
+    Fall_Detected: { type: String, required: true, enum: ['Yes'] },
+    Fall_Direction: { type: String, required: true, enum : ['Forward Fall', 'Backward Fall', 'Left Side Fall', 'Right Side Fall']},
+    Date_Time: { type: String }
+});
+
+// Pre-save hook for auto-incrementing Fall_ID and setting Date_Time
+FallDetectionSchema.pre('save', async function (next) {
+    if (this.isNew) {
+        const lastFall = await FallDetection.findOne({}, {}, { sort: { 'Fall_ID': -1 } });
+        this.Fall_ID = lastFall ? lastFall.Fall_ID + 1 : 8000;
+
+        if (!this.Date_Time) {
+            this.Date_Time = dayjs().format('dddd, D MMMM YYYY h:mm A');
+        }
+    }
+    next();
+});
+
+const FallDetection = mongoose.model("body_fall_detections", FallDetectionSchema);
+
+
+/* ====== Alert Schema ====== */
 const AlertSchema = new mongoose.Schema({
     Alert_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -252,10 +278,10 @@ const AlertSchema = new mongoose.Schema({
 AlertSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastAlert = await Alert.findOne({}, {}, { sort: { 'Alert_ID': -1 } });
-        this.Alert_ID = lastAlert ? lastAlert.Alert_ID + 1 : 8000;
+        this.Alert_ID = lastAlert ? lastAlert.Alert_ID + 1 : 9000;
 
         if (!this.Alert_DateTime) {
-            this.Alert_DateTime = dayjs().format('dddd, Do MMMM YYYY h:mm A');
+            this.Alert_DateTime = dayjs().format('dddd, D MMMM YYYY h:mm A');
         }
     }
     next();
@@ -274,5 +300,6 @@ module.exports = {
     HeartRate,      
     SpO2,          
     BodyTemperature,
+    FallDetection,
     Alert
 };
