@@ -61,14 +61,14 @@ function renderHeartRateCharts(data) {
                 datasets: [{
                     label: 'Heart Rate (BPM)',
                     data: data.lineChartData.map(item => item.rate),
-                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderColor: 'rgb(255, 0, 55)',
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderWidth: 2,
                     tension: 0.1,
                     pointBackgroundColor: data.lineChartData.map(item => 
                         item.status === 'High' ? 'rgba(255, 99, 132, 1)' :
-                        item.status === 'Low' ? 'rgba(255, 206, 86, 1)' :
-                        'rgba(75, 192, 75, 1)'
+                        item.status === 'Low' ? 'rgb(255, 183, 0)' :
+                        'rgb(0, 186, 0)'
                     ),
                     pointRadius: 5,
                     pointHoverRadius: 7
@@ -125,9 +125,9 @@ function renderHeartRateCharts(data) {
                 datasets: [{
                     data: data.pieChartData.map(item => item.count),
                     backgroundColor: [
-                        'rgba(75, 192, 75, 0.8)', 
-                        'rgba(255, 206, 86, 0.8)', 
-                        'rgba(255, 99, 132, 0.8)'  
+                        'rgba(0, 187, 0, 0.8)', 
+                        'rgba(255, 183, 0, 0.8)', 
+                        'rgba(255, 0, 55, 0.8)'  
                     ],
                     borderColor: '#fff',           
                     borderWidth: 2                   

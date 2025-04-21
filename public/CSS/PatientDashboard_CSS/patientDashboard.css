@@ -1821,15 +1821,15 @@ canvas {
 
 /* Status color classes */
 .normal {
-    color: #4bc04b;
+    color: #00bc00;
 }
 
 .low {
-    color: #ffce56;
+    color: #ffb700;
 }
 
 .high {
-    color: #ff6384;
+    color: #ff0037;
 }
 
 .heart-rate-status {
@@ -1837,15 +1837,15 @@ canvas {
 }
 
 .heart-rate-status.normal {
-    color: #4bc04b;
+    color: #00bc00;
 }
 
 .heart-rate-status.low {
-    color: #ffce56;
+    color: #ffb700;
 }
 
 .heart-rate-status.high {
-    color: #ff6384;
+    color: #ff0037;
 }
 
 /* Optional Fade-in Animation */
