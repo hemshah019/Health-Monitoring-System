@@ -41,6 +41,7 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
     try {
         const adminId = req.session.user.id;
         const message = req.query.message;
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
         // Fetch all data concurrently
         const [
@@ -55,28 +56,14 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             improvementCount,
             pendingMessageCount, 
             pendingComplianceCount, 
-            pendingImprovementCount 
+            pendingImprovementCount,
+            todayEnrollmentsCount 
         ] = await Promise.all([
             Admin.findOne({ adminID: adminId }).lean(),
             Patient.find({}).sort({ Patient_ID: 1 }).lean(), 
-
-            // Fetch Messages with Patient Info for message table
-            Message.aggregate([
-                { $sort: { Message_ID: -1 } },
-                ...patientLookupPipeline
-            ]),
-
-            // Fetch Compliances with Patient Info for compliance table
-            Compliance.aggregate([
-                { $sort: { Compliance_ID: -1 } },
-                ...patientLookupPipeline
-            ]),
-
-            // Fetch Improvements with Patient Info for improvement table
-            Improvement.aggregate([
-                { $sort: { Improvement_ID: -1 } },
-                ...patientLookupPipeline
-            ]),
+            Message.aggregate([{ $sort: { Message_ID: -1 } }, ...patientLookupPipeline]),
+            Compliance.aggregate([{ $sort: { Compliance_ID: -1 } }, ...patientLookupPipeline]),
+            Improvement.aggregate([{ $sort: { Improvement_ID: -1 } }, ...patientLookupPipeline]),
 
             // Counts for Stat Cards
             Patient.countDocuments(),
@@ -87,7 +74,11 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             // Counts for 'Alerts' (Pending items)
             Message.countDocuments({ Status: 'Pending' }),
             Compliance.countDocuments({ Status: 'Pending' }),
-            Improvement.countDocuments({ Status: 'Pending' })
+            Improvement.countDocuments({ Status: 'Pending' }),
+            // Count patients enrolled in last 24 hours
+            Patient.countDocuments({ 
+                Enrollment_Date: { $gte: twentyFourHoursAgo } 
+            })
         ]);
 
         if (!adminData) {
@@ -116,7 +107,8 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             improvementCount: improvementCount,
             alertCount: alertCount,
             dashboardPatients: allPatients.slice(0, 3),
-            message: message
+            message: message,
+            todayEnrollmentsCount: todayEnrollmentsCount 
         });
 
     } catch (error) {

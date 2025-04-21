@@ -1,5 +1,4 @@
-// JS FOR AUTOMATICALLY GENERATED DATE
-// Function to format date as "Day, DD Month YYYY" (e.g., "Friday, 29th March 2025")
+// FUNCTION FOR AUTOMATICALLY GENERATED DATE
 function formatDate(date) {
     const dayOfWeek = date.toLocaleString('default', { weekday: 'long' });
     const day = date.getDate();
@@ -28,8 +27,6 @@ function updateAllDateTexts() {
         element.textContent = todayFormatted;
     });
 }
-
-// Initial update
 updateAllDateTexts();
 
 // Schedule update at midnight
@@ -47,8 +44,6 @@ function scheduleNextUpdate() {
 }
 
 scheduleNextUpdate();
-
-// Optional: Update every minute (for testing purposes, can be removed)
 setInterval(updateAllDateTexts, 60000);
 
 // Clickable date selector (for future functionality)
@@ -59,126 +54,157 @@ document.querySelectorAll(".date-selector").forEach(selector => {
 });
 
 
-// JS for navigation buttons
-// Handle navigation click
-const navItems = document.querySelectorAll('.nav-item');
-const dashboardContent = document.querySelector('.content:not(.patients-content)');
-const patientsContent = document.querySelector('.patients-content');
-const tasksContent = document.querySelector('.tasks-content');
-const messagesContent = document.querySelector('.messages-content');
-const alertsContent = document.querySelector('.alerts-content'); 
-const complianceContent = document.querySelector('.compliance-content'); 
-const improvementContent = document.querySelector('.improvement-content');
-const settingContent = document.querySelector('.setting-content'); 
+// NEVIGATION
+// Main navigation handler
+function handleNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const dashboardContent = document.querySelector('.content:not(.patients-content)');
+    const patientsContent = document.querySelector('.patients-content');
+    const tasksContent = document.querySelector('.tasks-content');
+    const messagesContent = document.querySelector('.messages-content');
+    const alertsContent = document.querySelector('.alerts-content'); 
+    const complianceContent = document.querySelector('.compliance-content'); 
+    const improvementContent = document.querySelector('.improvement-content');
+    const settingContent = document.querySelector('.setting-content');
 
-// Update the messages content visibility
-navItems.forEach(item => {
-    item.addEventListener('click', function() {
-        // Remove active class from all nav items
-        navItems.forEach(navItem => {
-            navItem.classList.remove('active');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            navItems.forEach(navItem => {
+                navItem.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Hide all content sections
+            const allContents = [
+                dashboardContent, 
+                patientsContent,
+                tasksContent,
+                messagesContent,
+                alertsContent,
+                complianceContent,
+                improvementContent,
+                settingContent
+            ];
+            
+            allContents.forEach(content => {
+                if (content) content.style.display = 'none';
+            });
+
+            // Show appropriate content based on which nav item was clicked
+            const contentMap = {
+                'Patients': patientsContent,
+                'Tasks': tasksContent,
+                'Messages': messagesContent,
+                'Alerts': alertsContent,
+                'Compliances': complianceContent,
+                'Improvements': improvementContent,
+                'Settings': settingContent,
+                'Dashboard': dashboardContent
+            };
+
+            const clickedText = this.textContent.trim();
+            if (contentMap[clickedText]) {
+                contentMap[clickedText].style.display = 'block';
+            } else {
+                dashboardContent.style.display = 'block';
+            }
+
+            updateAllDateTexts();
         });
+    });
+}
 
-        // Add active class to clicked item
-        this.classList.add('active');
+// View All buttons handler
+function handleViewAllButtons() {
+    // Task's View All button
+    const viewAllTasks = document.querySelector('.view-all-tasks');
+    if (viewAllTasks) {
+        viewAllTasks.addEventListener('click', function(e) {
+            e.preventDefault();
 
-        // Show appropriate content based on which nav item was clicked
-        if (this.textContent.trim() === 'Patients') {
-            dashboardContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            patientsContent.style.display = 'block';
+            hideAllContentSections();
+            document.querySelector('.tasks-content').style.display = 'block';
+            
+            updateActiveNavItem('Tasks');
             updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Tasks') {
-            dashboardContent.style.display = 'none';
-            patientsContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            tasksContent.style.display = 'block';
+        });
+    }
+
+    // Patients View All button
+    const viewAllPatients = document.querySelector('.view-all-patients');
+    if (viewAllPatients) {
+        viewAllPatients.addEventListener('click', function(e) {
+            e.preventDefault();
+ 
+            hideAllContentSections();
+            document.querySelector('.patients-content').style.display = 'block';
+            
+            updateActiveNavItem('Patients');
             updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Messages') {
-            dashboardContent.style.display = 'none';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            messagesContent.style.display = 'block';
-            updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Alerts') {
-            dashboardContent.style.display = 'none';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            alertsContent.style.display = 'block'; 
-            updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Compliances') {
-            dashboardContent.style.display = 'none';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            complianceContent.style.display = 'block'; 
-            updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Improvements') {
-            dashboardContent.style.display = 'none';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            improvementContent.style.display = 'block';
-            updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Settings') {
-            dashboardContent.style.display = 'none';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'block';
-            updateAllDateTexts();
-        } else if (this.textContent.trim() === 'Dashboard') {
-            dashboardContent.style.display = 'block';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
-            updateAllDateTexts();
-        } else {
-            // For other nav items, just show dashboard for now
-            dashboardContent.style.display = 'block';
-            patientsContent.style.display = 'none';
-            tasksContent.style.display = 'none';
-            messagesContent.style.display = 'none';
-            alertsContent.style.display = 'none';
-            complianceContent.style.display = 'none';
-            improvementContent.style.display = 'none';
-            settingContent.style.display = 'none';
+        });
+    }
+}
+
+// Helper function to hide all content sections
+function hideAllContentSections() {
+    const sections = [
+        '.content:not(.patients-content)',
+        '.patients-content',
+        '.tasks-content',
+        '.messages-content',
+        '.alerts-content',
+        '.compliance-content',
+        '.improvement-content',
+        '.setting-content'
+    ];
+    
+    sections.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) element.style.display = 'none';
+    });
+}
+
+// Helper function to update active navigation item
+function updateActiveNavItem(itemText) {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.textContent.trim() === itemText) {
+            item.classList.add('active');
         }
     });
+}
+
+// Date update function (mock - replace with your actual implementation)
+function updateAllDateTexts() {
+    const dateElements = document.querySelectorAll('[data-date]');
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const today = new Date().toLocaleDateString('en-US', options);
+    
+    dateElements.forEach(element => {
+        element.textContent = today;
+    });
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    handleNavigation();
+    handleViewAllButtons();
+    
+    // Set initial active state
+    const defaultNavItem = document.querySelector('.nav-item.active');
+    if (!defaultNavItem && document.querySelector('.nav-item')) {
+        document.querySelector('.nav-item').classList.add('active');
+    }
+    
+    // Set initial content visibility
+    if (document.querySelector('.content:not(.patients-content)')) {
+        document.querySelector('.content:not(.patients-content)').style.display = 'block';
+    }
 });
 
+
 // TOGGLEPASSWORD
-// This function is for hiding the password and showing the password.
 function togglePasswordVisibility() {
     const passwordField = document.getElementById('password');
     const eyeOpen = document.getElementById('eye-open');
@@ -198,8 +224,8 @@ function togglePasswordVisibility() {
     }
 }
 
+
 // LOGOUT
-// Get elements
 const logoutButton = document.getElementById('logout-button');
 const logoutDialog = document.getElementById('logout-dialog');
 const cancelButton = document.getElementById('cancel-logout');
@@ -227,6 +253,8 @@ logoutDialog.addEventListener('click', function(event) {
         logoutDialog.style.display = 'none';
     }
 });
+
+
 
 // POPUP FORM
 // Task form
@@ -399,33 +427,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('tasksDateText').textContent = currentDate.toLocaleDateString('en-US', options);
 });
 
-// Sample patient data
-const patientData = {
-    "P1001": {
-        patientId: "#P1001",
-        firstName: "John",
-        lastName: "Doe",
-        age: "68 years",
-        dob: "05-06-1955",
-        email: "john.doe@example.com",
-        phone: "(555) 123-4567",
-        gender: "Male",
-        address: "123 Main St, Anytown, CA 91234",
-        username: "johndoe123"
-    },
-    "P1002": {
-        patientId: "#P1002",
-        firstName: "Sarah",
-        lastName: "Johnson",
-        age: "45 years",
-        dob: "12-10-1978",
-        email: "sarah.j@example.com",
-        phone: "(555) 987-6543",
-        gender: "Female",
-        address: "456 Oak St, Sometown, NY 10001",
-        username: "sarahj"
-    }
-};
 
 // Sample task data
 const taskData = {
@@ -464,55 +465,6 @@ const alertData = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // PATIENT MODAL
-    const patientModal = document.getElementById('patientViewModal');
-    const closePatientModalBtn = document.getElementById('closePatientModal');
-    const closePatientModalFooterBtn = document.getElementById('closePatientModalBtn');
-    const patientViewButtons = document.querySelectorAll('.patient-view-btn');
-    
-    // Function to populate the patient modal
-    function populatePatientModal(patientId) {
-        const patient = patientData[patientId];
-        
-        if (patient) {
-            document.getElementById('view_patient_id').textContent = patient.patientId;
-            document.getElementById('view_first_name').textContent = patient.firstName;
-            document.getElementById('view_last_name').textContent = patient.lastName;
-            document.getElementById('view_age').textContent = patient.age;
-            document.getElementById('view_dob').textContent = patient.dob;
-            document.getElementById('view_email').textContent = patient.email;
-            document.getElementById('view_phone').textContent = patient.phone;
-            document.getElementById('view_gender').textContent = patient.gender;
-            document.getElementById('view_address').textContent = patient.address;
-            document.getElementById('view_username').textContent = patient.username;
-        }
-    }
-    
-    // Patient view button click handlers
-    patientViewButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const patientId = this.getAttribute('data-id');
-            populatePatientModal(patientId);
-            patientModal.classList.add('active');
-        });
-    });
-    
-    // Close patient modal handlers
-    closePatientModalBtn.addEventListener('click', function() {
-        patientModal.classList.remove('active');
-    });
-    
-    closePatientModalFooterBtn.addEventListener('click', function() {
-        patientModal.classList.remove('active');
-    });
-    
-    // Close patient modal when clicking outside
-    patientModal.addEventListener('click', function(e) {
-        if (e.target === patientModal) {
-            patientModal.classList.remove('active');
-        }
-    });
-
     // TASK MODAL
     const taskModal = document.getElementById('taskViewModal');
     const closeTaskModalBtn = document.getElementById('closeTaskModal');

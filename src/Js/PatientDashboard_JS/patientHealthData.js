@@ -1,6 +1,122 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Patient Health Data Script Loaded");
 
+    // Add this function at the top of your script
+    function showNotification(message, type = 'success') {
+        let notificationContainer = document.getElementById('notification-container');
+        if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = 'notification-container';
+        document.body.appendChild(notificationContainer);
+        }
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+
+        notification.innerHTML = `
+        ${message}
+        <span class="close-notification">×</span>
+        `;
+        
+        // Add to container
+        notificationContainer.appendChild(notification);
+        
+        // Handle close button click
+        notification.querySelector('.close-notification').addEventListener('click', function() {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            if (notification && notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+        });
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+        if (notification && notification.parentNode) {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+            if (notification && notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+            }, 300);
+        }
+        }, 5000);
+    }
+    
+    // Add this CSS to your stylesheet
+    document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        #notification-container {
+        position: fixed;
+        top: 20px;
+        right: 10px;
+        transform: translateX(-10%);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        }
+        
+        .notification {
+        padding: 12px 20px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 300px;
+        max-width: 80vw;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        animation: slide-in 0.3s ease-out forwards;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        .notification.success {
+        background-color: #4CAF50;
+        color: white;
+        }
+        
+        .notification.error {
+        background-color: #f44336;
+        color: white;
+        }
+        
+        .notification.warning {
+        background-color: #ff9800;
+        color: white;
+        }
+        
+        .notification.info {
+        background-color: #2196F3;
+        color: white;
+        }
+        
+        .close-notification {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        cursor: pointer;
+        }
+        
+        .fade-out {
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+        }
+        
+        @keyframes slide-in {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        }
+    </style>
+    `);
+
     // Heart Rate Elements
     const heartRateContent = document.querySelector('.content.heart-rate-content');
     const heartRateTableBody = document.querySelector('.heart-rate-table tbody');
@@ -207,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Fetch data functions
+    // Fetch heartRate data functions
     const fetchHeartRateData = async () => {
         if (!heartRateTableBody) return;
         console.log("Fetching heart rate data...");
@@ -246,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // fetch SpO2 data functions
     const fetchSpO2Data = async () => {
         if (!oxygenTableBody) return;
         console.log("Fetching SpO2 data...");
@@ -284,6 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Fetch body temperature data functions
     const fetchBodyTemperatureData = async () => {
         if (!bodyTempTableBody) return;
         console.log("Fetching body temperature data...");
@@ -322,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Fetch fall detection data
+    // Fetch fall detection data functions
     const fetchFallDetectionData = async () => {
         if (!fallDetectionTableBody) return;
         console.log("Fetching fall detection data...");
@@ -361,190 +479,260 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Delete record functions
-    const handleDeleteHeartRate = async (recordId) => {
+    // Heart Rate Delete Handler
+    const handleDeleteHeartRate = (recordId) => {
         if (!recordId) {
             console.error("No record ID provided for deletion");
             return;
         }
 
-        if (!confirm(`Are you sure you want to delete heart rate record #${recordId}?`)) {
-            return;
-        }
+        const modal = document.getElementById('HeartRateDeleteConfirmModal');
+        const confirmText = document.getElementById('HeartRateDeleteConfirmText');
+        const confirmBtn = document.getElementById('confirmHeartRateDeleteBtn');
+        const cancelBtn = document.getElementById('cancelHeartRateDeleteBtn');
 
-        console.log(`Attempting to delete heart rate record: ${recordId}`);
+        confirmText.textContent = `Are you sure you want to delete heart rate record #${recordId}?`;
+        modal.style.display = 'flex';
 
-        try {
-            const response = await fetch(`/health/heart-rate/${recordId}`, {
-                method: 'DELETE',
-            });
+        // Remove previous event listeners to avoid duplicates
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
-            if (!response.ok) {
-                let errorMsg = `Error: ${response.status} ${response.statusText}`;
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.message || errorMsg;
-                } catch (e) { /* Ignore parsing error */ }
-                throw new Error(errorMsg);
-            }
+        // Add new event listeners
+        newConfirmBtn.addEventListener('click', async () => {
+            modal.style.display = 'none';
+            console.log(`Attempting to delete heart rate record: ${recordId}`);
 
-            // Deletion successful on the server
-            console.log(`Record ${recordId} deleted successfully.`);
-            alert(`Record #${recordId} deleted successfully.`);
+            try {
+                const response = await fetch(`/health/heart-rate/${recordId}`, {
+                    method: 'DELETE',
+                });
 
-            // Remove the row from the table
-            const rowToRemove = heartRateTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
-            if (rowToRemove) {
-                rowToRemove.remove();
-                if (heartRateTableBody.rows.length === 0) {
-                    heartRateTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No heart rate data found.</td></tr>';
+                if (!response.ok) {
+                    let errorMsg = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) { /* Ignore parsing error */ }
+                    throw new Error(errorMsg);
                 }
-            } else {
-                fetchHeartRateData();
+
+                console.log(`Record ${recordId} deleted successfully.`);
+                showNotification(`Record #${recordId} deleted successfully.`);
+
+                const rowToRemove = heartRateTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    if (heartRateTableBody.rows.length === 0) {
+                        heartRateTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No heart rate data found.</td></tr>';
+                    }
+                } else {
+                    fetchHeartRateData();
+                }
+            } catch (error) {
+                console.error('Failed to delete heart rate record:', error);
+                showNotification(`Error deleting record: ${error.message || 'Could not delete record.'}`, 'error');
             }
-        } catch (error) {
-            console.error('Failed to delete heart rate record:', error);
-            alert(`Error deleting record: ${error.message || 'Could not delete record.'}`);
-        }
+        });
+
+        newCancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
     };
 
-    const handleDeleteSpO2 = async (recordId) => {
+    // SpO2 Delete Handler
+    const handleDeleteSpO2 = (recordId) => {
         if (!recordId) {
             console.error("No record ID provided for deletion");
             return;
         }
 
-        if (!confirm(`Are you sure you want to delete SpO₂ record #${recordId}?`)) {
-            return;
-        }
+        const modal = document.getElementById('SpO2DeleteConfirmModal');
+        const confirmText = document.getElementById('SpO2DeleteConfirmText');
+        const confirmBtn = document.getElementById('confirmSpO2DeleteBtn');
+        const cancelBtn = document.getElementById('cancelSpO2DeleteBtn');
 
-        console.log(`Attempting to delete SpO₂ record: ${recordId}`);
+        confirmText.textContent = `Are you sure you want to delete SpO₂ record #${recordId}?`;
+        modal.style.display = 'flex';
 
-        try {
-            const response = await fetch(`/health/spo2/${recordId}`, {
-                method: 'DELETE',
-            });
+        // Remove previous event listeners to avoid duplicates
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
-            if (!response.ok) {
-                let errorMsg = `Error: ${response.status} ${response.statusText}`;
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.message || errorMsg;
-                } catch (e) { /* Ignore parsing error */ }
-                throw new Error(errorMsg);
-            }
+        // Add new event listeners
+        newConfirmBtn.addEventListener('click', async () => {
+            modal.style.display = 'none';
+            console.log(`Attempting to delete SpO₂ record: ${recordId}`);
 
-            // Deletion successful on the server
-            console.log(`Record ${recordId} deleted successfully.`);
-            alert(`Record #${recordId} deleted successfully.`);
+            try {
+                const response = await fetch(`/health/spo2/${recordId}`, {
+                    method: 'DELETE',
+                });
 
-            // Remove the row from the table
-            const rowToRemove = oxygenTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
-            if (rowToRemove) {
-                rowToRemove.remove();
-                if (oxygenTableBody.rows.length === 0) {
-                    oxygenTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No oxygen saturation data found.</td></tr>';
+                if (!response.ok) {
+                    let errorMsg = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) { /* Ignore parsing error */ }
+                    throw new Error(errorMsg);
                 }
-            } else {
-                fetchSpO2Data();
-            }
-        } catch (error) {
-            console.error('Failed to delete SpO₂ record:', error);
-            alert(`Error deleting record: ${error.message || 'Could not delete record.'}`);
-        }
-    };
-    
-    const handleDeleteBodyTemperature = async (recordId) => {
-        if (!recordId) {
-            console.error("No record ID provided for deletion");
-            return;
-        }
 
-        if (!confirm(`Are you sure you want to delete body temperature record #${recordId}?`)) {
-            return;
-        }
+                console.log(`Record ${recordId} deleted successfully.`);
+                showNotification(`Record #${recordId} deleted successfully.`);
 
-        console.log(`Attempting to delete body temperature record: ${recordId}`);
-
-        try {
-            const response = await fetch(`/health/body-temperature/${recordId}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                let errorMsg = `Error: ${response.status} ${response.statusText}`;
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.message || errorMsg;
-                } catch (e) { /* Ignore parsing error */ }
-                throw new Error(errorMsg);
-            }
-
-            // Deletion successful on the server
-            console.log(`Record ${recordId} deleted successfully.`);
-            alert(`Record #${recordId} deleted successfully.`);
-
-            // Remove the row from the table
-            const rowToRemove = bodyTempTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
-            if (rowToRemove) {
-                rowToRemove.remove();
-                if (bodyTempTableBody.rows.length === 0) {
-                    bodyTempTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No body temperature data found.</td></tr>';
+                const rowToRemove = oxygenTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    if (oxygenTableBody.rows.length === 0) {
+                        oxygenTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No oxygen saturation data found.</td></tr>';
+                    }
+                } else {
+                    fetchSpO2Data();
                 }
-            } else {
-                fetchBodyTemperatureData();
+            } catch (error) {
+                console.error('Failed to delete SpO₂ record:', error);
+                showNotification(`Error deleting record: ${error.message || 'Could not delete record.'}`, 'error');
             }
-        } catch (error) {
-            console.error('Failed to delete body temperature record:', error);
-            alert(`Error deleting record: ${error.message || 'Could not delete record.'}`);
-        }
+        });
+
+        newCancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
     };
 
-    // Delete fall detection record
-    const handleDeleteFallDetection = async (recordId) => {
+    // Body Temperature Delete Handler
+    const handleDeleteBodyTemperature = (recordId) => {
         if (!recordId) {
             console.error("No record ID provided for deletion");
             return;
         }
 
-        if (!confirm(`Are you sure you want to delete fall detection record #${recordId}?`)) {
+        const modal = document.getElementById('BodyTempDeleteConfirmModal');
+        const confirmText = document.getElementById('BodyTempDeleteConfirmText');
+        const confirmBtn = document.getElementById('confirmBodyTempDeleteBtn');
+        const cancelBtn = document.getElementById('cancelBodyTempDeleteBtn');
+
+        confirmText.textContent = `Are you sure you want to delete body temperature record #${recordId}?`;
+        modal.style.display = 'flex';
+
+        // Remove previous event listeners to avoid duplicates
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+        // Add new event listeners
+        newConfirmBtn.addEventListener('click', async () => {
+            modal.style.display = 'none';
+            console.log(`Attempting to delete body temperature record: ${recordId}`);
+
+            try {
+                const response = await fetch(`/health/body-temperature/${recordId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) { /* Ignore parsing error */ }
+                    throw new Error(errorMsg);
+                }
+
+                console.log(`Record ${recordId} deleted successfully.`);
+                showNotification(`Record #${recordId} deleted successfully.`);
+
+                const rowToRemove = bodyTempTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    if (bodyTempTableBody.rows.length === 0) {
+                        bodyTempTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No body temperature data found.</td></tr>';
+                    }
+                } else {
+                    fetchBodyTemperatureData();
+                }
+            } catch (error) {
+                console.error('Failed to delete body temperature record:', error);
+                showNotification(`Error deleting record: ${error.message || 'Could not delete record.'}`, 'error');
+            }
+        });
+
+        newCancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    };
+
+    // Fall Detection Delete Handler
+    const handleDeleteFallDetection = (recordId) => {
+        if (!recordId) {
+            console.error("No record ID provided for deletion");
             return;
         }
 
-        console.log(`Attempting to delete fall detection record: ${recordId}`);
+        const modal = document.getElementById('FallDetectionDeleteConfirmModal');
+        const confirmText = document.getElementById('FallDetectionDeleteConfirmText');
+        const confirmBtn = document.getElementById('confirmFallDetectionDeleteBtn');
+        const cancelBtn = document.getElementById('cancelFallDetectionDeleteBtn');
 
-        try {
-            const response = await fetch(`/health/fall-detection/${recordId}`, {
-                method: 'DELETE',
-            });
+        confirmText.textContent = `Are you sure you want to delete fall detection record #${recordId}?`;
+        modal.style.display = 'flex';
 
-            if (!response.ok) {
-                let errorMsg = `Error: ${response.status} ${response.statusText}`;
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.message || errorMsg;
-                } catch (e) { /* Ignore parsing error */ }
-                throw new Error(errorMsg);
-            }
+        // Remove previous event listeners to avoid duplicates
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
-            // Deletion successful on the server
-            console.log(`Record ${recordId} deleted successfully.`);
-            alert(`Record #${recordId} deleted successfully.`);
+        // Add new event listeners
+        newConfirmBtn.addEventListener('click', async () => {
+            modal.style.display = 'none';
+            console.log(`Attempting to delete fall detection record: ${recordId}`);
 
-            // Remove the row from the table
-            const rowToRemove = fallDetectionTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
-            if (rowToRemove) {
-                rowToRemove.remove();
-                if (fallDetectionTableBody.rows.length === 0) {
-                    fallDetectionTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No fall detection data found.</td></tr>';
+            try {
+                const response = await fetch(`/health/fall-detection/${recordId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) { /* Ignore parsing error */ }
+                    throw new Error(errorMsg);
                 }
-            } else {
-                fetchFallDetectionData();
+
+                console.log(`Record ${recordId} deleted successfully.`);
+                showNotification(`Record #${recordId} deleted successfully.`);
+
+                const rowToRemove = fallDetectionTableBody.querySelector(`tr[data-record-id="${recordId}"]`);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                    if (fallDetectionTableBody.rows.length === 0) {
+                        fallDetectionTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No fall detection data found.</td></tr>';
+                    }
+                } else {
+                    fetchFallDetectionData();
+                }
+            } catch (error) {
+                console.error('Failed to delete fall detection record:', error);
+                showNotification(`Error deleting record: ${error.message || 'Could not delete record.'}`, 'error');
             }
-        } catch (error) {
-            console.error('Failed to delete fall detection record:', error);
-            alert(`Error deleting record: ${error.message || 'Could not delete record.'}`);
-        }
+        });
+
+        newCancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
     };
 
     // Set up observers to load data when content becomes visible

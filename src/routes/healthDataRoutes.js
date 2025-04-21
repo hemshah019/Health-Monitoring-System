@@ -49,8 +49,11 @@ router.get('/heart-rate', isPatientAuthenticated, async (req, res) => {
 // DELETE HEARTRATE DATA
 router.delete('/heart-rate/:id', isPatientAuthenticated, async (req, res) => {
     try {
+        console.log('Session user:', req.session.user);
+        console.log('Patient ID from middleware:', req.patientId);
+
         const recordId = parseInt(req.params.id, 10);
-        const patientId = req.session.user.Patient_ID;
+        const patientId = req.patientId;
 
         if (isNaN(recordId)) {
              return res.status(400).json({ message: 'Invalid Heart Rate ID format.' });
@@ -95,7 +98,7 @@ router.get('/spo2', isPatientAuthenticated, async (req, res) => {
 router.delete('/spo2/:id', isPatientAuthenticated, async (req, res) => {
     try {
         const recordId = parseInt(req.params.id, 10);
-        const patientId = req.session.user.Patient_ID;
+        const patientId = req.patientId;
 
         if (isNaN(recordId)) {
             return res.status(400).json({ message: 'Invalid SpO2 ID format.' });
@@ -139,7 +142,7 @@ router.get('/body-temperature', isPatientAuthenticated, async (req, res) => {
 router.delete('/body-temperature/:id', isPatientAuthenticated, async (req, res) => {
     try {
         const recordId = parseInt(req.params.id, 10);
-        const patientId = req.session.user.Patient_ID;
+        const patientId = req.patientId;
 
         if (isNaN(recordId)) {
             return res.status(400).json({ message: 'Invalid Temperature ID format.' });
@@ -184,7 +187,7 @@ router.get('/fall-detection', isPatientAuthenticated, async (req, res) => {
 router.delete('/fall-detection/:id', isPatientAuthenticated, async (req, res) => {
     try {
         const recordId = parseInt(req.params.id, 10);
-        const patientId = req.session.user.Patient_ID;
+        const patientId = req.patientId;
 
         if (isNaN(recordId)) {
             return res.status(400).json({ message: 'Invalid Fall Detection ID format.' });

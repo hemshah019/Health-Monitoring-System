@@ -289,7 +289,7 @@
                     <div class="program-cards">
                         <div class="program-card">
                             <div class="card-title">New Enrollments Patients (Today)</div>
-                            <div class="card-value">XXX</div>
+                            <div class="card-value"><%= todayEnrollmentsCount %></div>
                         </div>
                         
                         <div class="program-card">
@@ -299,11 +299,11 @@
                         
                         <div class="program-card">
                             <div class="card-title">Health Monitoring Devices Supplied</div>
-                            <div class="card-value">1</div>
+                            <div class="card-value"><%= patientCount %></div>
                         </div>
                         
                         <div class="program-card">
-                            <div class="card-title">Tasks Assigned</div>
+                            <div class="card-title">Total Tasks Assigned</div>
                             <div class="card-value">1</div>
                         </div>
                         
@@ -322,8 +322,8 @@
                 <!-- Tasks Section -->
                 <div class="dashboard-section tasks-section">
                     <div class="section-header">
-                        <h2>Today Task's</h2>
-                        <div class="view-all">View All</div>
+                        <h2>Task's Details</h2>
+                        <div class="view-all view-all-tasks">View All</div>
                     </div>
                     
                     <div class="task-list">
@@ -527,6 +527,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Custom Patient Delete Confirmation Modal -->
+        <div id="patientDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="patientDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelPatientDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmPatientDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Patient View Modal -->
         <div class="modal-overlay" id="patientViewModal">
@@ -751,221 +763,8 @@
             </div>
         </div>
 
-        <!-- Messages Content -->
-        <main class="content messages-content" style="display: none;">
-            <div class="dashboard-header">
-                <h1>Messages Details</h1>
-                <div class="date-selector">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span data-date>Loading date...</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
-                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-            </div>
-        
-            <div class="messages-container">
-                <div class="messages-actions">
-                    <div class="search-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
-                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
-                        </svg>
-                        <input type="text" placeholder="Search messages..." id="searchMessages" data-table="messages-table" data-fields="first,2,3">
-                    </div>
-                </div>
-        
-                <div class="messages-table-container full-width">
-                    <table class="messages-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Patient Name</th>
-                                <th>Message Type</th>
-                                <th>Message Content</th>
-                                <th>Date & Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (messages && messages.length > 0) { %>
-                                <% messages.forEach(message => { %>
-                            <tr>
-                                <td>#M<%= message.Message_ID %></td>
-                                <td>
-                                    <div class="patient-name">
-                                        <span><%= message.patientInfo ? message.patientInfo.First_Name + ' ' + message.patientInfo.Last_Name : 'Unknown Patient' %></span>
-                                    </div>
-                                </td>
-                                <td><%= message.Message_Type %></td>
-                                <td title="<%= message.Message_Content %>">
-                                    <%= message.Message_Content.length > 50 ? message.Message_Content.substring(0, 47) + '...' : message.Message_Content %>
-                                </td>
-                                <td><%= message.Message_Sent_DateTime %></td>
-                                <td>
-                                    <span class="status-badge status-<%= message.Status.toLowerCase().replace(' ', '-') %>" data-field="status-badge">
-                                        <%= message.Status %>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn message-view-btn" data-id="<%= message.Message_ID %>" data-patient-id="<%= message.Patient_ID %>">View</button>
-                                        <button class="response-btn message-response-btn" data-id="<%= message.Message_ID %>" data-patient-id="<%= message.Patient_ID %>">Response</button>
-                                        <button class="delete-btn message-delete-btn" data-id="<%= message.Message_ID %>">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="7" style="text-align: center; padding: 20px;">No messages found.</td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
-        
-                <div class="pagination" data-pagination="messages">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
-                    <button class="pagination-btn next">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
-                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </main>
-
-        <!-- Messages View Modal -->
-        <div class="modal-overlay" id="messageViewModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Message Details</h2>
-                    <button class="close-modal" id="closeMessageModal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="info-grid">
-                        <div class="info-field">
-                            <span class="info-field-label">Message ID</span>
-                            <span class="info-field-value" id="message_view_id">#M2001</span>
-                        </div>
-                        <div class="info-field">
-                            <span class="info-field-label">Patient Name</span>
-                            <span class="info-field-value" id="message_view_patient_name">Jane Smith</span>
-                        </div>
-                        <div class="info-field">
-                            <span class="info-field-label">Message Type</span>
-                            <span class="info-field-value" id="message_view_type">Inquiry</span>
-                        </div>
-                        <div class="info-field">
-                            <span class="info-field-label">Date & Time</span>
-                            <span class="info-field-value" id="message_view_datetime">17-01-2023</span>
-                        </div>
-                        <div class="info-field">
-                            <span class="info-field-label">Resolution Status</span>
-                            <span class="info-field-value" id="message_view_status">Resolved</span>
-                        </div>
-                        <div class="info-field info-field-full">
-                            <span class="info-field-label">Message Content</span>
-                            <span class="info-field-value" id="message_view_content">What should I do if my heart rate remains high?</span>
-                        </div>
-                        <div class="info-field">
-                            <span class="info-field-label">Admin Response</span>
-                            <span class="info-field-value" id="message_view_response">Follow relaxation exercises</span>
-                        </div>
-                        <div class="info-field">
-                            <span class="info-field-label">Response Date</span>
-                            <span class="info-field-value" id="message_view_responsedate">18-01-2023</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="closeMessageModalBtn">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Message Response Form -->
-        <div class="modal-overlay" id="messageResponseModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Respond to Message</h2>
-                    <button class="close-modal" id="closeMessageResponseModal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="messageResponseForm">
-                        <div class="form-section">
-                            <div class="form-section-title">Message Details</div>
-                            <div class="form-rows">
-                                <div class="form-groups">
-                                    <label>Message ID</label>
-                                    <input type="text" id="response_message_id" readonly>
-                                </div>
-                                <div class="form-groups">
-                                    <label>Patient Name</label>
-                                    <input type="text" id="response_patient_name" readonly>
-                                </div>
-                            </div>
-                            <div class="form-rows">
-                                <div class="form-groups">
-                                    <label>Message Type</label>
-                                    <input type="text" id="response_message_type" readonly>
-                                </div>
-                                <div class="form-groups">
-                                    <label>Date</label>
-                                    <input type="text" id="response_message_date" readonly>
-                                </div>
-                            </div>
-                            <div class="form-rows">
-                                <div class="form-groups form-group-full">
-                                    <label>Message Content</label>
-                                    <textarea id="response_message_content" rows="3" readonly></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-section">
-                            <div class="form-section-title">Admin Response</div>
-                            <div class="form-rows">
-                                <div class="form-groups form-group-full">
-                                    <label for="admin_response">Your Response*</label>
-                                    <textarea id="admin_response" name="admin_response" rows="4" required></textarea>
-                                </div>
-                            </div>
-                            <div class="form-rows">
-                                <div class="form-groups">
-                                    <label for="response_status">Status*</label>
-                                    <select id="response_status" name="response_status" required>
-                                        <option value="Pending">Pending</option>
-                                        <option value="In-Progress">In-Progress</option>
-                                        <option value="Viewed">Viewed</option>
-                                    </select>
-                                </div>
-                                <div class="form-groups">
-                                    <label for="response_date">Response Date*</label>
-                                    <input type="date" id="response_date" name="response_date" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="buttons">
-                            <button type="button" class="cancel" id="cancelMessageResponse">Cancel</button>
-                            <button type="submit" class="save">Submit Response</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alerts Content -->
-        <main class="content alerts-content" style="display: none;">
+         <!-- Alerts Content -->
+         <main class="content alerts-content" style="display: none;">
             <div class="dashboard-header">
                 <h1>Alerts Details</h1>
                 <div class="date-selector">
@@ -1201,6 +1000,231 @@
             </div>
         </div>
 
+        <!-- Messages Content -->
+        <main class="content messages-content" style="display: none;">
+            <div class="dashboard-header">
+                <h1>Messages Details</h1>
+                <div class="date-selector">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 2V6" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 10H21" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-date>Loading date...</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 8px;">
+                        <path d="M6 9L12 15L18 9" stroke="#555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        
+            <div class="messages-container">
+                <div class="messages-actions">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#6699CC"/>
+                        </svg>
+                        <input type="text" placeholder="Search messages..." id="searchMessages" data-table="messages-table" data-fields="first,2,3">
+                    </div>
+                </div>
+        
+                <div class="messages-table-container full-width">
+                    <table class="messages-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient Name</th>
+                                <th>Message Type</th>
+                                <th>Message Content</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (messages && messages.length > 0) { %>
+                                <% messages.forEach(message => { %>
+                            <tr>
+                                <td>#M<%= message.Message_ID %></td>
+                                <td>
+                                    <div class="patient-name">
+                                        <span><%= message.patientInfo ? message.patientInfo.First_Name + ' ' + message.patientInfo.Last_Name : 'Unknown Patient' %></span>
+                                    </div>
+                                </td>
+                                <td><%= message.Message_Type %></td>
+                                <td title="<%= message.Message_Content %>">
+                                    <%= message.Message_Content.length > 50 ? message.Message_Content.substring(0, 47) + '...' : message.Message_Content %>
+                                </td>
+                                <td><%= message.Message_Sent_DateTime %></td>
+                                <td>
+                                    <span class="status-badge status-<%= message.Status.toLowerCase().replace(/ /g, '-') %>" data-field="status-badge">
+                                        <%= message.Status %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="view-btn message-view-btn" data-id="<%= message.Message_ID %>" data-patient-id="<%= message.Patient_ID %>">View</button>
+                                        <button class="response-btn message-response-btn" data-id="<%= message.Message_ID %>" data-patient-id="<%= message.Patient_ID %>">Response</button>
+                                        <button class="delete-btn message-delete-btn" data-id="<%= message.Message_ID %>">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 20px;">No messages found.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="pagination" data-pagination="messages">
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn next">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Custom Message Delete Confirmation Modal -->
+        <div id="messageDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="messageDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelMessageDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmMessageDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages View Modal -->
+        <div class="modal-overlay" id="messageViewModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Message Details</h2>
+                    <button class="close-modal" id="closeMessageModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="info-grid">
+                        <div class="info-field">
+                            <span class="info-field-label">Message ID</span>
+                            <span class="info-field-value" id="message_view_id">#M2001</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Patient Name</span>
+                            <span class="info-field-value" id="message_view_patient_name">Jane Smith</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Message Type</span>
+                            <span class="info-field-value" id="message_view_type">Inquiry</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Date & Time</span>
+                            <span class="info-field-value" id="message_view_datetime">17-01-2023</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Resolution Status</span>
+                            <span class="info-field-value" id="message_view_status">Resolved</span>
+                        </div>
+                        <div class="info-field info-field-full">
+                            <span class="info-field-label">Message Content</span>
+                            <span class="info-field-value" id="message_view_content">What should I do if my heart rate remains high?</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Admin Response</span>
+                            <span class="info-field-value" id="message_view_response">Follow relaxation exercises</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Response Date</span>
+                            <span class="info-field-value" id="message_view_responsedate">18-01-2023</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="closeMessageModalBtn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Response Form -->
+        <div class="modal-overlay" id="messageResponseModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Respond to Message</h2>
+                    <button class="close-modal" id="closeMessageResponseModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="messageResponseForm">
+                        <div class="form-section">
+                            <div class="form-section-title">Message Details</div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Message ID</label>
+                                    <input type="text" id="response_message_id" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Patient Name</label>
+                                    <input type="text" id="response_patient_name" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label>Message Type</label>
+                                    <input type="text" id="response_message_type" readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label>Date</label>
+                                    <input type="text" id="response_message_date" readonly>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label>Message Content</label>
+                                    <textarea id="response_message_content" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="form-section-title">Admin Response</div>
+                            <div class="form-rows">
+                                <div class="form-groups form-group-full">
+                                    <label for="admin_response">Your Response*</label>
+                                    <textarea id="admin_response" name="admin_response" rows="4" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-rows">
+                                <div class="form-groups">
+                                    <label for="response_status">Status*</label>
+                                    <select id="response_status" name="response_status" required>
+                                        <option value="Pending">Pending</option>
+                                        <option value="In-Progress">In-Progress</option>
+                                        <option value="Viewed">Viewed</option>
+                                    </select>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="response_date">Response Date*</label>
+                                    <input type="date" id="response_date" name="response_date" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button type="button" class="cancel" id="cancelMessageResponse">Cancel</button>
+                            <button type="submit" class="save">Submit Response</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Compliance Content -->
         <main class="content compliance-content" style="display: none;">
             <div class="dashboard-header">
@@ -1287,6 +1311,18 @@
             </div>
         </main>
 
+        <!-- Custom Compliance Delete Confirmation Modal -->
+        <div id="deleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="deleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+  
         <!-- Compliance View Modal -->
         <div class="modal-overlay" id="complianceViewModal">
             <div class="modal-content">
@@ -1492,6 +1528,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Custom Improvement Delete Confirmation Modal -->
+        <div id="improvementDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="improvementDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelImprovementDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmImprovementDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Improvement View Modal -->
         <div class="modal-overlay" id="improvementViewModal">

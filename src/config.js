@@ -29,7 +29,8 @@ const PatientSchema = new mongoose.Schema({
     Username: { type: String, required: true, unique: true },
     Password: { type: String, required: true },
     Role: { type: String, default: 'Patient' },
-    Enrollment_DateTime: { type: String }
+    Enrollment_DateTime: { type: String },
+    Enrollment_Date: { type: Date }
 });
 
 // Pre-save hook for Patient ID and Enrollment DateTime
@@ -38,9 +39,9 @@ PatientSchema.pre('save', async function (next) {
         const lastPatient = await Patient.findOne({}, {}, { sort: { 'Patient_ID': -1 } });
         this.Patient_ID = lastPatient ? lastPatient.Patient_ID + 1 : 1000; 
 
-        if (!this.Enrollment_DateTime) {
-            this.Enrollment_DateTime = dayjs().format('dddd, D MMMM YYYY h:mm A');
-        }
+        const now = new Date();
+        this.Enrollment_DateTime = dayjs(now).format('dddd, D MMMM YYYY h:mm A');
+        this.Enrollment_Date = now;
     }
     next();
 });

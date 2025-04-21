@@ -1,6 +1,122 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Helper function to update status badge ---
+        // Add this function at the top of your script
+        function showNotification(message, type = 'success') {
+            let notificationContainer = document.getElementById('notification-container');
+            if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notification-container';
+            document.body.appendChild(notificationContainer);
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+    
+            notification.innerHTML = `
+            ${message}
+            <span class="close-notification">×</span>
+            `;
+            
+            // Add to container
+            notificationContainer.appendChild(notification);
+            
+            // Handle close button click
+            notification.querySelector('.close-notification').addEventListener('click', function() {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                if (notification && notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+            });
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+            if (notification && notification.parentNode) {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                if (notification && notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+                }, 300);
+            }
+            }, 5000);
+        }
+        
+        // Add this CSS to your stylesheet
+        document.head.insertAdjacentHTML('beforeend', `
+        <style>
+            #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 10px;
+            transform: translateX(-10%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            }
+            
+            .notification {
+            padding: 12px 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 80vw;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            animation: slide-in 0.3s ease-out forwards;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+            
+            .notification.success {
+            background-color: #4CAF50;
+            color: white;
+            }
+            
+            .notification.error {
+            background-color: #f44336;
+            color: white;
+            }
+            
+            .notification.warning {
+            background-color: #ff9800;
+            color: white;
+            }
+            
+            .notification.info {
+            background-color: #2196F3;
+            color: white;
+            }
+            
+            .close-notification {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            }
+            
+            .fade-out {
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            }
+            
+            @keyframes slide-in {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            }
+        </style>
+        `);
+
+    // Helper function to update status badge
     function updateStatusBadge(tableSelector, itemId, newStatus) {
         const buttonInRow = document.querySelector(`${tableSelector} button[data-id="${itemId}"]`);
         if (!buttonInRow) {
@@ -85,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching message details:', error);
-                alert(`Failed to load message details: ${error.message}`);
+                showNotification(`Failed to load message details: ${error.message}`, 'error');
             }
         });
     });
@@ -156,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching message details for response form:', error);
-                alert(`Failed to load message details for response: ${error.message}`);
+                showNotification(`Failed to load message details for response: ${error.message}`, 'error');
             }
         });
     });
@@ -204,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.message || `HTTP error! status: ${response.status}`);
             }
 
-            alert('Response submitted successfully!');
+            showNotification('Response submitted successfully!');
 
             const newStatus = result.updatedMessage.Status;
             updateStatusBadge('.messages-table', messageId, newStatus);
@@ -213,54 +329,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error submitting response:', error);
-            alert(`Failed to submit response: ${error.message}`);
+            showNotification(`Failed to submit response: ${error.message}`, 'error');
         }
     });
 
     // MESSAGE DELETE ACTION
     const messageDeleteButtons = document.querySelectorAll('.message-delete-btn');
+    const messageDeleteConfirmModal = document.getElementById('messageDeleteConfirmModal');
+    const confirmMessageDeleteBtn = document.getElementById('confirmMessageDeleteBtn');
+    const cancelMessageDeleteBtn = document.getElementById('cancelMessageDeleteBtn');
+    const messageDeleteConfirmText = document.getElementById('messageDeleteConfirmText');
+
+    let messageIdToDelete = null;
+    let messageRowToDelete = null;
 
     messageDeleteButtons.forEach(button => {
-        button.addEventListener('click', async function() {
-            const messageId = this.getAttribute('data-id');
-            if (!messageId) return;
+        button.addEventListener('click', function () {
+            messageIdToDelete = this.getAttribute('data-id');
+            messageRowToDelete = this.closest('tr');
 
-            if (!confirm(`Are you sure you want to delete message #M${messageId}? This action cannot be undone.`)) {
-                return;
-            }
+            if (!messageIdToDelete) return;
 
-            console.log(`Attempting to delete message ID: ${messageId}`);
-            try {
-                const response = await fetch(`/admin/messages/${messageId}`, {
-                    method: 'DELETE',
-                });
+            // Update modal text
+            messageDeleteConfirmText.textContent =
+                `Are you sure you want to delete message #M${messageIdToDelete}? This action cannot be undone.`;
 
-                const result = await response.json();
-
-                if (!response.ok) {
-                     throw new Error(result.message || `HTTP error! status: ${response.status}`);
-                }
-
-                alert(result.message || 'Message deleted successfully!');
-
-                // Remove the table row from the UI
-                const row = this.closest('tr');
-                if (row) {
-                    row.remove();
-                     const tbody = document.querySelector('.messages-table tbody');
-                     if (tbody && tbody.children.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No messages found.</td></tr>';
-                     }
-                } else {
-                    location.reload();
-                }
-
-            } catch (error) {
-                 console.error('Error deleting message:', error);
-                alert(`Failed to delete message: ${error.message}`);
-            }
+            // Show modal
+            messageDeleteConfirmModal.style.display = 'flex';
         });
     });
+
+    confirmMessageDeleteBtn.addEventListener('click', async () => {
+        if (!messageIdToDelete) return;
+
+        try {
+            const response = await fetch(`/admin/messages/${messageIdToDelete}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+
+            showNotification(result.message || 'Message deleted successfully!');
+
+            if (messageRowToDelete) {
+                messageRowToDelete.remove();
+                const tbody = document.querySelector('.messages-table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No messages found.</td></tr>';
+                }
+            } else {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error deleting message:', error);
+            showNotification(`Failed to delete message: ${error.message}`, 'error');
+        }
+
+        messageDeleteConfirmModal.style.display = 'none';
+        messageIdToDelete = null;
+        messageRowToDelete = null;
+    });
+
+    cancelMessageDeleteBtn.addEventListener('click', () => {
+        messageDeleteConfirmModal.style.display = 'none';
+        messageIdToDelete = null;
+        messageRowToDelete = null;
+    });
+
 
     // COMPLIANCE VIEW MODAL
     const complianceModal = document.getElementById('complianceViewModal');
@@ -308,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching compliance details:', error);
-                alert(`Failed to load compliance details: ${error.message}`);
+                showNotification(`Failed to load compliance details: ${error.message}`, 'error');
             }
         });
     });
@@ -324,7 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeComplianceViewModal();
         }
     });
-
 
     // COMPLIANCE FEEDBACK MODAL (RESPONSE)
     const complianceResponseModal = document.getElementById('complianceResponseModal');
@@ -376,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching compliance details for feedback form:', error);
-                alert(`Failed to load compliance details for feedback: ${error.message}`);
+                showNotification(`Failed to load compliance details for feedback: ${error.message}`, 'error');
             }
         });
     });
@@ -425,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.message || `HTTP error! status: ${response.status}`);
             }
 
-            alert(result.message || 'Feedback submitted successfully!');
+            showNotification(result.message || 'Feedback submitted successfully!');
 
             const newStatus = result.updatedCompliance.Status;
             updateStatusBadge('.compliance-table', complianceId, newStatus); 
@@ -434,51 +572,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error submitting compliance feedback:', error);
-            alert(`Failed to submit feedback: ${error.message}`);
+            showNotification(`Failed to submit feedback: ${error.message}`, 'error');
         }
     });
 
     // COMPLIANCE DELETE ACTION
     const complianceDeleteButtons = document.querySelectorAll('.compliance-delete-btn');
-
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    let complianceIdToDelete = null;
+    let rowToDelete = null;
+    
     complianceDeleteButtons.forEach(button => {
-        button.addEventListener('click', async function() {
-            const complianceId = this.getAttribute('data-id');
-            if (!complianceId) return;
-
-            if (!confirm(`Are you sure you want to delete compliance record #C${complianceId}? This action cannot be undone.`)) {
-                return;
-            }
-
-            console.log(`Attempting to delete compliance ID: ${complianceId}`);
-            try {
-                const response = await fetch(`/admin/compliances/${complianceId}`, {
-                    method: 'DELETE',
-                });
-
-                const result = await response.json();
-                if (!response.ok) {
-                     throw new Error(result.message || `HTTP error! status: ${response.status}`);
-                }
-                alert(result.message || 'Compliance record deleted successfully!');
-
-                const row = this.closest('tr');
-                if (row) {
-                    row.remove();
-                    const tbody = document.querySelector('.compliance-table tbody');
-                    if (tbody && tbody.children.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No compliance records found.</td></tr>';
-                    }
-                } else {
-                    location.reload();
-                }
-
-            } catch (error) {
-                 console.error('Error deleting compliance record:', error);
-                alert(`Failed to delete compliance record: ${error.message}`);
-            }
+        button.addEventListener('click', function () {
+            complianceIdToDelete = this.getAttribute('data-id');
+            rowToDelete = this.closest('tr');
+    
+            if (!complianceIdToDelete) return;
+    
+            // Update modal message
+            document.getElementById('deleteConfirmText').textContent =
+                `Are you sure you want to delete compliance record #C${complianceIdToDelete}? This action cannot be undone.`;
+    
+            // Show modal
+            deleteConfirmModal.style.display = 'flex';
         });
     });
+    
+    confirmDeleteBtn.addEventListener('click', async () => {
+        if (!complianceIdToDelete) return;
+    
+        try {
+            const response = await fetch(`/admin/compliances/${complianceIdToDelete}`, {
+                method: 'DELETE',
+            });
+    
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+    
+            showNotification(result.message || 'Compliance record deleted successfully!');
+            if (rowToDelete) {
+                rowToDelete.remove();
+                const tbody = document.querySelector('.compliance-table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No compliance records found.</td></tr>';
+                }
+            } else {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error deleting compliance record:', error);
+            showNotification(`Failed to delete compliance record: ${error.message}`, 'error');
+        }
+    
+        deleteConfirmModal.style.display = 'none';
+        complianceIdToDelete = null;
+        rowToDelete = null;
+    });
+    
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteConfirmModal.style.display = 'none';
+        complianceIdToDelete = null;
+        rowToDelete = null;
+    });
+    
 
     // IMPROVEMENT VIEW MODAL
     const improvementModal = document.getElementById('improvementViewModal');
@@ -494,16 +654,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return dayjs(dateString).isValid() ? dayjs(dateString).format('DD-MM-YYYY h:mm A') : dateString;
             } catch (e) { return dateString; }
         };
-        const formatImplementationDate = (dateString) => {
-            if (!dateString) return '-';
-            try {
-                const date = dayjs(dateString);
-                return date.isValid() ? date.format('DD-MM-YYYY') : '-';
-            } catch (e) {
-                console.error("Error formatting implementation date for display:", e);
-                return '-';
-            }
-        }
 
         document.getElementById('improvement_view_id').textContent = `#I${data.Improvement_ID}`;
         document.getElementById('improvement_view_submitted_by').textContent = data.patientFullName || 'Unknown Patient';
@@ -513,9 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('improvement_view_date').textContent = formatDate(data.Date_Submitted);
         document.getElementById('improvement_view_status').textContent = data.Status || 'N/A';
         document.getElementById('improvement_view_response').textContent = data.Admin_Response || 'No Response Yet';
-
-        console.log('Raw Implementation_Date in populateImprovementModal:', data.Implementation_Date); // Add for debugging
-        document.getElementById('improvement_view_implementation_date').textContent = formatImplementationDate(data.Implementation_Date);
+        document.getElementById('improvement_view_implementation_date').textContent = formatDate(data.Implementation_Date);
     }
 
     // Add click listeners to all Improvement VIEW buttons
@@ -539,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching improvement details:', error);
-                alert(`Failed to load improvement details: ${error.message}`);
+                showNotification(`Failed to load improvement details: ${error.message}`, 'error');
             }
         });
     });
@@ -555,7 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeImprovementViewModal();
         }
     });
-
 
     // IMPROVEMENT RESPONSE MODAL
     const improvementResponseModal = document.getElementById('improvementResponseModal');
@@ -573,25 +720,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) { return dateString; }
         };
 
-        // const formatImplementationDate = (dateString) => {
-        //      if (!dateString) return '';
-        //      try {
-        //          const date = dayjs(dateString);
-        //          return date.isValid() ? date.format('YYYY-MM-DD') : '';
-        //      } catch (e) { return ''; }
-        // };
-
         document.getElementById('response_improvement_id').value = `#I${data.Improvement_ID}`;
         document.getElementById('response_improvement_submitter').value = data.patientFullName || 'Unknown Patient';
         document.getElementById('response_improvement_category').value = data.Category || 'N/A';
         document.getElementById('response_improvement_description').value = data.Suggestion_Description || 'N/A';
         document.getElementById('response_improvement_date').value = formatDate(data.Date_Submitted);
-
-        // Pre-fill existing response data
-        document.getElementById('improvement_response').value = data.Admin_Response || '';
+        document.getElementById('improvement_response').value = data.Admin_Response || 'N/A';
         document.getElementById('improvement_status').value = data.Status || 'Pending';
-        document.getElementById('implementation_date').value = data.Implementation_Date
-        ? new Date(data.Implementation_Date).toISOString().split('T')[0] : ''; 
+        document.getElementById('implementation_date').value = formatDate(data.Implementation_Date);
     }
 
     // Add click listeners to all Improvement RESPONSE buttons
@@ -619,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching improvement details for response form:', error);
-                alert(`Failed to load improvement details for response: ${error.message}`);
+                showNotification(`Failed to load improvement details for response: ${error.message}`, 'error');
             }
         });
     });
@@ -665,9 +801,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.message || `HTTP error! status: ${response.status}`);
             }
 
-            alert(result.message || 'Response submitted successfully!');
+            showNotification(result.message || 'Response submitted successfully!');
 
-            const newStatus = result.updatedImprovement.Status; // Get new status from response
+            const newStatus = result.updatedImprovement.Status;
             updateStatusBadge('.improvement-table', improvementId, newStatus); 
 
             closeImprovementResponseModalFunc();
@@ -675,50 +811,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error submitting improvement response:', error);
-            alert(`Failed to submit response: ${error.message}`);
+            showNotification(`Failed to submit response: ${error.message}`, 'error');
         }
     });
 
     // IMPROVEMENT DELETE ACTION
     const improvementDeleteButtons = document.querySelectorAll('.improvement-delete-btn');
+    const improvementDeleteConfirmModal = document.getElementById('improvementDeleteConfirmModal');
+    const confirmImprovementDeleteBtn = document.getElementById('confirmImprovementDeleteBtn');
+    const cancelImprovementDeleteBtn = document.getElementById('cancelImprovementDeleteBtn');
+    const improvementDeleteConfirmText = document.getElementById('improvementDeleteConfirmText');
+
+    let improvementIdToDelete = null;
+    let improvementRowToDelete = null;
+
     improvementDeleteButtons.forEach(button => {
-        button.addEventListener('click', async function() {
-            const improvementId = this.getAttribute('data-id');
-            if (!improvementId) return;
+        button.addEventListener('click', function () {
+            improvementIdToDelete = this.getAttribute('data-id');
+            improvementRowToDelete = this.closest('tr');
 
-            if (!confirm(`Are you sure you want to delete improvement suggestion #I${improvementId}? This action cannot be undone.`)) {
-                return;
-            }
+            if (!improvementIdToDelete) return;
 
-            console.log(`Attempting to delete improvement ID: ${improvementId}`);
-            try {
-                const response = await fetch(`/admin/improvements/${improvementId}`, {
-                    method: 'DELETE',
-                });
+            improvementDeleteConfirmText.textContent =
+                `Are you sure you want to delete improvement suggestion #I${improvementIdToDelete}? This action cannot be undone.`;
 
-                const result = await response.json();
-                if (!response.ok) {
-                     throw new Error(result.message || `HTTP error! status: ${response.status}`);
-                }
-                alert(result.message || 'Improvement suggestion deleted successfully!');
-
-                const row = this.closest('tr');
-                if (row) {
-                    row.remove();
-                    const tbody = document.querySelector('.improvement-table tbody');
-                    if (tbody && tbody.children.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No improvement suggestions found.</td></tr>';
-                    }
-                } else {
-                    location.reload();
-                }
-
-            } catch (error) {
-                 console.error('Error deleting improvement suggestion:', error);
-                alert(`Failed to delete improvement suggestion: ${error.message}`);
-            }
+            improvementDeleteConfirmModal.style.display = 'flex';
         });
     });
+
+    confirmImprovementDeleteBtn.addEventListener('click', async () => {
+        if (!improvementIdToDelete) return;
+
+        try {
+            const response = await fetch(`/admin/improvements/${improvementIdToDelete}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+
+            showNotification(result.message || 'Improvement suggestion deleted successfully!');
+
+            if (improvementRowToDelete) {
+                improvementRowToDelete.remove();
+                const tbody = document.querySelector('.improvement-table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No improvement suggestions found.</td></tr>';
+                }
+            } else {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error deleting improvement suggestion:', error);
+            showNotification(`Failed to delete improvement suggestion: ${error.message}`, 'error');
+        }
+
+        improvementDeleteConfirmModal.style.display = 'none';
+        improvementIdToDelete = null;
+        improvementRowToDelete = null;
+    });
+
+    cancelImprovementDeleteBtn.addEventListener('click', () => {
+        improvementDeleteConfirmModal.style.display = 'none';
+        improvementIdToDelete = null;
+        improvementRowToDelete = null;
+    });
+
 
 
     // PATIENT VIEW MODAL
@@ -726,7 +887,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closePatientModalBtn = document.getElementById('closePatientModal');
     const closePatientModalFooterBtn = document.getElementById('closePatientModalBtn');
     const patientViewButtons = document.querySelectorAll('.patient-view-btn');
-    const patientDeleteButtons = document.querySelectorAll('.patient-delete-btn');
 
     // Helper to format dates (similar to others, ensure dayjs is available)
     const formatPatientDate = (dateString, format = 'DD-MM-YYYY') => {
@@ -790,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Error fetching patient details:', error);
-                alert(`Failed to load patient details: ${error.message}`);
+                showNotification(`Failed to load patient details: ${error.message}`, 'error');
             }
         });
     });
@@ -808,45 +968,70 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // PATIENT DELETE ACTION
+    const patientDeleteButtons = document.querySelectorAll('.patient-delete-btn');
+    const patientDeleteConfirmModal = document.getElementById('patientDeleteConfirmModal');
+    const confirmPatientDeleteBtn = document.getElementById('confirmPatientDeleteBtn');
+    const cancelPatientDeleteBtn = document.getElementById('cancelPatientDeleteBtn');
+    const patientDeleteConfirmText = document.getElementById('patientDeleteConfirmText');
+
+    let patientIdToDelete = null;
+    let patientRowToDelete = null;
+
     patientDeleteButtons.forEach(button => {
-        button.addEventListener('click', async function() {
-            const patientId = this.getAttribute('data-id');
-            if (!patientId) return;
+        button.addEventListener('click', function () {
+            patientIdToDelete = this.getAttribute('data-id');
+            patientRowToDelete = this.closest('tr');
 
-            if (!confirm(`Are you sure you want to delete patient #P${patientId}? This action cannot be undone.`)) {
-                return;
-            }
+            if (!patientIdToDelete) return;
 
-            console.log(`Attempting to delete patient ID: ${patientId}`);
-            try {
-                const response = await fetch(`/admin/patients/${patientId}`, {
-                    method: 'DELETE',
-                });
+            patientDeleteConfirmText.textContent =
+                `Are you sure you want to delete patient #P${patientIdToDelete}? This action cannot be undone.`;
 
-                const result = await response.json();
-
-                if (!response.ok) {
-                     throw new Error(result.message || `HTTP error! status: ${response.status}`);
-                }
-                alert(result.message || 'Patient deleted successfully!');
-
-                // Remove the table row from the UI
-                const row = this.closest('tr');
-                if (row) {
-                    row.remove();
-                    const tbody = document.querySelector('.patients-table tbody');
-                    if (tbody && tbody.children.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No patients found.</td></tr>';
-                    }
-                } else {
-                    console.warn("Could not find row to remove, reloading page as fallback.");
-                    location.reload();
-                }
-
-            } catch (error) {
-                 console.error('Error deleting patient:', error);
-                alert(`Failed to delete patient: ${error.message}`);
-            }
+            patientDeleteConfirmModal.style.display = 'flex';
         });
     });
+
+    confirmPatientDeleteBtn.addEventListener('click', async () => {
+        if (!patientIdToDelete) return;
+
+        try {
+            const response = await fetch(`/admin/patients/${patientIdToDelete}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+
+            showNotification(result.message || 'Patient deleted successfully!');
+
+            if (patientRowToDelete) {
+                patientRowToDelete.remove();
+                const tbody = document.querySelector('.patients-table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No patients found.</td></tr>';
+                }
+            } else {
+                console.warn("Could not find row to remove, reloading page as fallback.");
+                location.reload();
+            }
+
+        } catch (error) {
+            console.error('Error deleting patient:', error);
+            showNotification(`Failed to delete patient: ${error.message}`, 'error');
+        }
+
+        patientDeleteConfirmModal.style.display = 'none';
+        patientIdToDelete = null;
+        patientRowToDelete = null;
+    });
+
+    cancelPatientDeleteBtn.addEventListener('click', () => {
+        patientDeleteConfirmModal.style.display = 'none';
+        patientIdToDelete = null;
+        patientRowToDelete = null;
+    });
+
 });

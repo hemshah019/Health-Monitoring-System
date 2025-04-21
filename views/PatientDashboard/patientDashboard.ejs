@@ -421,19 +421,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#P1001</td>
-                                <td>68 BPM</td>
-                                <td>110 BPM</td>
-                                <td>62 BPM</td>
-                                <td>15-01-2023 11 PM</td>
-                                <td>Normal</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -450,6 +438,19 @@
                 </div>
             </div>
         </main>
+
+        <!-- Heart Rate Delete Confirmation Modal -->
+        <div id="HeartRateDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="HeartRateDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelHeartRateDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmHeartRateDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Body Temperature Content -->
         <main class="content body-temperature-content" style="display: none;">
@@ -493,19 +494,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#P1001</td>
-                                <td>37°C (98°F)</td>
-                                <td>37°C (98.6°F)</td>
-                                <td>97°F to 99°F (36.1°C to 37.2°C)</td>
-                                <td>15-01-2023 11 PM</td>
-                                <td>Normal</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -522,6 +511,19 @@
                 </div>
             </div>
         </main>
+
+        <!-- Body Temperature Delete Confirmation Modal -->
+        <div id="BodyTempDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="BodyTempDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelBodyTempDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmBodyTempDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Oxygen Saturation Content -->
         <main class="content oxygen-content" style="display: none;">
@@ -564,19 +566,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#P1001</td>
-                                <td>95%</td>
-                                <td>100%</td>
-                                <td>95% – 100% </td>
-                                <td>15-01-2023 11 PM</td>
-                                <td>Normal</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -593,6 +583,19 @@
                 </div>
             </div>
         </main>
+
+        <!-- SpO2 Delete Confirmation Modal -->
+        <div id="SpO2DeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="SpO2DeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelSpO2DeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmSpO2DeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Body Fall Detection Content -->
         <main class="content fall-detection-content" style="display: none;">
@@ -633,17 +636,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#P1001</td>
-                                <td>Yes</td>
-                                <td>Right Fall</td>
-                                <td>15-01-2023 11 PM</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -660,6 +653,19 @@
                 </div>
             </div>
         </main>
+
+        <!-- Fall Detection Delete Confirmation Modal -->
+        <div id="FallDetectionDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="FallDetectionDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelFallDetectionDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmFallDetectionDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Analytics Content -->
         <main class="content analytics-content" style="display: none;">
@@ -980,6 +986,18 @@
             </div>
         </main>
 
+        <!-- Custom Mesage Delete Confirmation Modal -->
+        <div id="MessageDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="MessageDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelMessageDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmMessageDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Messages View Modal -->
         <div class="modal-overlay" id="messageViewModal">
             <div class="modal-content">
@@ -1128,6 +1146,18 @@
             </div>
         </main>
 
+        <!-- Custom Compliance Delete Confirmation Modal -->
+        <div id="ComplianceDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="ComplianceDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelComplianceDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmComplianceDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Compliance View Modal -->
         <div class="modal-overlay" id="complianceViewModal">
             <div class="modal-content">
@@ -1272,6 +1302,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Custom Improvement Delete Confirmation Modal -->
+        <div id="ImprovementDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="ImprovementDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelImprovementDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmImprovementDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Improvement View Modal -->
         <div class="modal-overlay" id="improvementViewModal">

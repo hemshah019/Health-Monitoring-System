@@ -79,7 +79,7 @@ function fetchAndDisplayMessages() {
                         <td>#M${msg.Message_ID}</td>
                         <td>${msg.Message_Type || 'N/A'}</td>
                         <td>${msg.Message_Content ? (msg.Message_Content.length > 50 ? msg.Message_Content.substring(0, 50) + '...' : msg.Message_Content) : 'N/A'}</td>
-                        <td>${msg.Message_Sent_DateTime ? new Date(msg.Message_Sent_DateTime).toLocaleString() : 'N/A'}</td>
+                        <td>${msg.Message_Sent_DateTime || 'N/A'}</td>
                         <td><span class="status-badge status-${msg.Status?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}">${msg.Status || 'N/A'}</span></td>
                         <td>
                             <div class="action-buttons">
@@ -135,7 +135,7 @@ function fetchAndDisplayCompliance() {
                         <td>#C${record.Compliance_ID}</td>
                         <td>${record.Compliance_Type || 'N/A'}</td>
                         <td>${record.Compliance_Notes ? (record.Compliance_Notes.length > 50 ? record.Compliance_Notes.substring(0, 50) + '...' : record.Compliance_Notes) : 'N/A'}</td>
-                        <td>${record.Compliance_Date ? new Date(record.Compliance_Date).toLocaleString() : 'N/A'}</td>
+                        <td>${record.Compliance_Date || 'N/A'}</td>
                         <td><span class="status-badge status-${record.Status?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}">${record.Status || 'N/A'}</span></td>
                         <td>
                             <div class="action-buttons">
@@ -192,7 +192,7 @@ function fetchAndDisplayImprovements() {
                         <td>#I${imp.Improvement_ID}</td>
                         <td>${imp.Category || 'N/A'}</td>
                         <td>${imp.Suggestion_Description ? (imp.Suggestion_Description.length > 50 ? imp.Suggestion_Description.substring(0, 50) + '...' : imp.Suggestion_Description) : 'N/A'}</td>
-                        <td>${imp.Date_Submitted ? new Date(imp.Date_Submitted).toLocaleString() : 'N/A'}</td>
+                        <td>${imp.Date_Submitted || 'N/A'}</td>
                         <td><span class="status-badge status-${imp.Status?.toLowerCase().replace(/\s+/g, '-') || 'unknown'}">${imp.Status || 'N/A'}</span></td>
                         <td>
                             <div class="action-buttons">
@@ -552,6 +552,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeMessageModalFooterBtn = document.getElementById('closeMessageModalBtn');
     const noMessagesPlaceholder = messageContentArea?.querySelector('.no-messages');
 
+    // Custom delete confirmation modal elements
+    const messageDeleteConfirmModal = document.getElementById('MessageDeleteConfirmModal');
+    const confirmMessageDeleteBtn = document.getElementById('confirmMessageDeleteBtn');
+    const cancelMessageDeleteBtn = document.getElementById('cancelMessageDeleteBtn');
+    const messageDeleteConfirmText = document.getElementById('MessageDeleteConfirmText');
+    let messageToDelete = null;
+    let deleteButtonElement = null;
+
     function populateMessageModal(message) {
         if (!messageModal || !message) {
             console.error("Message modal or data missing for population.");
@@ -570,20 +578,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function deleteMessage(messageId, buttonElement) {
-        if (!confirm(`Are you sure you want to delete message #M${messageId}? This action cannot be undone.`)) {
-            return;
-        }
+        // Store references to use when the user confirms
+        messageToDelete = messageId;
+        deleteButtonElement = buttonElement;
+        
+        messageDeleteConfirmText.textContent = `Are you sure you want to delete message #M${messageId}? This action cannot be undone.`;
+        messageDeleteConfirmModal.style.display = 'flex';
+    }
 
-        buttonElement.disabled = true;
+    async function performMessageDeletion() {
+        if (!messageToDelete || !deleteButtonElement) return;
+        
+        const messageId = messageToDelete;
+        const buttonElement = deleteButtonElement;
         const row = buttonElement.closest('tr');
+        
+        buttonElement.disabled = true;
         if (row) row.classList.add('deleting');
-
+    
         try {
             const response = await fetch(`/messages/${messageId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' }
             });
-
+    
             // Check if response is OK, even if it doesn't contain JSON (like a 204 No Content)
             if (!response.ok && response.status !== 204) {
                 let errorMsg = `HTTP error! status: ${response.status}`;
@@ -593,23 +611,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 } catch (e) { }
                 throw new Error(errorMsg);
             }
-
+    
             // If response is OK (200 or 204), assume success or parse JSON if available
             let result = { success: true, message: 'Message deleted successfully.' };
-             if (response.status === 200) {
+            if (response.status === 200) {
                 try {
-                     result = await response.json();
+                    result = await response.json();
                 } catch (e) {
                     console.warn("Could not parse JSON response for message deletion, but status was OK.");
                 }
             }
-
-
+    
             if (result.success) {
                 console.log(`Message ${messageId} deleted successfully.`);
                 if (row) row.remove();
                 showNotification(result.message || 'Message deleted.', "success");
-
+    
                 // Check if table is empty after deletion
                 if (messageTableBody && noMessagesPlaceholder && messageTableBody.children.length === 0) {
                     noMessagesPlaceholder.style.display = 'block';
@@ -623,6 +640,10 @@ document.addEventListener('DOMContentLoaded', function() {
             buttonElement.disabled = false;
             if (row) row.classList.remove('deleting');
         }
+        
+        // Reset the stored references
+        messageToDelete = null;
+        deleteButtonElement = null;
     }
 
     if (messageTableBody && messageModal) {
@@ -664,14 +685,35 @@ document.addEventListener('DOMContentLoaded', function() {
         // Close Message modal handlers
         closeMessageModalHeaderBtn?.addEventListener('click', () => closeModal(messageModal));
         closeMessageModalFooterBtn?.addEventListener('click', () => closeModal(messageModal));
-         messageModal.addEventListener('click', (e) => {
+        messageModal.addEventListener('click', (e) => {
             if (e.target === messageModal) {
                 closeModal(messageModal);
             }
         });
 
+        // Add event listeners for the confirmation modal buttons
+        confirmMessageDeleteBtn.addEventListener('click', async () => {
+            messageDeleteConfirmModal.style.display = 'none';
+            await performMessageDeletion();
+        });
+
+        cancelMessageDeleteBtn.addEventListener('click', () => {
+            messageDeleteConfirmModal.style.display = 'none';
+            messageToDelete = null;
+            deleteButtonElement = null;
+        });
+
+        // Add a click handler for the modal background to close it
+        messageDeleteConfirmModal.addEventListener('click', (e) => {
+            if (e.target === messageDeleteConfirmModal) {
+                messageDeleteConfirmModal.style.display = 'none';
+                messageToDelete = null;
+                deleteButtonElement = null;
+            }
+        });
+
     } else {
-         console.warn('Message table body or view modal not found.');
+        console.warn('Message table body or view modal not found.');
     }
 
 
@@ -683,10 +725,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeComplianceModalFooterBtn = document.getElementById('closeComplianceModalBtn');
     const noCompliancePlaceholder = complianceContentArea?.querySelector('.no-compliances');
 
+    // Custom delete confirmation modal elements
+    const complianceDeleteConfirmModal = document.getElementById('ComplianceDeleteConfirmModal');
+    const confirmComplianceDeleteBtn = document.getElementById('confirmComplianceDeleteBtn');
+    const cancelComplianceDeleteBtn = document.getElementById('cancelComplianceDeleteBtn');
+    const complianceDeleteConfirmText = document.getElementById('ComplianceDeleteConfirmText');
+    let complianceToDelete = null;
+    let complianceDeleteButton = null;
+
     function populateComplianceModal(compliance) {
         if (!complianceModal || !compliance) {
-             console.error("Compliance modal or data missing for population.");
-             return;
+            console.error("Compliance modal or data missing for population.");
+            return;
         }
         const getText = (value) => value || 'N/A';
         const getDateText = (dateValue) => dateValue ? new Date(dateValue).toLocaleString() : 'N/A';
@@ -697,16 +747,25 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('compliance_view_date').textContent = getDateText(compliance.Compliance_Date);
         document.getElementById('compliance_view_status').textContent = getText(compliance.Status);
         document.getElementById('compliance_view_feedback').textContent = getText(compliance.Admin_Feedback);
-        document.getElementById('compliance_view_response_date').textContent = getDateText(compliance.Feedback_Date); // Corrected ID
+        document.getElementById('compliance_view_response').textContent = getDateText(compliance.Feedback_Date);
     }
 
     async function deleteCompliance(complianceId, buttonElement) {
-        if (!confirm(`Are you sure you want to delete compliance record #C${complianceId}? This action cannot be undone.`)) {
-            return;
-        }
+        complianceToDelete = complianceId;
+        complianceDeleteButton = buttonElement;
+
+        complianceDeleteConfirmText.textContent = `Are you sure you want to delete compliance record #C${complianceId}? This action cannot be undone.`;
+        complianceDeleteConfirmModal.style.display = 'flex';
+    }
+
+    async function performComplianceDeletion() {
+        if (!complianceToDelete || !complianceDeleteButton) return;
+
+        const complianceId = complianceToDelete;
+        const buttonElement = complianceDeleteButton;
+        const row = buttonElement.closest('tr');
 
         buttonElement.disabled = true;
-        const row = buttonElement.closest('tr');
         if (row) row.classList.add('deleting');
 
         try {
@@ -717,38 +776,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!response.ok && response.status !== 204) {
                 let errorMsg = `HTTP error! status: ${response.status}`;
-                 try {
+                try {
                     const errorData = await response.json();
                     errorMsg = errorData.message || errorMsg;
-                } catch (e) { /* Ignore */ }
+                } catch (e) { }
                 throw new Error(errorMsg);
             }
 
-             let result = { success: true, message: 'Compliance record deleted successfully.' };
-             if (response.status === 200) {
-                 try {
+            let result = { success: true, message: 'Compliance record deleted successfully.' };
+            if (response.status === 200) {
+                try {
                     result = await response.json();
-                 } catch (e) { console.warn("Could not parse JSON for compliance deletion."); }
-             }
-
+                } catch (e) {
+                    console.warn("Could not parse JSON response for compliance deletion.");
+                }
+            }
 
             if (result.success) {
-                console.log(`Compliance record ${complianceId} deleted successfully.`);
-                 if (row) row.remove();
+                console.log(`Compliance ${complianceId} deleted successfully.`);
+                if (row) row.remove();
                 showNotification(result.message || 'Compliance record deleted.', "success");
 
                 if (complianceTableBody && noCompliancePlaceholder && complianceTableBody.children.length === 0) {
                     noCompliancePlaceholder.style.display = 'block';
                 }
             } else {
-                throw new Error(result.message || 'Deletion failed.');
+                throw new Error(result.message || 'Deletion failed for an unknown reason.');
             }
         } catch (error) {
-            console.error(`Error deleting compliance record ${complianceId}:`, error);
-            showNotification(`Error: ${error.message || 'Could not delete compliance record.'}`, "error");
+            console.error(`Error deleting compliance ${complianceId}:`, error);
+            showNotification(`Error: ${error.message || 'Could not delete compliance. Please try again.'}`, "error");
             buttonElement.disabled = false;
-             if (row) row.classList.remove('deleting');
+            if (row) row.classList.remove('deleting');
         }
+
+        complianceToDelete = null;
+        complianceDeleteButton = null;
     }
 
     if (complianceTableBody && complianceModal) {
@@ -761,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('View compliance button clicked for ID:', complianceId);
                 if (!complianceId) return;
 
-                 viewButton.disabled = true;
+                viewButton.disabled = true;
                 try {
                     const response = await fetch(`/compliances/${complianceId}`);
                     if (!response.ok) {
@@ -775,7 +838,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Error fetching compliance details:', error);
                     showNotification(`Could not load compliance details: ${error.message}`, "error");
                 } finally {
-                     viewButton.disabled = false;
+                    viewButton.disabled = false;
                 }
             }
 
@@ -790,13 +853,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // Close Compliance modal handlers
         closeComplianceModalHeaderBtn?.addEventListener('click', () => closeModal(complianceModal));
         closeComplianceModalFooterBtn?.addEventListener('click', () => closeModal(complianceModal));
-         complianceModal.addEventListener('click', (e) => {
+        complianceModal.addEventListener('click', (e) => {
             if (e.target === complianceModal) {
                 closeModal(complianceModal);
             }
         });
+
+        // Compliance delete confirmation modal events
+        confirmComplianceDeleteBtn.addEventListener('click', async () => {
+            complianceDeleteConfirmModal.style.display = 'none';
+            await performComplianceDeletion();
+        });
+
+        cancelComplianceDeleteBtn.addEventListener('click', () => {
+            complianceDeleteConfirmModal.style.display = 'none';
+            complianceToDelete = null;
+            complianceDeleteButton = null;
+        });
+
+        complianceDeleteConfirmModal.addEventListener('click', (e) => {
+            if (e.target === complianceDeleteConfirmModal) {
+                complianceDeleteConfirmModal.style.display = 'none';
+                complianceToDelete = null;
+                complianceDeleteButton = null;
+            }
+        });
     } else {
-         console.warn('Compliance table body or view modal not found.');
+        console.warn('Compliance table body or view modal not found.');
     }
 
     // IMPROVEMENT SPECIFIC VIEW/DELETE
@@ -807,6 +890,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeImprovementModalFooterBtn = document.getElementById('closeImprovementModalBtn');
     const noImprovementPlaceholder = improvementContentArea?.querySelector('.no-improvements');
 
+    // Custom delete confirmation modal elements for Improvement
+    const improvementDeleteConfirmModal = document.getElementById('ImprovementDeleteConfirmModal');
+    const confirmImprovementDeleteBtn = document.getElementById('confirmImprovementDeleteBtn');
+    const cancelImprovementDeleteBtn = document.getElementById('cancelImprovementDeleteBtn');
+    const improvementDeleteConfirmText = document.getElementById('ImprovementDeleteConfirmText');
+    let improvementToDelete = null;
+    let deleteImprovementButtonElement = null;
+
     function populateImprovementModal(improvement) {
         if (!improvementModal || !improvement) {
             console.error("Improvement modal or data missing for population.");
@@ -816,21 +907,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const getDateText = (dateValue) => dateValue ? new Date(dateValue).toLocaleString() : 'N/A';
 
         document.getElementById('improvement_view_id').textContent = `#I${getText(improvement.Improvement_ID)}`;
-        document.getElementById('improvement_view_category').textContent = getText(improvement.Category);
-        document.getElementById('improvement_view_description').textContent = getText(improvement.Suggestion_Description);
-        document.getElementById('improvement_view_date').textContent = getDateText(improvement.Date_Submitted);
+        document.getElementById('improvement_view_type').textContent = getText(improvement.Improvement_Type);
+        document.getElementById('improvement_view_notes').textContent = getText(improvement.Improvement_Notes);
+        document.getElementById('improvement_view_date').textContent = getDateText(improvement.Improvement_Date);
         document.getElementById('improvement_view_status').textContent = getText(improvement.Status);
-        document.getElementById('improvement_view_response').textContent = getText(improvement.Admin_Response);
-        document.getElementById('improvement_view_implementation_date').textContent = getDateText(improvement.Implementation_Date);
+        document.getElementById('improvement_view_feedback').textContent = getText(improvement.Admin_Feedback);
+        document.getElementById('improvement_view_response').textContent = getDateText(improvement.Feedback_Date);
     }
 
     async function deleteImprovement(improvementId, buttonElement) {
-        if (!confirm(`Are you sure you want to delete improvement #I${improvementId}? This action cannot be undone.`)) {
-            return;
-        }
+        improvementToDelete = improvementId;
+        deleteImprovementButtonElement = buttonElement;
+
+        improvementDeleteConfirmText.textContent = `Are you sure you want to delete improvement #I${improvementId}? This action cannot be undone.`;
+        improvementDeleteConfirmModal.style.display = 'flex';
+    }
+
+    async function performImprovementDeletion() {
+        if (!improvementToDelete || !deleteImprovementButtonElement) return;
+
+        const improvementId = improvementToDelete;
+        const buttonElement = deleteImprovementButtonElement;
+        const row = buttonElement.closest('tr');
 
         buttonElement.disabled = true;
-        const row = buttonElement.closest('tr');
         if (row) row.classList.add('deleting');
 
         try {
@@ -839,7 +939,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' }
             });
 
-             if (!response.ok && response.status !== 204) {
+            if (!response.ok && response.status !== 204) {
                 let errorMsg = `HTTP error! status: ${response.status}`;
                 try {
                     const errorData = await response.json();
@@ -848,12 +948,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(errorMsg);
             }
 
-             let result = { success: true, message: 'Improvement suggestion deleted successfully.' };
-             if (response.status === 200) {
-                 try {
-                     result = await response.json();
-                 } catch (e) { console.warn("Could not parse JSON for improvement deletion.");}
-             }
+            let result = { success: true, message: 'Improvement deleted successfully.' };
+            if (response.status === 200) {
+                try {
+                    result = await response.json();
+                } catch (e) {
+                    console.warn("Could not parse JSON response for improvement deletion.");
+                }
+            }
 
             if (result.success) {
                 console.log(`Improvement ${improvementId} deleted successfully.`);
@@ -872,6 +974,10 @@ document.addEventListener('DOMContentLoaded', function() {
             buttonElement.disabled = false;
             if (row) row.classList.remove('deleting');
         }
+
+        // Reset references
+        improvementToDelete = null;
+        deleteImprovementButtonElement = null;
     }
 
     if (improvementTableBody && improvementModal) {
@@ -887,7 +993,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 viewButton.disabled = true;
                 try {
                     const response = await fetch(`/improvements/${improvementId}`);
-                     if (!response.ok) {
+                    if (!response.ok) {
                         const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
                         throw new Error(errorData.message);
                     }
@@ -913,9 +1019,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Close Improvement modal handlers
         closeImprovementModalHeaderBtn?.addEventListener('click', () => closeModal(improvementModal));
         closeImprovementModalFooterBtn?.addEventListener('click', () => closeModal(improvementModal));
-         improvementModal.addEventListener('click', (e) => {
+        improvementModal.addEventListener('click', (e) => {
             if (e.target === improvementModal) {
                 closeModal(improvementModal);
+            }
+        });
+
+        // Confirm and cancel delete modal
+        confirmImprovementDeleteBtn.addEventListener('click', async () => {
+            improvementDeleteConfirmModal.style.display = 'none';
+            await performImprovementDeletion();
+        });
+
+        cancelImprovementDeleteBtn.addEventListener('click', () => {
+            improvementDeleteConfirmModal.style.display = 'none';
+            improvementToDelete = null;
+            deleteImprovementButtonElement = null;
+        });
+
+        improvementDeleteConfirmModal.addEventListener('click', (e) => {
+            if (e.target === improvementDeleteConfirmModal) {
+                improvementDeleteConfirmModal.style.display = 'none';
+                improvementToDelete = null;
+                deleteImprovementButtonElement = null;
             }
         });
 
