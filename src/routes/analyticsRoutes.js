@@ -18,7 +18,7 @@ router.get('/heart-rate/:patientId', async (req, res) => {
         // Get heart rate data for the patient
         const heartRates = await HeartRate.find({ Patient_ID: patientId })
             .sort({ Date_Time: 1 })
-            .limit(30); // Get last 30 readings
+            .limit(30);
         
         // Format data for charts
         const lineChartData = heartRates.map(reading => ({
@@ -29,7 +29,6 @@ router.get('/heart-rate/:patientId', async (req, res) => {
         
         // Calculate status distribution for pie chart
         const statusCounts = heartRates.reduce((acc, reading) => {
-            // Make sure we're using consistent status names (Low, Normal, High)
             const status = reading.Status || getHeartRateStatus(reading.Current_Heart_Rate);
             acc[status] = (acc[status] || 0) + 1;
             return acc;

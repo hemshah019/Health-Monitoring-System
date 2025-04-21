@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tab functionality
     const tabLinks = document.querySelectorAll('.tab-link');
     tabLinks.forEach(tab => {
         tab.addEventListener('click', function() {
@@ -16,27 +15,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function switchTab(tabName) {
-    // Hide all tab panels
     document.querySelectorAll('.tab-panel').forEach(panel => {
         panel.classList.remove('active');
     });
-
-    // Deactivate all tab links
+    
     document.querySelectorAll('.tab-link').forEach(tab => {
         tab.classList.remove('active');
     });
 
-    // Show the selected tab panel
     document.getElementById(tabName).classList.add('active');
-    
-    // Activate the clicked tab link
     document.querySelector(`.tab-link[data-tab="${tabName}"]`).classList.add('active');
 
     // Load data for the selected tab
     if (tabName === 'heart-rate-tab') {
         loadHeartRateData();
     }
-    // Add other tabs here as needed
 }
 
 function loadHeartRateData() {
@@ -106,7 +99,7 @@ function renderHeartRateCharts(data) {
                             size: 10
                         },
                         color: function(context) {
-                            return '#333'; // Dark text color for visibility
+                            return '#333';
                         }
                     }
                 },
