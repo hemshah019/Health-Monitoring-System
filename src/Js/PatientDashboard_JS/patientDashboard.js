@@ -183,7 +183,6 @@ const navItems = document.querySelectorAll('.nav-item');
 const dropdownHealthItems = document.querySelectorAll('.dropdown-item');
 const dropdownCustomerItems = document.querySelectorAll('.dropdown-customer-item');
 
-
 // Function to show selected content and hide others
 function showContent(contentToShow) {
     const allContents = [
@@ -204,15 +203,15 @@ function showContent(contentToShow) {
     ];
 
     allContents.forEach(content => {
-        content.style.display = content === contentToShow ? 'block' : 'none';
+        if (content) {
+            content.style.display = content === contentToShow ? 'block' : 'none';
+        }
     });
-
-    updateAllDateTexts();
 }
 
 // Utility to activate nav item + dropdown item
-function setActiveNavAndSub(navLabel, dropdownIndex = null) {
-    // Activate top nav (e.g., Health Vital Signs)
+function setActiveNavAndSub(navLabel, dropdownIndex = null, dropdownType = null) {
+    // Activate top nav
     navItems.forEach(navItem => {
         navItem.classList.remove('active');
         if (navItem.textContent.trim() === navLabel) {
@@ -220,130 +219,172 @@ function setActiveNavAndSub(navLabel, dropdownIndex = null) {
         }
     });
 
-    // Activate dropdown sub-item
-    dropdownHealthItems.forEach(item => item.classList.remove('sub-active'));
-    if (dropdownIndex !== null && dropdownHealthItems[dropdownIndex]) {
-        dropdownHealthItems[dropdownIndex].classList.add('sub-active');
+    // Clear all dropdown highlights first
+    if (dropdownHealthItems) {
+        dropdownHealthItems.forEach(item => item.classList.remove('sub-active'));
+    }
+    if (dropdownCustomerItems) {
+        dropdownCustomerItems.forEach(item => item.classList.remove('sub-actives'));
     }
 
-    // Activate dropdown sub-item
-    dropdownCustomerItems.forEach(item => item.classList.remove('sub-actives'));
-    if (dropdownIndex !== null && dropdownCustomerItems[dropdownIndex]) {
-        dropdownCustomerItems[dropdownIndex].classList.add('sub-actives');
+    // Activate the correct dropdown item based on type
+    if (dropdownType === 'health') {
+        if (dropdownIndex !== null && dropdownHealthItems[dropdownIndex]) {
+            dropdownHealthItems[dropdownIndex].classList.add('sub-active');
+        }
+    } else if (dropdownType === 'customer') {
+        if (dropdownIndex !== null && dropdownCustomerItems[dropdownIndex]) {
+            dropdownCustomerItems[dropdownIndex].classList.add('sub-actives');
+        }
     }
 }
 
-// Main nav click handling
-navItems.forEach(item => {
-    item.addEventListener('click', function () {
-        const label = this.textContent.trim();
+// Helper function to activate specific analytics tab
+function activateAnalyticsTab(tabId) {
+    const tabLink = document.querySelector(`.analytics-tabs .tab-link[data-tab="${tabId}"]`);
+    const tabPanel = document.getElementById(tabId);
+    
+    if (tabLink && tabPanel) {
+        // Remove active class from all tabs and panels
+        document.querySelectorAll('.analytics-tabs .tab-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.analytics-tabs .tab-panel').forEach(p => p.classList.remove('active'));
+        
+        // Add active class to selected tab and panel
+        tabLink.classList.add('active');
+        tabPanel.classList.add('active');
+    }
+}
 
-        navItems.forEach(navItem => navItem.classList.remove('active'));
-        this.classList.add('active');
+// Initialize navigation
+function initNavigation() {
+    // Main nav click handling
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const label = this.textContent.trim();
+            navItems.forEach(navItem => navItem.classList.remove('active'));
+            this.classList.add('active');
 
-        // Clear dropdown highlights
-        dropdownHealthItems.forEach(drop => drop.classList.remove('sub-active'));
-        dropdownCustomerItems.forEach(drop => drop.classList.remove('sub-actives'));
+            // Clear dropdown highlights
+            dropdownHealthItems?.forEach(drop => drop.classList.remove('sub-active'));
+            dropdownCustomerItems?.forEach(drop => drop.classList.remove('sub-actives'));
 
-        if (label === 'Dashboard') {
-            showContent(dashboardContent);
-        } else if (label === 'Health Vital Signs') {
-            showContent(healthsContent);
-        } else if (label === 'Analytics') {
-            showContent(analyticsContent);
-        } else if (label === 'Tasks') {
-            showContent(tasksContent);
-        } else if (label === 'Alerts') {
-            showContent(alertsContent);
-        } else if (label === 'Customer Care') {
-            showContent(customerContent);
-        }  else if (label === 'Messages') {
-            showContent(messagesContent);
-        } else if (label === 'Compliances') {
-            showContent(compliancesContent);
-        } else if (label === 'Improvements') {
-            showContent(improvementsContent);
-        } else if (label === 'Settings') {
-            showContent(settingsContent);
-        } else {
-            showContent(dashboardContent);
-        }
+            if (label === 'Dashboard') {
+                showContent(dashboardContent);
+            } else if (label === 'Health Vital Signs') {
+                showContent(healthsContent);
+            } else if (label === 'Analytics') {
+                showContent(analyticsContent);
+            } else if (label === 'Tasks') {
+                showContent(tasksContent);
+            } else if (label === 'Alerts') {
+                showContent(alertsContent);
+            } else if (label === 'Customer Care') {
+                showContent(customerContent);
+            } else if (label === 'Settings') {
+                showContent(settingsContent);
+            }
+        });
     });
-});
 
-// Vital Boxes Click Events of Health Vital Signs
-document.querySelector('.vital-box.heart-rate-box')?.addEventListener('click', () => {
-    showContent(heartRateContent);
-    setActiveNavAndSub('Health Vital Signs', 0);
-});
+    // Health Vital Signs dropdown items
+    dropdownHealthItems?.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            const contents = [heartRateContent, bodyTempContent, oxygenContent, fallContent];
+            if (contents[index]) {
+                showContent(contents[index]);
+                setActiveNavAndSub('Health Vital Signs', index, 'health');
+            }
+        });
+    });
 
-document.querySelector('.vital-box.temp-box')?.addEventListener('click', () => {
-    showContent(bodyTempContent);
-    setActiveNavAndSub('Health Vital Signs', 1);
-});
+    // Customer Care dropdown items
+    dropdownCustomerItems?.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            const contents = [messagesContent, compliancesContent, improvementsContent];
+            if (contents[index]) {
+                showContent(contents[index]);
+                setActiveNavAndSub('Customer Care', index, 'customer');
+            }
+        });
+    });
 
-document.querySelector('.vital-box.oxygen-box')?.addEventListener('click', () => {
-    showContent(oxygenContent);
-    setActiveNavAndSub('Health Vital Signs', 2);
-});
+    // Analytics section program cards
+    document.querySelector('.program-card.heart-rate')?.addEventListener('click', () => {
+        showContent(analyticsContent);
+        setActiveNavAndSub('Analytics');
+        activateAnalyticsTab('heart-rate-tab');
+    });
 
-document.querySelector('.vital-box.fall-box')?.addEventListener('click', () => {
-    showContent(fallContent);
-    setActiveNavAndSub('Health Vital Signs', 3);
-});
+    document.querySelector('.program-card.temperature')?.addEventListener('click', () => {
+        showContent(analyticsContent);
+        setActiveNavAndSub('Analytics');
+        activateAnalyticsTab('temperature-tab');
+    });
 
-// Customer Care Boxes Click Events
-document.querySelector('.vital-box.messages-box')?.addEventListener('click', () => {
-    showContent(messagesContent);
-    setActiveNavAndSub('Customer Care', 0);
-});
+    document.querySelector('.program-card.oxygen')?.addEventListener('click', () => {
+        showContent(analyticsContent);
+        setActiveNavAndSub('Analytics');
+        activateAnalyticsTab('oxygen-tab');
+    });
 
-document.querySelector('.vital-box.compliances-box')?.addEventListener('click', () => {
-    showContent(compliancesContent);
-    setActiveNavAndSub('Customer Care', 1);
-});
+    document.querySelector('.program-card.fall-detection')?.addEventListener('click', () => {
+        showContent(analyticsContent);
+        setActiveNavAndSub('Analytics');
+        activateAnalyticsTab('fall-detection-tab');
+    });
 
-document.querySelector('.vital-box.improvements-box')?.addEventListener('click', () => {
-    showContent(improvementsContent);
-    setActiveNavAndSub('Customer Care', 2);
-});
+    // Customer Care section program cards
+    document.querySelector('.program-card.messages')?.addEventListener('click', () => {
+        showContent(messagesContent);
+        setActiveNavAndSub('Customer Care', 0, 'customer');
+    });
 
-// Dropdown Menu Items Click Events for Health Vital Signs
-dropdownHealthItems[0]?.addEventListener('click', () => {
-    showContent(heartRateContent);
-    setActiveNavAndSub('Health Vital Signs', 0);
-});
+    document.querySelector('.program-card.compliances')?.addEventListener('click', () => {
+        showContent(compliancesContent);
+        setActiveNavAndSub('Customer Care', 1, 'customer');
+    });
 
-dropdownHealthItems[1]?.addEventListener('click', () => {
-    showContent(bodyTempContent);
-    setActiveNavAndSub('Health Vital Signs', 1);
-});
+    document.querySelector('.program-card.improvements')?.addEventListener('click', () => {
+        showContent(improvementsContent);
+        setActiveNavAndSub('Customer Care', 2, 'customer');
+    });
 
-dropdownHealthItems[2]?.addEventListener('click', () => {
-    showContent(oxygenContent);
-    setActiveNavAndSub('Health Vital Signs', 2);
-});
+    // View All buttons
+    document.querySelectorAll('.view-all').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const section = this.closest('.dashboard-section');
+            if (section) {
+                const title = section.querySelector('h2')?.textContent.trim();
+                if (title === 'Analytics') {
+                    showContent(analyticsContent);
+                    setActiveNavAndSub('Analytics');
+                } else if (title === 'Customer Care') {
+                    showContent(customerContent);
+                    setActiveNavAndSub('Customer Care');
+                } else if (title === "My Task's") {
+                    showContent(tasksContent);
+                    setActiveNavAndSub('Tasks');
+                }
+            }
+        });
+    });
 
-dropdownHealthItems[3]?.addEventListener('click', () => {
-    showContent(fallContent);
-    setActiveNavAndSub('Health Vital Signs', 3);
-});
+    // Initialize analytics tabs
+    const tabLinks = document.querySelectorAll('.analytics-tabs .tab-link');
+    tabLinks?.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tabId = link.getAttribute('data-tab');
+            activateAnalyticsTab(tabId);
+        });
+    });
 
-// Dropdown Menu Items Click Events of Customer Care
-dropdownCustomerItems[0]?.addEventListener('click', () => {
-    showContent(messagesContent);
-    setActiveNavAndSub('Customer Care', 0);
-});
+    // Show dashboard by default
+    showContent(dashboardContent);
+}
 
-dropdownCustomerItems[1]?.addEventListener('click', () => {
-    showContent(compliancesContent);
-    setActiveNavAndSub('Customer Care', 1);
-});
-
-dropdownCustomerItems[2]?.addEventListener('click', () => {
-    showContent(improvementsContent);
-    setActiveNavAndSub('Customer Care', 2);
-});
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initNavigation);
 
 // TOGGLEPASSWORD
 // This function is for hiding the password and showing the password.

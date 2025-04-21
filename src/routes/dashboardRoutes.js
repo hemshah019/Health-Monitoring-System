@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Admin, Patient, Message, Compliance, Improvement } = require('../config'); 
+const { Admin, Patient, Message, Compliance, Improvement, HeartRate, SpO2, BodyTemperature, FallDetection } = require('../config'); 
 const dayjs = require('dayjs');
 
 function requireLogin(role) {
@@ -180,11 +180,24 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
         const patientId = req.session.user.id;
         const message = req.query.message;
 
-        const [patientData, messageCount, complianceCount, improvementCount] = await Promise.all([
+        const [
+            patientData,
+            messageCount,
+            complianceCount,
+            improvementCount,
+            latestHeartRate,
+            latestTemperature,
+            latestSpO2,
+            latestFallDetection
+        ] = await Promise.all([
             Patient.findOne({ Patient_ID: patientId }).lean(),
             Message.countDocuments({ Patient_ID: patientId }),
             Compliance.countDocuments({ Patient_ID: patientId }),
-            Improvement.countDocuments({ Patient_ID: patientId })
+            Improvement.countDocuments({ Patient_ID: patientId }),
+            HeartRate.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
+            BodyTemperature.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
+            SpO2.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
+            FallDetection.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean()
         ]);
 
         if (!patientData) {
@@ -198,11 +211,18 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
 
         res.render('PatientDashboard/patientDashboard', {
             title: 'Patient Dashboard',
+            patient: patientData,
             patientData: patientData,
             messageCount: messageCount,
             complianceCount: complianceCount,
             improvementCount: improvementCount,
-            message: message
+            message: message,
+            healthStats: {
+                heartRate: latestHeartRate,
+                temperature: latestTemperature,
+                spO2: latestSpO2,
+                fallDetection: latestFallDetection
+            }
         });
 
     } catch (error) {

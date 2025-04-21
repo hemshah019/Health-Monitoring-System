@@ -572,7 +572,7 @@ body {
 }
 
 .stat-value {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: bold;
     text-align: right;
     color: #2c3e50;
@@ -585,7 +585,7 @@ body {
     padding: 10px 15px;
     display: flex;
     align-items: center;
-    font-size: 12px;
+    font-size: 10px;
     color: #555;
 }
 
@@ -855,7 +855,7 @@ body {
 }
 
 /* PAGE SPECIFIC CONTENT AREAS */
-.heart-rate-content, .body-temperature-content, .oxygen-content, .fall-detection-content, .tasks-content, .alerts-content, .messages-content, .compliance-content, .improvement-content  {
+.heart-rate-content, .body-temperature-content, .oxygen-content, .fall-detection-content, .tasks-content, .alerts-content, .messages-content, .compliance-content, .improvement-content, .analytics-content  {
     margin-left: 285px;
     padding: 40px;
     height: calc(100vh - 90px);
@@ -868,13 +868,13 @@ body {
 
 .heart-rate-content::-webkit-scrollbar, .body-temperature-content::-webkit-scrollbar, .oxygen-content::-webkit-scrollbar,
 .fall-detection-content::-webkit-scrollbar, .tasks-content::-webkit-scrollbar, .alerts-content::-webkit-scrollbar, 
-.messages-content::-webkit-scrollbar, .compliance-content::-webkit-scrollbar, .improvement-content::-webkit-scrollbar {
+.messages-content::-webkit-scrollbar, .compliance-content::-webkit-scrollbar, .improvement-content::-webkit-scrollbar, .analytics-content::-webkit-scrollbar {
     display: none;
 }
 
 /* Container styles */
 .heart-rate-container, .body-temperature-container, .oxygen-container, .fall-detection-container, .tasks-container, 
-.alerts-container, .messages-container, .compliance-container, .improvement-container  {
+.alerts-container, .messages-container, .compliance-container, .improvement-container, .analytics-container  {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -1676,4 +1676,180 @@ tr.deleting {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+}
+
+/*  */
+.analytics-container {
+    margin-top: 20px;
+}
+
+.analytics-tabs {
+    width: 100%;
+}
+
+.tabs-nav {
+    display: flex; 
+    background-color: #f1ebeb;
+    border-radius: 10px; 
+    padding: 8px 18px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); 
+    overflow-x: auto; 
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tabs-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-link {
+    background: none;
+    border: none;
+    padding: 12px 35px; 
+    margin: 0 5px; 
+    font-family: inherit; 
+    font-size: 1.4rem;   
+    color: #555555;    
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap; 
+    position: relative; 
+    transition: color 0.3s ease; 
+    flex-shrink: 0;
+}
+
+.tab-link:hover {
+    color: #6497cac3;
+}
+
+.tab-link.active {
+    color: #6699CC;
+    font-weight: 600; 
+}
+
+/* Active indicator line */
+.tab-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -9px;
+    left: 50%; 
+    transform: translateX(-50%);
+    width: 70%;
+    height: 3px;
+    background-color: #6699CC;
+    border-radius: 1.5px;
+    transition: all 0.3s ease;
+}
+
+
+/* Styling for the Tab Content Panels */
+.tabs-content {
+    margin-top: 25px; /* Space above content */
+    padding: 15px;
+    /* background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px; */
+   
+}
+
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.tab-panel h2 {
+    margin-top: 1px;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.heart-rate-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.analytics-stat-card {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.analytics-stat-card h3 {
+    margin-top: 0;
+    color: #555;
+    font-size: 18px;
+}
+
+.analytics-stat-value {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.chart-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.chart-card {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.chart-card h3 {
+    margin-top: 0;
+    text-align: center;
+    color: #555;
+}
+
+canvas {
+    width: 100% !important;
+    height: 300px !important;
+}
+
+/* Status color classes */
+.normal {
+    color: #4bc04b;
+}
+
+.low {
+    color: #ffce56;
+}
+
+.high {
+    color: #ff6384;
+}
+
+.heart-rate-status {
+    font-weight: bold;
+}
+
+.heart-rate-status.normal {
+    color: #4bc04b;
+}
+
+.heart-rate-status.low {
+    color: #ffce56;
+}
+
+.heart-rate-status.high {
+    color: #ff6384;
+}
+
+/* Optional Fade-in Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

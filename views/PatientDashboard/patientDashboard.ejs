@@ -6,7 +6,7 @@
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="/CSS/PatientDashboard_CSS/patientDashboard.css">
 </head>
-<body>
+<body data-patient-id="<%= patient.Patient_ID %>"> 
     <header class="header">
         <div class="logo-container">
             <img src="/image/logo.png" alt="Company Logo" class="logo">
@@ -212,8 +212,20 @@
                         </div>
                         <div class="stat-title">Heart Rate</div>
                     </div>
-                    <div class="stat-value">XXX</div>
-                    <div class="stat-footer">Updated on Friday, 4th April 2025</div>
+                    <div class="stat-value">
+                        <% if (healthStats.heartRate) { %>
+                            <%= healthStats.heartRate.Current_Heart_Rate %> BPM
+                        <% } else { %>
+                            No data
+                        <% } %>
+                    </div>
+                    <div class="stat-footer">
+                        <% if (healthStats.heartRate) { %>
+                            Updated on <%= healthStats.heartRate.Date_Time %>
+                        <% } else { %>
+                            No data available
+                        <% } %>
+                    </div>
                 </div>
             
                 <!-- Body Temperature Card -->
@@ -226,8 +238,20 @@
                         </div>
                         <div class="stat-title">Body Temperature</div>
                     </div>
-                    <div class="stat-value">XXX</div>
-                    <div class="stat-footer">Updated on Friday, 4th April 2025</div>
+                    <div class="stat-value">
+                        <% if (healthStats.temperature) { %>
+                            <%= healthStats.temperature.Current_Temperature %> °C
+                        <% } else { %>
+                            No data
+                        <% } %>
+                    </div>
+                    <div class="stat-footer">
+                        <% if (healthStats.temperature) { %>
+                            Updated on <%= healthStats.temperature.Date_Time %>
+                        <% } else { %>
+                            No data
+                        <% } %>
+                    </div>
                 </div>
             
                 <!-- Oxygen Saturation (SpO2) Card -->
@@ -240,8 +264,20 @@
                         </div>
                         <div class="stat-title">Oxygen Saturation (SpO2)</div>
                     </div>
-                    <div class="stat-value">XXX</div>
-                    <div class="stat-footer">Updated on Friday, 4th April 2025</div>
+                    <div class="stat-value">
+                        <% if (healthStats.spO2) { %>
+                            <%= healthStats.spO2.Current_SpO2 %> %
+                        <% } else { %>
+                            No data
+                        <% } %>
+                    </div>
+                    <div class="stat-footer">
+                        <% if (healthStats.spO2) { %>
+                            Updated on <%= healthStats.spO2.Date_Time %>
+                        <% } else { %>
+                            No data available
+                        <% } %>
+                    </div>
                 </div>
             
                 <!-- Body Fall Detection Card -->
@@ -254,8 +290,20 @@
                         </div>
                         <div class="stat-title">Body Fall Detection</div>
                     </div>
-                    <div class="stat-value">XXX</div>
-                    <div class="stat-footer">Updated on Friday, 4th April 2025</div>
+                    <div class="stat-value">
+                        <% if (healthStats.fallDetection) { %>
+                            Yes, <%= healthStats.fallDetection.Fall_Direction %>
+                        <% } else { %>
+                            No data
+                        <% } %>
+                    </div>
+                    <div class="stat-footer">
+                        <% if (healthStats.fallDetection) { %>
+                            Updated on <%= healthStats.fallDetection.Date_Time %>
+                        <% } else { %>
+                            No data available
+                        <% } %>
+                    </div>
                 </div>
             </div>
 
@@ -684,7 +732,62 @@
                     </svg>
                 </div>
             </div>
-            <div class="analytics-container"></div>
+            <div class="analytics-container">
+                <div class="analytics-tabs">
+                    <nav class="tabs-nav">
+                        <button class="tab-link active" data-tab="heart-rate-tab">Heart Rate</button>
+                        <button class="tab-link" data-tab="temperature-tab">Body Temperature</button>
+                        <button class="tab-link" data-tab="oxygen-tab">Oxygen Saturation (SpO2)</button>
+                        <button class="tab-link" data-tab="fall-detection-tab">Body Fall Detection</button>
+                    </nav>
+        
+                    <!-- Tab Content Area -->
+                    <div class="tabs-content">
+                        <div id="heart-rate-tab" class="tab-panel active">
+                            <h2>Heart Rate Analytics</h2>
+                            
+                            <div class="heart-rate-stats">
+                                <div class="analytics-stat-card">
+                                    <h3>Average Heart Rate</h3>
+                                    <div class="analytics-stat-value" id="avgHeartRate">--</div>
+                                    <p>BPM (last 30 readings)</p>
+                                </div>
+                                <div class="analytics-stat-card">
+                                    <h3>Last Reading</h3>
+                                    <div class="analytics-stat-value" id="lastHeartRate">--</div>
+                                    <p>Current Status: <span id="lastHeartRateStatus">--</span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <div class="chart-card">
+                                    <h3>Heart Rate Trend</h3>
+                                    <canvas id="heartRateLineChart"></canvas>
+                                </div>
+                                <div class="chart-card">
+                                    <h3>Status Distribution</h3>
+                                    <canvas id="heartRatePieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="temperature-tab" class="tab-panel">
+                            <h2>Body Temperature Analytics</h2>
+                            <p>Content for Body Temperature will go here.</p>
+                            <!-- Add Body Temperature specific charts/data -->
+                        </div>
+                        <div id="oxygen-tab" class="tab-panel">
+                            <h2>Oxygen Saturation (SpO2) Analytics</h2>
+                            <p>Content for Oxygen Saturation (SpO2) will go here.</p>
+                            <!-- Add SpO2 specific charts/data -->
+                        </div>
+                        <div id="fall-detection-tab" class="tab-panel">
+                            <h2>Body Fall Detection Analytics</h2>
+                            <p>Content for Body Fall Detection will go here.</p>
+                            <!-- Add Fall Detection specific charts/data -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <!-- Tasks Content -->
@@ -1538,9 +1641,12 @@
             </div>
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="/Js/PatientDashboard_JS/patientDashboard.js"></script>
     <script src="/Js/PatientDashboard_JS/patientAction.js"></script>
     <script src="/Js/PatientDashboard_JS/patientHealthData.js"></script>
+    <script src="/Js/PatientDashboard_JS/analyticsCharts.js"></script>
     <script src="/Js/PatientDashboard_JS/patientsAlertData.js"></script>
     <script src="/Js/PatientDashboard_JS/patientSettings.js"></script>
 </body>

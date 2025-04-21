@@ -12,7 +12,9 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const patientActionsRoutes = require('./routes/patientActionsRoutes'); 
 const adminActionsRoutes = require('./routes/adminActionsRoutes');
 const healthDataRoutes = require('./routes/healthDataRoutes'); 
+const analyticsRoutes = require('./routes/analyticsRoutes');
 // const patientAlertRoutes = require('./routes/patientAlertRoutes'); 
+
 
 const app = express();
 
@@ -68,6 +70,7 @@ app.use('/', dashboardRoutes);
 app.use('/', patientActionsRoutes);
 app.use('/admin', adminActionsRoutes);
 app.use('/health', healthDataRoutes);
+app.use('/analytics', analyticsRoutes);
 // app.use('/alerts', patientAlertRoutes);
 
 // Server Start
