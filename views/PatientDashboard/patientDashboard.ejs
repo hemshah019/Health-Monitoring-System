@@ -741,11 +741,10 @@
                         <button class="tab-link" data-tab="fall-detection-tab">Body Fall Detection</button>
                     </nav>
         
-                    <!-- Tab Content Area -->
+                    <!-- Heart Rate Analytics Tab -->
                     <div class="tabs-content">
                         <div id="heart-rate-tab" class="tab-panel active">
                             <h2>Heart Rate Analytics</h2>
-                            
                             <div class="heart-rate-stats">
                                 <div class="analytics-stat-card">
                                     <h3>Average Heart Rate</h3>
@@ -770,15 +769,62 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Body Temperature Analytics Tab -->
                         <div id="temperature-tab" class="tab-panel">
                             <h2>Body Temperature Analytics</h2>
-                            <p>Content for Body Temperature will go here.</p>
-                            <!-- Add Body Temperature specific charts/data -->
+                            <div class="heart-rate-stats">
+                                <div class="analytics-stat-card">
+                                    <h3>Average Temperature</h3>
+                                    <div class="analytics-stat-value" id="avgTemperature">N/A</div>
+                                    <p>°C (last 30 readings)</p>
+                                </div>
+                                <div class="analytics-stat-card">
+                                    <h3>Last Reading</h3>
+                                    <div class="analytics-stat-value" id="lastTemperature">N/A</div>
+                                    <p>Current Status: <span id="lastTemperatureStatus">N/A</span></p>
+                                </div>
+                            </div>
+
+                            <div class="chart-container">
+                                <div class="chart-card">
+                                    <h3>Temperature Trend</h3>
+                                    <canvas id="temperatureLineChart"></canvas>
+                                </div>
+                                <div class="chart-card">
+                                    <h3>Status Distribution</h3>
+                                    <canvas id="temperaturePieChart"></canvas>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- SpO2 Analytics Tab -->
                         <div id="oxygen-tab" class="tab-panel">
                             <h2>Oxygen Saturation (SpO2) Analytics</h2>
-                            <p>Content for Oxygen Saturation (SpO2) will go here.</p>
-                            <!-- Add SpO2 specific charts/data -->
+
+                            <div class="heart-rate-stats">
+                                <div class="analytics-stat-card">
+                                    <h3>Average SpO2</h3>
+                                    <div class="analytics-stat-value" id="avgSpO2">N/A</div>
+                                    <p>Percentage (last 30 readings)</p>
+                                </div>
+                                <div class="analytics-stat-card">
+                                    <h3>Last Reading</h3>
+                                    <div class="analytics-stat-value" id="lastSpO2">N/A</div>
+                                    <p>Current Status: <span id="lastSpO2Status">N/A</span></p>
+                                </div>
+                            </div>
+
+                            <div class="chart-container">
+                                <div class="chart-card">
+                                    <h3>SpO2 Trend</h3>
+                                    <canvas id="spO2LineChart"></canvas>
+                                </div>
+                                <div class="chart-card">
+                                    <h3>Status Distribution</h3>
+                                    <canvas id="spO2PieChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                         <div id="fall-detection-tab" class="tab-panel">
                             <h2>Body Fall Detection Analytics</h2>
