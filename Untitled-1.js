@@ -1,53 +1,59 @@
-// // Modify the renderHeartRateCharts function - pie chart section
-// const pieCtx = document.getElementById('heartRatePieChart');
-// if (pieCtx) {
-//     new Chart(pieCtx, {
-//         type: 'pie',
-//         data: {
-//             labels: data.pieChartData.map(item => `${item.status} (${item.percentage}%)`),
-//             datasets: [{
-//                 data: data.pieChartData.map(item => item.count),
-//                 backgroundColor: [
-//                     'rgba(75, 192, 75, 0.7)',    // Green for Normal
-//                     'rgba(255, 206, 86, 0.7)',   // Yellow for Low
-//                     'rgba(255, 99, 132, 0.7)'    // Red for High
-//                 ],
-//                 borderColor: [
-//                     'rgba(75, 192, 75, 1)',      // Green border
-//                     'rgba(255, 206, 86, 1)',     // Yellow border
-//                     'rgba(255, 99, 132, 1)'      // Red border
-//                 ],
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             responsive: true,
-//             plugins: {
-//                 legend: {
-//                     position: 'right',
-//                 },
-//                 tooltip: {
-//                     callbacks: {
-//                         label: function(context) {
-//                             const label = context.label || '';
-//                             const value = context.raw || 0;
-//                             return `${label.split(' (')[0]}: ${value} readings`;
-//                         },
-//                         footer: function(tooltipItems) {
-//                             const totalReadings = data.lineChartData.length;
-//                             return `Total readings: ${totalReadings}`;
-//                         }
-//                     }
-//                 },
-//                 title: {
-//                     display: true,
-//                     text: `Total readings: ${data.lineChartData.length}`,
-//                     position: 'bottom',
-//                     font: {
-//                         size: 14
-//                     }
-//                 }
-//             }
+// Patient Dashboard (GET)
+// router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
+//     try {
+//         const patientId = req.session.user.id;
+//         const message = req.query.message;
+
+//         const [
+//             patientData,
+//             messageCount,
+//             complianceCount,
+//             improvementCount,
+//             latestHeartRate,
+//             latestTemperature,
+//             latestSpO2,
+//             latestFallDetection
+//         ] = await Promise.all([
+//             Patient.findOne({ Patient_ID: patientId }).lean(),
+//             Message.countDocuments({ Patient_ID: patientId }),
+//             Compliance.countDocuments({ Patient_ID: patientId }),
+//             Improvement.countDocuments({ Patient_ID: patientId }),
+//             HeartRate.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
+//             BodyTemperature.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
+//             SpO2.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
+//             FallDetection.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean()
+//         ]);
+
+//         if (!patientData) {
+//             console.error(`❌ ERROR: Patient data not found in DB for logged-in patient ID: ${patientId}`);
+//             req.session.destroy(err => {
+//                 if (err) console.error("Error destroying session for missing patient:", err);
+//                 return res.redirect('/?message=session_error');
+//             });
+//             return;
 //         }
-//     });
-// }
+
+//         res.render('PatientDashboard/patientDashboard', {
+//             title: 'Patient Dashboard',
+//             patient: patientData,
+//             patientData: patientData,
+//             messageCount: messageCount,
+//             complianceCount: complianceCount,
+//             improvementCount: improvementCount,
+//             message: message,
+//             healthStats: {
+//                 heartRate: latestHeartRate,
+//                 temperature: latestTemperature,
+//                 spO2: latestSpO2,
+//                 fallDetection: latestFallDetection
+//             }
+//         });
+
+//     } catch (error) {
+//         console.error(`❌ Error fetching patient data or counts for dashboard (ID: ${req.session.user?.id}):`, error);
+//         res.status(500).render('Errors/500', {
+//             title: 'Server Error',
+//             errorMsg: "An error occurred while loading your dashboard."
+//         });
+//     }
+// });

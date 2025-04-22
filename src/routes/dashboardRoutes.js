@@ -174,30 +174,35 @@ router.post('/deleteAdminAccount', requireLogin('admin'), async (req, res) => {
     }
 });
 
+
 // Patient Dashboard (GET)
 router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
     try {
         const patientId = req.session.user.id;
         const message = req.query.message;
 
-        const [
-            patientData,
-            messageCount,
-            complianceCount,
-            improvementCount,
-            latestHeartRate,
-            latestTemperature,
-            latestSpO2,
-            latestFallDetection
-        ] = await Promise.all([
+        // Fetch patient data and counts
+        const [patientData, messageCount, complianceCount, improvementCount] = await Promise.all([
             Patient.findOne({ Patient_ID: patientId }).lean(),
             Message.countDocuments({ Patient_ID: patientId }),
             Compliance.countDocuments({ Patient_ID: patientId }),
-            Improvement.countDocuments({ Patient_ID: patientId }),
-            HeartRate.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
-            BodyTemperature.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
-            SpO2.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean(),
-            FallDetection.findOne({ Patient_ID: patientId }).sort({ Date_Time: -1 }).lean()
+            Improvement.countDocuments({ Patient_ID: patientId })
+        ]);
+
+        // Fetch latest health data records directly with sorting and limiting
+        const [latestHeartRate, latestTemperature, latestSpO2, latestFallDetection] = await Promise.all([
+            HeartRate.findOne({ Patient_ID: patientId })
+                .sort({ dateTime: -1 })
+                .lean(),
+            BodyTemperature.findOne({ Patient_ID: patientId })
+                .sort({ dateTime: -1 })
+                .lean(),
+            SpO2.findOne({ Patient_ID: patientId })
+                .sort({ dateTime: -1 })
+                .lean(),
+            FallDetection.findOne({ Patient_ID: patientId })
+                .sort({ dateTime: -1 })
+                .lean()
         ]);
 
         if (!patientData) {

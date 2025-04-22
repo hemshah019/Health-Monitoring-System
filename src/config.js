@@ -162,7 +162,8 @@ const HeartRateSchema = new mongoose.Schema({
     Current_Heart_Rate: { type: Number, required: true }, 
     Average_Heart_Rate: { type: Number, required: true }, 
     Normal_Heart_Rate: { type: String, required: true },
-    Date_Time: { type: String },
+    dateTime: { type: Date },
+    displayDateTime: { type: String },
     Status: { type: String, required: true }
 });
 
@@ -172,9 +173,9 @@ HeartRateSchema.pre('save', async function (next) {
         const lastHeartRate = await this.constructor.findOne({}, {}, { sort: { 'Heart_Rate_ID': -1 } });
         this.Heart_Rate_ID = lastHeartRate ? lastHeartRate.Heart_Rate_ID + 1 : 5000;
 
-        if (!this.Date_Time) {
-            this.Date_Time = dayjs().format('dddd, Do MMMM YYYY h:mm A');
-        }
+        const now = new Date();
+        this.dateTime = now;
+        this.displayDateTime = dayjs(now).format('dddd, Do MMMM YYYY h:mm A');
     }
     next();
 });
@@ -188,8 +189,9 @@ const SpO2Schema = new mongoose.Schema({
     Patient_ID: { type: Number, required: true, index: true }, 
     Current_SpO2: { type: Number, required: true },
     Average_SpO2: { type: Number, required: true }, 
-    Normal_SpO2: { type: String, required: true }, 
-    Date_Time: { type: String },
+    Normal_SpO2: { type: String, required: true },
+    dateTime: { type: Date }, 
+    displayDateTime: { type: String },
     Status: { type: String, required: true }
 });
 
@@ -199,9 +201,9 @@ SpO2Schema.pre('save', async function (next) {
         const lastSpO2 = await this.constructor.findOne({}, {}, { sort: { 'SpO2_ID': -1 } });
         this.SpO2_ID = lastSpO2 ? lastSpO2.SpO2_ID + 1 : 6000;
 
-        if (!this.Date_Time) {
-            this.Date_Time = dayjs().format('dddd, Do MMMM YYYY h:mm A');
-        }
+        const now = new Date();
+        this.dateTime = now;
+        this.displayDateTime = dayjs(now).format('dddd, Do MMMM YYYY h:mm A');
     }
     next();
 });
@@ -215,8 +217,9 @@ const BodyTemperatureSchema = new mongoose.Schema({
     Patient_ID: { type: Number, required: true, index: true },
     Current_Temperature: { type: Number, required: true },
     Average_Temperature: { type: Number, required: true },
-    Normal_Temperature: { type: String, required: true }, 
-    Date_Time: { type: String }, 
+    Normal_Temperature: { type: String, required: true },
+    dateTime: { type: Date }, 
+    displayDateTime: { type: String }, 
     Status: { type: String, required: true } 
 });
 
@@ -226,9 +229,9 @@ BodyTemperatureSchema.pre('save', async function (next) {
         const lastTemperature = await this.constructor.findOne({}, {}, { sort: { 'Temperature_ID': -1 } });
         this.Temperature_ID = lastTemperature ? lastTemperature.Temperature_ID + 1 : 7000;
 
-        if (!this.Date_Time) {
-            this.Date_Time = dayjs().format('dddd, Do MMMM YYYY h:mm A');
-        }
+        const now = new Date();
+        this.dateTime = now;
+        this.displayDateTime = dayjs(now).format('dddd, Do MMMM YYYY h:mm A');
     }
     next();
 });
@@ -242,7 +245,8 @@ const FallDetectionSchema = new mongoose.Schema({
     Patient_ID: { type: Number, required: true, index: true },
     Fall_Detected: { type: String, required: true, enum: ['Yes'] },
     Fall_Direction: { type: String, required: true, enum : ['Forward Fall', 'Backward Fall', 'Left Side Fall', 'Right Side Fall']},
-    Date_Time: { type: String }
+    dateTime: { type: Date },
+    displayDateTime: { type: String }
 });
 
 // Pre-save hook for auto-incrementing Fall_ID and setting Date_Time
@@ -251,9 +255,9 @@ FallDetectionSchema.pre('save', async function (next) {
         const lastFall = await FallDetection.findOne({}, {}, { sort: { 'Fall_ID': -1 } });
         this.Fall_ID = lastFall ? lastFall.Fall_ID + 1 : 8000;
 
-        if (!this.Date_Time) {
-            this.Date_Time = dayjs().format('dddd, D MMMM YYYY h:mm A');
-        }
+        const now = new Date();
+        this.dateTime = now;
+        this.displayDateTime = dayjs(now).format('dddd, Do MMMM YYYY h:mm A');
     }
     next();
 });

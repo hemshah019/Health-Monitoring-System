@@ -104,6 +104,13 @@ function renderHeartRateCharts(data) {
                     }
                 },
                 scales: {
+                    x: {
+                        type: 'category', // Use category scale instead of time scale
+                        title: {
+                            display: true,
+                            text: 'Date & Time'
+                        }
+                    },
                     y: {
                         beginAtZero: false,
                         suggestedMin: 50,
@@ -197,6 +204,13 @@ function renderHeartRateCharts(data) {
         // Add total readings text below the chart
         const totalReadings = data.lineChartData.length;
         const chartContainer = pieCtx.parentElement;
+        
+        // Remove any existing total readings element to prevent duplicates
+        const existingTotalElement = chartContainer.querySelector('.total-readings');
+        if (existingTotalElement) {
+            chartContainer.removeChild(existingTotalElement);
+        }
+        
         const totalElement = document.createElement('div');
         totalElement.className = 'total-readings';
         totalElement.textContent = `Total readings: ${totalReadings}`;

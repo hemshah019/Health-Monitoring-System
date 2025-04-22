@@ -221,7 +221,7 @@
                     </div>
                     <div class="stat-footer">
                         <% if (healthStats.heartRate) { %>
-                            Updated on <%= healthStats.heartRate.Date_Time %>
+                            Updated on <%= healthStats.heartRate.displayDateTime %>
                         <% } else { %>
                             No data available
                         <% } %>
@@ -247,7 +247,7 @@
                     </div>
                     <div class="stat-footer">
                         <% if (healthStats.temperature) { %>
-                            Updated on <%= healthStats.temperature.Date_Time %>
+                            Updated on <%= healthStats.temperature.displayDateTime %>
                         <% } else { %>
                             No data
                         <% } %>
@@ -273,7 +273,7 @@
                     </div>
                     <div class="stat-footer">
                         <% if (healthStats.spO2) { %>
-                            Updated on <%= healthStats.spO2.Date_Time %>
+                            Updated on <%= healthStats.spO2.displayDateTime %>
                         <% } else { %>
                             No data available
                         <% } %>
@@ -299,7 +299,7 @@
                     </div>
                     <div class="stat-footer">
                         <% if (healthStats.fallDetection) { %>
-                            Updated on <%= healthStats.fallDetection.Date_Time %>
+                            Updated on <%= healthStats.fallDetection.displayDateTime %>
                         <% } else { %>
                             No data available
                         <% } %>

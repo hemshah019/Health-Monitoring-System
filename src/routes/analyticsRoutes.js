@@ -17,15 +17,53 @@ router.get('/heart-rate/:patientId', async (req, res) => {
         
         // Get heart rate data for the patient
         const heartRates = await HeartRate.find({ Patient_ID: patientId })
-            .sort({ Date_Time: 1 })
             .limit(30);
-        
+
         // Format data for charts
-        const lineChartData = heartRates.map(reading => ({
-            date: dayjs(reading.Date_Time).format('MMM D, h:mm A'),
-            rate: reading.Current_Heart_Rate,
-            status: reading.Status || getHeartRateStatus(reading.Current_Heart_Rate)
-        }));
+        let lineChartData = heartRates.map(reading => {
+            let formattedDate;
+            
+            if (reading.displayDateTime) {
+                try {
+                    const dateObj = dayjs(reading.displayDateTime, 'dddd, Do MMMM YYYY h:mm A');
+                    if (dateObj.isValid()) {
+                        const originalDate = dateObj.toDate();
+                        formattedDate = dateObj.format('Do MMM  h:mm');
+                        return {
+                            originalDate: originalDate,
+                            date: formattedDate,    
+                            rate: reading.Current_Heart_Rate,
+                            status: reading.Status || getHeartRateStatus(reading.Current_Heart_Rate)
+                        };
+                    }
+                } catch (e) {
+                    console.error("Date parsing error:", e);
+                }
+                
+                // Fallback if parsing fails
+                const dateParts = reading.displayDateTime.split(' ');
+                formattedDate = `${dateParts[1]} ${dateParts[2]}`;
+            } else {
+                formattedDate = 'No date';
+            }
+            
+            return {
+                originalDate: new Date(),
+                date: formattedDate,
+                rate: reading.Current_Heart_Rate,
+                status: reading.Status || getHeartRateStatus(reading.Current_Heart_Rate)
+            };
+        });
+
+         // Sort the data by date (oldest to newest)
+         lineChartData.sort((a, b) => a.originalDate - b.originalDate);
+        
+         // Remove the originalDate field as it's only needed for sorting
+         lineChartData = lineChartData.map(item => ({
+             date: item.date,
+             rate: item.rate,
+             status: item.status
+         }));
         
         // Calculate status distribution for pie chart
         const statusCounts = heartRates.reduce((acc, reading) => {

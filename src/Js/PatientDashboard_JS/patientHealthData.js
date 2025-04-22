@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentRate = record.Current_Heart_Rate ? `${record.Current_Heart_Rate} BPM` : 'N/A';
             const averageRate = record.Average_Heart_Rate ? `${record.Average_Heart_Rate} BPM` : 'N/A';
             const normalRange = record.Normal_Heart_Rate || 'N/A';
-            const dateTime = record.Date_Time || 'N/A';
+            const dateTime = record.displayDateTime || 'N/A';
             const status = record.Status || 'N/A';
 
             const statusClass = `status-badge status-${status.toLowerCase().replace(/\s+/g, '-')}`;
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentSpO2 = record.Current_SpO2 ? `${record.Current_SpO2}%` : 'N/A';
             const averageSpO2 = record.Average_SpO2 ? `${record.Average_SpO2}%` : 'N/A';
             const normalRange = record.Normal_SpO2 || 'N/A';
-            const dateTime = record.Date_Time || 'N/A';
+            const dateTime = record.displayDateTime || 'N/A';
             const status = record.Status || 'N/A';
 
             const statusClass = `status-badge status-${status.toLowerCase().replace(/\s+/g, '-')}`;
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `${record.Average_Temperature}°C (${avgFahrenheitTemp.toFixed(1)}°F)` : 'N/A';
             
             const normalRange = record.Normal_Temperature || 'N/A';
-            const dateTime = record.Date_Time || 'N/A';
+            const dateTime = record.displayDateTime || 'N/A';
             const status = record.Status || 'N/A';
 
             const statusClass = `status-badge status-${status.toLowerCase().replace(/\s+/g, '-')}`;
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Format data for display
             const fallDetected = record.Fall_Detected || 'N/A';
             const fallDirection = record.Fall_Direction || 'N/A';
-            const dateTime = record.Date_Time || 'N/A';
+            const dateTime = record.displayDateTime || 'N/A';
 
             row.innerHTML = `
                 <td>#${record.Fall_ID}</td>
