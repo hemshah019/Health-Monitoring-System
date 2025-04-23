@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { HeartRate, SpO2, BodyTemperature } = require('../config');
+const { HeartRate, SpO2, BodyTemperature, FallDetection } = require('../config');
 const dayjs = require('dayjs');
 
 // Helper function to determine heart rate status
@@ -150,6 +150,54 @@ router.get('/temperature/:patientId', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Failed to load temperature data' });
+    }
+});
+
+// Fall Detection Analytics
+router.get('/fall-detection/:patientId', async (req, res) => {
+    try {
+        const patientId = parseInt(req.params.patientId);
+        const falls = await FallDetection.find({ Patient_ID: patientId }).limit(30);
+
+        // Stat Cards
+        const totalFalls = falls.length;
+        const lastFall = falls.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0];
+
+        // Chart 1: Falls Over Time (group by day)
+        const fallsOverTime = {};
+        falls.forEach(fall => {
+            const dateKey = dayjs(fall.dateTime).format('Do MMM');
+            fallsOverTime[dateKey] = (fallsOverTime[dateKey] || 0) + 1;
+        });
+        const lineChartData = Object.entries(fallsOverTime).map(([date, count]) => ({
+            date,
+            count
+        }));
+
+        // Chart 2: Fall Direction Distribution
+        const directionCounts = {};
+        falls.forEach(fall => {
+            directionCounts[fall.Fall_Direction] = (directionCounts[fall.Fall_Direction] || 0) + 1;
+        });
+        const pieChartData = Object.entries(directionCounts).map(([direction, count]) => ({
+            direction,
+            count,
+            percentage: Math.round((count / totalFalls) * 100)
+        }));
+
+        res.json({
+            success: true,
+            totalFalls,
+            lastFall: lastFall ? {
+                date: dayjs(lastFall.dateTime).format('Do MMM YYYY, h:mm A'),
+                direction: lastFall.Fall_Direction
+            } : null,
+            lineChartData,
+            pieChartData
+        });
+    } catch (err) {
+        console.error('Error fetching fall detection analytics:', err);
+        res.status(500).json({ success: false, message: 'Failed to load fall detection data' });
     }
 });
 

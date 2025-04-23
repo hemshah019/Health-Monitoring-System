@@ -13,8 +13,10 @@ const patientActionsRoutes = require('./routes/patientActionsRoutes');
 const adminActionsRoutes = require('./routes/adminActionsRoutes');
 const healthDataRoutes = require('./routes/healthDataRoutes'); 
 const analyticsRoutes = require('./routes/analyticsRoutes');
-// const patientAlertRoutes = require('./routes/patientAlertRoutes'); 
+const patientAlertRoutes = require('./routes/patientAlertRoutes'); 
 
+// Import alert generator
+const { generateAlertsForAllPatients } = require('../utils/alertGenerator'); 
 
 const app = express();
 
@@ -71,11 +73,19 @@ app.use('/', patientActionsRoutes);
 app.use('/admin', adminActionsRoutes);
 app.use('/health', healthDataRoutes);
 app.use('/analytics', analyticsRoutes);
-// app.use('/alerts', patientAlertRoutes);
+app.use('/alerts', patientAlertRoutes);
 
 // Server Start
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+app.listen(port, async  () => {
     console.log(`Server running on Port: ${port}`);
     console.log(`Access application at: http://localhost:${port}`);
+
+    // Run alert generation on startup
+    try {
+        await generateAlertsForAllPatients();
+        console.log("✅ Initial alert check completed.");
+    } catch (err) {
+        console.error("❌ Error during alert generation at startup:", err);
+    }
 });

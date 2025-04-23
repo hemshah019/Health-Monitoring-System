@@ -268,12 +268,18 @@ const FallDetection = mongoose.model("body_fall_detections", FallDetectionSchema
 /* ====== Alert Schema ====== */
 const AlertSchema = new mongoose.Schema({
     Alert_ID: { type: Number, unique: true },
+    Heart_Rate_ID: { type: Number, required: false, index: true, default: null },  
+    SpO2_ID: { type: Number, required: false, index: true, default: null },        
+    Temperature_ID: { type: Number, required: false, index: true, default: null }, 
+    Fall_ID: { type: Number, required: false, index: true, default: null },        
     Patient_ID: { type: Number, required: true, index: true },
     Alert_Type: { type: String, required: true, enum: ['Heart Rate', 'Body Temperature', 'Oxygen Saturation (SpO2)', 'Body Fall Detection'] },
-    Current_Value: { type: Number, required: true },
+    Current_Value: { type: Number, required: false, default: null }, 
+    Fall_Direction: { type: String, required: false, default: null },
     Normal_Range: { type: String, required: true },
-    Alert_DateTime: { type: String },
-    Alert_Status: { type: String, required: true, enum: ['Normal', 'Critical', 'Resolved'], default: 'Normal' },
+    dateTime: { type: Date },
+    displayDateTime: { type: String },
+    Alert_Status: { type: String, required: true, enum: ['Medium', 'Critical', 'High', 'Low'] },
     Task_Assigned: { type: String, default: 'No' },
     Admin_Response: { type: String, default: null },
     Response_Date: { type: Date, default: null }
@@ -285,9 +291,9 @@ AlertSchema.pre('save', async function (next) {
         const lastAlert = await Alert.findOne({}, {}, { sort: { 'Alert_ID': -1 } });
         this.Alert_ID = lastAlert ? lastAlert.Alert_ID + 1 : 9000;
 
-        if (!this.Alert_DateTime) {
-            this.Alert_DateTime = dayjs().format('dddd, D MMMM YYYY h:mm A');
-        }
+        const now = new Date();
+        this.dateTime = now;
+        this.displayDateTime = dayjs(now).format('dddd, Do MMMM YYYY h:mm A');
     }
     next();
 });

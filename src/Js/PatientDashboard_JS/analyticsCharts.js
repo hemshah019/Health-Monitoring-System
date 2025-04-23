@@ -36,6 +36,9 @@ function switchTab(tabName) {
     if (tabName === 'temperature-tab') {
         loadTemperatureData();
     }
+    if (tabName === 'fall-detection-tab') {
+        loadFallDetectionData();
+    }
 }
 
 function loadHeartRateData() {
@@ -79,6 +82,19 @@ function loadTemperatureData() {
             }
         });
 }
+
+function loadFallDetectionData() {
+    const patientId = parseInt(document.querySelector('body').getAttribute('data-patient-id'));
+    fetch(`/analytics/fall-detection/${patientId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                renderFallDetectionCharts(data);
+                updateFallDetectionStats(data);
+            }
+        });
+}
+
 
 
 function renderHeartRateCharts(data) {
@@ -145,7 +161,7 @@ function renderHeartRateCharts(data) {
                     y: {
                         beginAtZero: false,
                         suggestedMin: 50,
-                        suggestedMax: 120
+                        suggestedMax: 180
                     }
                 }
             },
@@ -336,8 +352,6 @@ function renderGenericLinePieChart(data, prefix, labelText) {
                     },
                     y: {
                         beginAtZero: false
-                        // suggestedMin: 90,
-                        // suggestedMax: 105
                     }
                 }
             },
@@ -452,5 +466,141 @@ function updateStatBox(data, prefix, unitLabel) {
         lastElem.className = `heart-rate-status ${last.status.toLowerCase()}`;
         statusElem.textContent = last.status;
         statusElem.className = last.status.toLowerCase();
+    }
+}
+
+
+function renderFallDetectionCharts(data) {
+    // Falls Over Time (Line/Bar Chart)
+    const lineCtx = document.getElementById('fallOverTimeChart');
+    if (lineCtx) {
+        new Chart(lineCtx, {
+            type: 'bar',
+            data: {
+                labels: data.lineChartData.map(item => item.date),
+                datasets: [{
+                    label: 'Number of Falls',
+                    data: data.lineChartData.map(item => item.count),
+                    backgroundColor: 'rgba(255, 0, 55, 0.6)',
+                    borderColor: 'rgb(255, 0, 55)',
+                    borderWidth: 2,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'start',
+                        color: '#333',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: function (value) {
+                            return `${value}`;
+                        }
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `Falls: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Falls'
+                        },
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+    
+
+    // Fall Direction Distribution (Pie Chart)
+    const pieCtx = document.getElementById('fallDirectionPieChart');
+    if (pieCtx) {
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: data.pieChartData.map(item => item.direction),
+                datasets: [{
+                    data: data.pieChartData.map(item => item.count),
+                    backgroundColor: [
+                        'rgba(255, 0, 55, 0.8)',  // Forward
+                        'rgba(0, 123, 255, 0.8)', // Backward
+                        'rgba(255, 183, 0, 0.8)', // Left
+                        'rgba(0, 187, 0, 0.8)'    // Right
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: ${value} falls (${percentage}%)`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 10 },
+                        formatter: function(value, context) {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}\n${percentage}%`;
+                        },
+                        anchor: 'center',
+                        align: 'center'
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+}
+
+function updateFallDetectionStats(data) {
+    const totalElem = document.getElementById('totalFalls');
+    const lastDateElem = document.getElementById('lastFallDate');
+    const lastDirectionElem = document.getElementById('lastFallDirection');
+
+    if (totalElem) totalElem.textContent = data.totalFalls;
+    if (lastDateElem && lastDirectionElem) {
+        if (data.lastFall) {
+            lastDateElem.textContent = data.lastFall.date;
+            lastDirectionElem.textContent = data.lastFall.direction;
+        } else {
+            lastDateElem.textContent = 'N/A';
+            lastDirectionElem.textContent = 'N/A';
+        }
     }
 }
