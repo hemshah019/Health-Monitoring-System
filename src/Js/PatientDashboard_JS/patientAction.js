@@ -212,6 +212,57 @@ function fetchAndDisplayImprovements() {
         });
 }
 
+// Task Functions
+function fetchAndDisplayTasks() {
+    const taskTableBody = document.querySelector('.tasks-table tbody');
+    const noTasksPlaceholder = document.querySelector('.no-tasks');
+
+    if (!taskTableBody) {
+        console.warn("Task table body not found.");
+        return;
+    }
+
+    taskTableBody.innerHTML = '<tr><td colspan="7">Loading tasks...</td></tr>';
+    if (noTasksPlaceholder) noTasksPlaceholder.style.display = 'none';
+
+    fetch('/tasks')
+        .then(response => response.json())
+        .then(tasks => {
+            taskTableBody.innerHTML = '';
+            if (tasks.length === 0) {
+                if (noTasksPlaceholder) noTasksPlaceholder.style.display = 'block';
+            } else {
+                if (noTasksPlaceholder) noTasksPlaceholder.style.display = 'none';
+                tasks.forEach(task => {
+                    const alertType = task.alertDetails?.Alert_Type || 'N/A';
+                    const alertDateTime = task.alertDetails?.displayDateTime || 'N/A';
+                
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#T${task.Task_ID}</td>
+                        <td>${alertType}</td>
+                        <td>${task.Task_Name || 'N/A'}</td>
+                        <td>${task.Task_Priority || 'N/A'}</td>
+                        <td>${alertDateTime}</td>
+                        <td>${task.Completion_Time || 'N/A'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="view-btn task-view-btn" data-id="${task.Task_ID}">View</button>
+                                <button class="delete-btn task-delete-btn" data-id="${task.Task_ID}">Delete</button>
+                            </div>
+                        </td>
+                    `;
+                    taskTableBody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching tasks:', error);
+            taskTableBody.innerHTML = `<tr><td colspan="7">Could not load tasks. Please try again later.</td></tr>`;
+        });
+}
+
+
 function getCurrentDateTime() {
     const now = new Date();
     const offset = now.getTimezoneOffset();
@@ -1049,6 +1100,104 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Improvement table body or view modal not found.');
     }
 
+    // View Task Modal Logic
+    const taskContentArea = document.querySelector('.tasks-content'); 
+    const taskTableBody = document.querySelector('.tasks-table tbody');
+    const taskModal = document.getElementById('taskViewModal');
+    const closeTaskModalBtn = document.getElementById('closeTaskModal');
+    const closeTaskModalFooterBtn = document.getElementById('closeTaskModalBtn');
+
+    const taskDeleteConfirmModal = document.getElementById('taskDeleteConfirmModal');
+    const confirmTaskDeleteBtn = document.getElementById('confirmtaskDeleteBtn');
+    const cancelTaskDeleteBtn = document.getElementById('canceltaskDeleteBtn');
+    const taskDeleteConfirmText = document.getElementById('taskDeleteConfirmText');
+
+    let taskToDelete = null;
+
+    function populateTaskModal(task) {
+        const alert = task.alertDetails || {}; 
+
+        document.getElementById('task_view_alert_type').textContent = alert.Alert_Type || 'N/A';
+        document.getElementById('task_view_current_value').textContent = alert.Current_Value || 'N/A';
+        document.getElementById('task_view_normal_range').textContent = alert.Normal_Range || 'N/A';
+        document.getElementById('task_view_alert_datetime').textContent = alert.displayDateTime  || 'N/A';
+        document.getElementById('task_view_fallDetectionValue').textContent = alert.Fall_Direction || 'N/A';
+
+        document.getElementById('task_view_task_name').textContent = task.Task_Name || 'N/A';
+        document.getElementById('task_view_task_priority').innerHTML = `<span class="priority-badge priority-${task.Task_Priority?.toLowerCase()}">${task.Task_Priority}</span>`;
+        document.getElementById('task_view_task_date').textContent = task.displayDateTime || 'N/A';
+        document.getElementById('task_view_completion_time').textContent = task.Completion_Time || 'N/A';
+        document.getElementById('task_view_task_description').textContent = task.Task_Description || 'N/A';
+    }
+
+    if (taskTableBody && taskModal) {
+        taskTableBody.addEventListener('click', async (event) => {
+            const viewButton = event.target.closest('.task-view-btn');
+            const deleteButton = event.target.closest('.task-delete-btn');
+
+            if (viewButton) {
+                const taskId = viewButton.dataset.id;
+                viewButton.disabled = true;
+                try {
+                    const response = await fetch(`/tasks/${taskId}`);
+                    if (!response.ok) throw new Error('Failed to fetch task details');
+                    const taskDetails = await response.json();
+                    populateTaskModal(taskDetails);
+                    taskModal.classList.add('active');
+                } catch (error) {
+                    console.error('Error fetching task details:', error);
+                    showNotification('Could not load task details.', 'error');
+                } finally {
+                    viewButton.disabled = false;
+                }
+            }
+
+            if (deleteButton) {
+                taskToDelete = deleteButton.dataset.id;
+                taskDeleteConfirmText.textContent = `Are you sure you want to delete task #T${taskToDelete}? This action cannot be undone.`;
+                taskDeleteConfirmModal.style.display = 'flex';
+            }
+        });
+
+        closeTaskModalBtn?.addEventListener('click', () => taskModal.classList.remove('active'));
+        closeTaskModalFooterBtn?.addEventListener('click', () => taskModal.classList.remove('active'));
+        taskModal.addEventListener('click', (e) => {
+            if (e.target === taskModal) taskModal.classList.remove('active');
+        });
+
+        confirmTaskDeleteBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch(`/tasks/${taskToDelete}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    fetchAndDisplayTasks();
+                    fetchAndDisplayAlerts();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                showNotification('Could not delete task.', 'error');
+            } finally {
+                taskDeleteConfirmModal.style.display = 'none';
+                taskToDelete = null;
+            }
+        });
+
+        cancelTaskDeleteBtn.addEventListener('click', () => {
+            taskDeleteConfirmModal.style.display = 'none';
+            taskToDelete = null;
+        });
+
+        taskDeleteConfirmModal.addEventListener('click', (e) => {
+            if (e.target === taskDeleteConfirmModal) {
+                taskDeleteConfirmModal.style.display = 'none';
+                taskToDelete = null;
+            }
+        });
+    }
+
 
     // Initial Data Fetching
     if (messageContentArea) {
@@ -1062,6 +1211,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (improvementContentArea) {
          console.log("Fetching initial improvements...");
         fetchAndDisplayImprovements();
+    }
+    if (taskContentArea) {
+        console.log("Fetching initial tasks...");
+        fetchAndDisplayTasks();
     }
 
 });

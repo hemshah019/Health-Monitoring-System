@@ -59,7 +59,7 @@ router.delete('/:id', ensurePatient, async (req, res) => {
         const patientId = req.patientId;
         const alertId = req.params.id;
 
-        const alert = await Alert.findOne({ _id: alertId, Patient_ID: patientId });
+        const alert = await Alert.findOne({ Alert_ID: alertId, Patient_ID: patientId });
         if (!alert) {
             return res.status(404).json({ success: false, message: 'Alert not found or unauthorized access.' });
         }

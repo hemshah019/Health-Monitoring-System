@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Message, Compliance, Improvement, Patient } = require('../config');
+const { Message, Compliance, Improvement, Task, Alert, Patient } = require('../config');
 const dayjs = require('dayjs');
 
 
@@ -312,6 +312,96 @@ router.delete('/improvements/:id', ensurePatient, async (req, res) => {
     } catch (error) {
         console.error(`Error deleting improvement ID ${req.params.id}:`, error);
         res.status(500).json({ success: false, message: 'Server error while deleting improvement.' });
+    }
+});
+
+// Fetch Tasks
+router.get('/tasks', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const tasks = await Task.aggregate([
+            { $match: { Patient_ID: patientId } },
+            {
+                $lookup: {
+                    from: 'alerts',
+                    localField: 'Alert_ID',
+                    foreignField: 'Alert_ID',
+                    as: 'alertDetails'
+                }
+            },
+            { $unwind: { path: '$alertDetails', preserveNullAndEmptyArrays: true } }, 
+            { $sort: { Task_ID: -1 } }
+        ]);
+
+        res.status(200).json(tasks);
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+        res.status(500).json({ success: false, message: 'Server error while fetching tasks.' });
+    }
+});
+
+
+// View Tasks
+router.get('/tasks/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const taskId = parseInt(req.params.id, 10);
+
+        if (isNaN(taskId)) {
+            return res.status(400).json({ success: false, message: 'Invalid task ID format.' });
+        }
+
+        const task = await Task.aggregate([
+            { $match: { Task_ID: taskId, Patient_ID: patientId } },
+            {
+                $lookup: {
+                    from: 'alerts',
+                    localField: 'Alert_ID',
+                    foreignField: 'Alert_ID',
+                    as: 'alertDetails'
+                }
+            },
+            { $unwind: { path: '$alertDetails', preserveNullAndEmptyArrays: true } }
+        ]);
+
+        if (!task || task.length === 0) {
+            return res.status(404).json({ success: false, message: 'Task not found or unauthorized access.' });
+        }
+
+        res.status(200).json(task[0]);
+    } catch (error) {
+        console.error('Error fetching task:', error);
+        res.status(500).json({ success: false, message: 'Server error while fetching task.' });
+    }
+});
+
+// Delete Tasks
+router.delete('/tasks/:id', ensurePatient, async (req, res) => {
+    try {
+        const patientId = req.patientId;
+        const taskId = parseInt(req.params.id, 10);
+
+        if (isNaN(taskId)) {
+            return res.status(400).json({ success: false, message: 'Invalid task ID format.' });
+        }
+
+        const task = await Task.findOne({ Task_ID: taskId, Patient_ID: patientId });
+
+        if (!task) {
+            return res.status(404).json({ success: false, message: 'Task not found or unauthorized deletion.' });
+        }
+
+        // Delete the task
+        await Task.deleteOne({ Task_ID: taskId, Patient_ID: patientId });
+
+        if (task.Alert_ID) {
+            await Alert.updateOne({ Alert_ID: task.Alert_ID }, { $set: { Task_Assigned: 'No' } });
+        }
+
+        res.status(200).json({ success: true, message: 'Task deleted successfully and alert updated.' });
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        res.status(500).json({ success: false, message: 'Server error while deleting task.' });
     }
 });
 

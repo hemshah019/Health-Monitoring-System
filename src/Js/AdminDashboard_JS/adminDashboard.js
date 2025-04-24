@@ -401,6 +401,7 @@ function setupPagination() {
     });
 }
 
+
 // Initialize search and pagination when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     setupSearchFunctionality();

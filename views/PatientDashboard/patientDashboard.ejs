@@ -361,33 +361,23 @@
                         <div class="view-all">View All</div>
                     </div>
                     <div class="task-list">
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Reach out to patient</div>
-                                <div class="task-person">Hanna Westervelt</div>
-                            </div>
-                        </div>
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Review Check-Ins</div>
-                                <div class="task-person">Cooper Franci</div>
-                            </div>
-                        </div>
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Review Check-Ins</div>
-                                <div class="task-person">Cooper Franci</div>
-                            </div>
-                        </div>
+                        <% if (dashboardTasks && dashboardTasks.length > 0) { %>
+                            <% dashboardTasks.forEach(task => { %>
+                                <div class="task-item">
+                                    <div class="task-avatar">
+                                        <img src="/image/admin.png" alt="Avatar">
+                                    </div>
+                                    <div class="task-details">
+                                        <div class="task-description"><%= task.Task_Name %></div>
+                                        <div class="task-person">
+                                            <%= task.alertInfo ? task.alertInfo.Alert_Type : 'General Task' %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p style="padding: 10px;">No tasks assigned.</p>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -884,6 +874,11 @@
                     </div>
                 </div>
 
+                <!-- No Tasks Placeholder -->
+                <div class="no-tasks" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                    You don't have any tasks yet.
+                </div>
+
                 <div class="tasks-table-container full-width">
                     <table class="tasks-table">
                         <thead>
@@ -928,6 +923,18 @@
             </div>
         </main>
 
+        <!-- Custom Task Delete Confirmation Modal -->
+        <div id="taskDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="taskDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="canceltaskDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmtaskDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Task View Modal -->
         <div class="modal-overlay" id="taskViewModal">
             <div class="modal-content">
@@ -946,6 +953,10 @@
                         <div class="info-field">
                             <span class="info-field-label">Current Value</span>
                             <span class="info-field-value" id="task_view_current_value">110 BPM</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="fallDetectionValue">Fall Detection</span>
+                            <span class="info-field-value" id="task_view_fallDetectionValue"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Normal Range</span>
@@ -969,6 +980,10 @@
                             <span class="info-field-value" id="task_view_task_priority">
                                 <span class="priority-badge priority-high">High</span>
                             </span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Task Date</span>
+                            <span class="info-field-value" id="task_view_task_date">Thursday, 24th April 2025 1:14 PM</span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Completion Time</span>
@@ -1048,6 +1063,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Alert Delete Confirmation Modal -->
+        <div id="alertDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="alertDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelAlertDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmAlertDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Customer Care Content -->
         <main class="content customer-content" style="display: none;">

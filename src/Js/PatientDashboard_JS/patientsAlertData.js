@@ -1,5 +1,3 @@
-// patientAlertData.js
-
 // Define globally accessible functions
 function fetchAndDisplayAlerts() {
     const alertTableBody = document.querySelector('.alerts-table tbody');
@@ -59,8 +57,36 @@ function fetchAndDisplayAlerts() {
         });
 }
 
-function deleteAlert(alertId, buttonElement) {
-    if (!confirm(`Are you sure you want to delete alert #A${alertId}? This action cannot be undone.`)) return;
+// Global Variables for Delete Alert
+let alertToDelete = null;
+let deleteAlertButton = null;
+
+// Open Delete Modal
+function openAlertDeleteModal(alertId, buttonElement) {
+    alertToDelete = alertId;
+    deleteAlertButton = buttonElement;
+
+    const modal = document.getElementById('alertDeleteConfirmModal');
+    const confirmText = document.getElementById('alertDeleteConfirmText');
+    confirmText.textContent = `Are you sure you want to delete alert #A${alertId}? This action cannot be undone.`;
+
+    modal.style.display = 'flex';
+}
+
+// Close Delete Modal
+function closeAlertDeleteModal() {
+    const modal = document.getElementById('alertDeleteConfirmModal');
+    modal.style.display = 'none';
+    alertToDelete = null;
+    deleteAlertButton = null;
+}
+
+// Perform Alert Deletion
+function performAlertDeletion() {
+    const alertId = alertToDelete;
+    const buttonElement = deleteAlertButton;
+
+    if (!alertId || !buttonElement) return;
 
     buttonElement.disabled = true;
     const row = buttonElement.closest('tr');
@@ -88,10 +114,26 @@ function deleteAlert(alertId, buttonElement) {
             showNotification(`Error: ${error.message}`, 'error');
             buttonElement.disabled = false;
             if (row) row.classList.remove('deleting');
+        })
+        .finally(() => {
+            closeAlertDeleteModal();
         });
 }
 
-// Event delegation for alert actions
+// Modal Button Event Handlers
+const confirmAlertDeleteBtn = document.getElementById('confirmAlertDeleteBtn');
+const cancelAlertDeleteBtn = document.getElementById('cancelAlertDeleteBtn');
+
+confirmAlertDeleteBtn.addEventListener('click', performAlertDeletion);
+cancelAlertDeleteBtn.addEventListener('click', closeAlertDeleteModal);
+
+document.getElementById('alertDeleteConfirmModal').addEventListener('click', (e) => {
+    if (e.target.id === 'alertDeleteConfirmModal') {
+        closeAlertDeleteModal();
+    }
+});
+
+// Existing Event Delegation (update to use modal trigger)
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndDisplayAlerts();
 
@@ -101,25 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const deleteButton = event.target.closest('.alert-delete-btn');
             if (deleteButton) {
                 const alertId = deleteButton.dataset.id;
-                deleteAlert(alertId, deleteButton);
+                openAlertDeleteModal(alertId, deleteButton);
             }
         });
     }
-
-    const searchInput = document.querySelector('[data-search-type="alerts"]');
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearchAlerts);
-    }
 });
-
-function handleSearchAlerts(event) {
-    const searchValue = event.target.value.toLowerCase();
-    const rows = document.querySelectorAll('.alerts-table tbody tr');
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchValue) ? '' : 'none';
-    });
-}
 
 function showNotification(message, type = 'success') {
     let notificationContainer = document.getElementById('notification-container');

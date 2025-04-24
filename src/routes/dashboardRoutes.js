@@ -212,11 +212,25 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
         const message = req.query.message;
 
         // Fetch patient data and counts
-        const [patientData, messageCount, complianceCount, improvementCount] = await Promise.all([
+        const [patientData, messageCount, complianceCount, improvementCount, dashboardTasks] = await Promise.all([
             Patient.findOne({ Patient_ID: patientId }).lean(),
             Message.countDocuments({ Patient_ID: patientId }),
             Compliance.countDocuments({ Patient_ID: patientId }),
-            Improvement.countDocuments({ Patient_ID: patientId })
+            Improvement.countDocuments({ Patient_ID: patientId }),
+            Task.aggregate([
+                { $match: { Patient_ID: patientId } },
+                { $sort: { Task_ID: -1 } },
+                { 
+                    $lookup: {
+                        from: "alerts",
+                        localField: "Alert_ID",
+                        foreignField: "Alert_ID",
+                        as: "alertInfo"
+                    }
+                },
+                { $unwind: { path: "$alertInfo", preserveNullAndEmptyArrays: true } },
+                { $limit: 5 }
+            ])
         ]);
 
         // Fetch latest health data records directly with sorting and limiting
@@ -251,6 +265,7 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
             messageCount: messageCount,
             complianceCount: complianceCount,
             improvementCount: improvementCount,
+            dashboardTasks: dashboardTasks,
             message: message,
             healthStats: {
                 heartRate: latestHeartRate,
