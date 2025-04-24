@@ -881,7 +881,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-
     // PATIENT VIEW MODAL
     const patientModal = document.getElementById('patientViewModal');
     const closePatientModalBtn = document.getElementById('closePatientModal');
@@ -1034,4 +1033,363 @@ document.addEventListener('DOMContentLoaded', () => {
         patientRowToDelete = null;
     });
 
+
+    // ALERT VIEW MODAL
+    const alertModal = document.getElementById('alertViewModal');
+    const closeAlertModalBtn = document.getElementById('closeAlertModal');
+    const closeAlertModalFooterBtn = document.getElementById('closeAlertModalBtn');
+    const alertViewButtons = document.querySelectorAll('.alert-view-btn');
+
+    // Function to populate the Alert VIEW modal
+    function populateAlertModal(data) {
+        const formatDate = (dateString) => {
+            if (!dateString) return 'N/A';
+            try {
+                return dayjs(dateString).isValid() ? dayjs(dateString).format('DD-MM-YYYY h:mm A') : dateString;
+            } catch (e) { return dateString; }
+        };
+
+        document.getElementById('alert_view_id').textContent = `#A${data.Alert_ID}`;
+        document.getElementById('alert_view_patient_name').textContent = data.patientFullName || 'Unknown Patient';
+        document.getElementById('alert_view_type').textContent = data.Alert_Type || 'N/A';
+
+        const currentValueField = document.getElementById('alert_view_current_value');
+        if (data.Alert_Type === 'Oxygen Saturation (SpO2)') {
+            currentValueField.textContent = data.Current_Value ? `${data.Current_Value}%` : 'N/A';
+        } else if (data.Alert_Type === 'Heart Rate') {
+            currentValueField.textContent = data.Current_Value ? `${data.Current_Value} BPM` : 'N/A';
+        } else if (data.Alert_Type === 'Body Temperature') {
+            currentValueField.textContent = data.Current_Value ? `${data.Current_Value}°C` : 'N/A';
+        } else {
+            currentValueField.textContent = data.Current_Value || 'N/A';
+        }
+        document.getElementById('alert_view_fall_detection').textContent = data.Fall_Direction || 'N/A';
+        document.getElementById('alert_view_normal_range').textContent = data.Normal_Range || 'N/A';
+        document.getElementById('alert_view_datetime').textContent = formatDate(data.displayDateTime);
+        document.getElementById('alert_view_status').textContent = data.Alert_Status || 'N/A';
+        document.getElementById('alert_view_task_assigned').textContent = data.Task_Assigned || 'No';
+    }
+
+    // Add click listeners to all ALERT VIEW buttons
+    alertViewButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const alertId = this.getAttribute('data-id');
+            if (!alertId) return;
+
+            try {
+                const response = await fetch(`/admin/alerts/${alertId}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                }
+                const alertData = await response.json();
+                populateAlertModal(alertData);
+                alertModal.classList.add('active');
+            } catch (error) {
+                console.error('Error fetching alert details:', error);
+                showNotification(`Failed to load alert details: ${error.message}`, 'error');
+            }
+        });
+    });
+
+    // Close ALERT VIEW modal handlers
+    function closeAlertViewModal() {
+        alertModal.classList.remove('active');
+    }
+    closeAlertModalBtn.addEventListener('click', closeAlertViewModal);
+    closeAlertModalFooterBtn.addEventListener('click', closeAlertViewModal);
+    alertModal.addEventListener('click', function(e) {
+        if (e.target === alertModal) {
+            closeAlertViewModal();
+        }
+    });
+
+    // ALERT ADD TASK ACTION
+    const alertAddTaskButtons = document.querySelectorAll('.alert-addTask-btn');
+    const taskPopup = document.getElementById('taskPopup');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Open Add Task modal and populate fields
+    alertAddTaskButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+            const alertId = this.getAttribute('data-id');
+            document.getElementById('alertId').value = alertId;
+    
+            try {
+                const response = await fetch(`/admin/alerts/${alertId}`);
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to fetch alert details.');
+    
+                // Populate Patient Details (as before)
+                document.getElementById('patientId').value = data.Patient_ID || 'N/A';
+                document.getElementById('patientName').value = data.patientFullName || 'Unknown Patient';
+                document.getElementById('patientAge').value = data.patientInfo?.Age || 'N/A';
+                document.getElementById('contactInfo').value = data.patientInfo?.Email || data.patientInfo?.Phone_Number || 'N/A';
+    
+                // Populate Alert Details (as before)
+                document.getElementById('alertType').value = data.Alert_Type || 'N/A';
+                document.getElementById('currentValue').value = data.Current_Value || 'N/A';
+                document.getElementById('fallDetectionValue').value = data.Fall_Direction || 'N/A';
+                document.getElementById('normalRange').value = data.Normal_Range || 'N/A';
+                document.getElementById('alertDateTime').value = data.displayDateTime || 'N/A';
+    
+                // Check for existing task (Add this block)
+                const taskResponse = await fetch(`/admin/alerts/${alertId}/task`);
+                const taskData = await taskResponse.json();
+                if (taskResponse.ok && taskData.task) {
+                    // Populate Task Assignment Details with existing task
+                    document.getElementById('taskName').value = taskData.task.Task_Name || '';
+                    document.getElementById('taskPriority').value = taskData.task.Task_Priority || '';
+                    document.getElementById('taskDescription').value = taskData.task.Task_Description || '';
+                    document.getElementById('completionTime').value = taskData.task.Completion_Time 
+                        ? new Date(taskData.task.Completion_Time).toISOString().slice(0,16)
+                        : '';
+                } else {
+                    // If no task, reset Task Assignment Details
+                    document.getElementById('taskName').value = '';
+                    document.getElementById('taskPriority').value = '';
+                    document.getElementById('taskDescription').value = '';
+                    document.getElementById('completionTime').value = '';
+                }
+    
+            } catch (error) {
+                console.error('Error fetching alert or task data:', error);
+                showNotification(`Error fetching data: ${error.message}`, 'error');
+            }
+    
+            // Show the modal
+            taskPopup.style.display = 'flex';
+        });
+    });
+
+
+
+    // Reset Task form
+    resetBtn.addEventListener('click', () => {
+        document.getElementById('healthAlertForm').reset();
+    });
+
+    // Close Task modal
+    document.querySelector('.close-popup').addEventListener('click', () => {
+        taskPopup.style.display = 'none';
+    });
+    
+    taskPopup.addEventListener('click', function(e) {
+        if (e.target === taskPopup) {
+            taskPopup.style.display = 'none';
+        }
+    });
+
+
+    const healthAlertForm = document.getElementById('healthAlertForm');
+
+    healthAlertForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+    
+        const alertId = document.getElementById('alertId').value;
+        const formData = {
+            taskName: document.getElementById('taskName').value,
+            taskPriority: document.getElementById('taskPriority').value,
+            taskDescription: document.getElementById('taskDescription').value,
+            completionTime: document.getElementById('completionTime').value
+        };
+    
+        try {
+            const response = await fetch(`/admin/alerts/${alertId}/tasks`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+    
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+    
+            showNotification(result.message || 'Task assigned successfully!');
+            taskPopup.style.display = 'none';
+    
+            // Refresh just the updated row (like Improvement logic)
+            const row = document.querySelector(`.alert-addTask-btn[data-id="${alertId}"]`).closest('tr');
+            if (row) {
+                // Update relevant columns (Task_Assigned and others if needed)
+                row.querySelector('td:nth-child(9)').textContent = result.updatedAlert.Task_Assigned || 'No';
+            }
+    
+        } catch (error) {
+            console.error('Error assigning task:', error);
+            showNotification(`Failed to assign task: ${error.message}`, 'error');
+        }
+    });
+    
+
+
+    // ALERT DELETE ACTION
+    const alertDeleteButtons = document.querySelectorAll('.alert-delete-btn');
+    const alertDeleteConfirmModal = document.getElementById('alertDeleteConfirmModal');
+    const confirmAlertDeleteBtn = document.getElementById('confirmalertDeleteBtn');
+    const cancelAlertDeleteBtn = document.getElementById('cancelalertDeleteBtn');
+    const alertDeleteConfirmText = document.getElementById('alertDeleteConfirmText');
+
+    let alertIdToDelete = null;
+    let alertRowToDelete = null;
+
+    alertDeleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            alertIdToDelete = this.getAttribute('data-id');
+            alertRowToDelete = this.closest('tr');
+
+            if (!alertIdToDelete) return;
+
+            alertDeleteConfirmText.textContent = 
+                `Are you sure you want to delete alert #A${alertIdToDelete}? This action cannot be undone.`;
+
+            alertDeleteConfirmModal.style.display = 'flex';
+        });
+    });
+
+    confirmAlertDeleteBtn.addEventListener('click', async () => {
+        if (!alertIdToDelete) return;
+
+        try {
+            const response = await fetch(`/admin/alerts/${alertIdToDelete}`, {
+                method: 'DELETE',
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+            }
+
+            showNotification(result.message || 'Alert deleted successfully!');
+
+            if (alertRowToDelete) {
+                alertRowToDelete.remove();
+                const tbody = document.querySelector('.alerts-table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 20px;">No alerts found.</td></tr>';
+                }
+            }
+        } catch (error) {
+            console.error('Error deleting alert:', error);
+            showNotification(`Failed to delete alert: ${error.message}`, 'error');
+        }
+
+        alertDeleteConfirmModal.style.display = 'none';
+        alertIdToDelete = null;
+        alertRowToDelete = null;
+    });
+
+    cancelAlertDeleteBtn.addEventListener('click', () => {
+        alertDeleteConfirmModal.style.display = 'none';
+        alertIdToDelete = null;
+        alertRowToDelete = null;
+    });
+
+
+    // TASK VIEW MODAL
+    const taskModal = document.getElementById('taskViewModal');
+    const closeTaskModalBtn = document.getElementById('closeTaskModal');
+    const closeTaskModalFooterBtn = document.getElementById('closeTaskModalBtn');
+    const taskViewButtons = document.querySelectorAll('.task-view-btn');
+
+    function populateTaskModal(data) {
+        const formatDate = (dateString) => {
+            if (!dateString) return 'N/A';
+            try {
+                return dayjs(dateString).isValid() ? dayjs(dateString).format('DD-MM-YYYY h:mm A') : dateString;
+            } catch (e) { return dateString; }
+        };
+
+        document.getElementById('task_view_patient_id').textContent = `#P${data.Patient_ID}`;
+        document.getElementById('task_view_patient_name').textContent = data.patientFullName || 'Unknown Patient';
+        document.getElementById('task_view_patient_age').textContent = data.patientInfo?.Age + ' years' || 'N/A';
+        document.getElementById('task_view_contact_info').textContent = data.patientEmail || 'N/A';
+
+        document.getElementById('task_view_alert_type').textContent = data.alertInfo?.Alert_Type || 'N/A';
+        document.getElementById('task_view_current_value').textContent = data.alertInfo?.Current_Value || 'N/A';
+        document.getElementById('task_view_fallDetectionValue').textContent = data.alertInfo?.Fall_Direction || 'N/A';
+        document.getElementById('task_view_normal_range').textContent = data.alertInfo?.Normal_Range || 'N/A';
+        document.getElementById('task_view_alert_datetime').textContent = formatDate(data.alertInfo?.displayDateTime);
+
+        document.getElementById('task_view_task_name').textContent = data.Task_Name || 'N/A';
+        document.getElementById('task_view_task_priority').innerHTML = `<span class="priority-badge priority-${data.Task_Priority.toLowerCase()}">${data.Task_Priority}</span>`;
+        document.getElementById('task_view_task_date').textContent = formatDate(data.displayDateTime);
+        document.getElementById('task_view_completion_time').textContent = formatDate(data.Completion_Time);
+        document.getElementById('task_view_task_description').textContent = data.Task_Description || 'N/A';
+    }
+
+    taskViewButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const taskId = this.getAttribute('data-id');
+            try {
+                const response = await fetch(`/admin/tasks/${taskId}`);
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message);
+                populateTaskModal(data);
+                taskModal.classList.add('active');
+            } catch (error) {
+                showNotification(`Error loading task: ${error.message}`, 'error');
+            }
+        });
+    });
+
+    function closeTaskViewModal() {
+        taskModal.classList.remove('active');
+    }
+    closeTaskModalBtn.addEventListener('click', closeTaskViewModal);
+    closeTaskModalFooterBtn.addEventListener('click', closeTaskViewModal);
+    taskModal.addEventListener('click', (e) => {
+        if (e.target === taskModal) closeTaskViewModal();
+    });
+
+
+    // TASK DELETE ACTION
+    const taskDeleteButtons = document.querySelectorAll('.task-delete-btn');
+    const taskDeleteConfirmModal = document.getElementById('taskDeleteConfirmModal');
+    const confirmTaskDeleteBtn = document.getElementById('confirmtaskDeleteBtn');
+    const cancelTaskDeleteBtn = document.getElementById('canceltaskDeleteBtn');
+    const taskDeleteConfirmText = document.getElementById('taskDeleteConfirmText');
+
+    let taskIdToDelete = null;
+    let taskRowToDelete = null;
+
+    taskDeleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            taskIdToDelete = this.getAttribute('data-id');
+            taskRowToDelete = this.closest('tr');
+            taskDeleteConfirmText.textContent = `Are you sure you want to delete task #T${taskIdToDelete}? This action cannot be undone.`;
+            taskDeleteConfirmModal.style.display = 'flex';
+        });
+    });
+
+    confirmTaskDeleteBtn.addEventListener('click', async () => {
+        if (!taskIdToDelete) return;
+        try {
+            const response = await fetch(`/admin/tasks/${taskIdToDelete}`, { method: 'DELETE' });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+            showNotification(result.message);
+
+        // Remove task row
+        if (taskRowToDelete) {
+            const alertId = taskRowToDelete.getAttribute('data-alert-id');
+
+            taskRowToDelete.remove();
+
+            const alertRow = document.querySelector(`.alert-addTask-btn[data-id="${alertId}"]`)?.closest('tr');
+            if (alertRow) {
+                alertRow.querySelector('td:nth-child(9)').textContent = 'No';
+            }
+        }
+
+        } catch (error) {
+            showNotification(`Error deleting task: ${error.message}`, 'error');
+        }
+        taskDeleteConfirmModal.style.display = 'none';
+    });
+
+    cancelTaskDeleteBtn.addEventListener('click', () => {
+        taskDeleteConfirmModal.style.display = 'none';
+        taskIdToDelete = null;
+        taskRowToDelete = null;
+    });
 });

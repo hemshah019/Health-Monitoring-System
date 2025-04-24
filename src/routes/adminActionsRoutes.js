@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Message, Patient, Compliance, Improvement } = require('../config');
+const { Message, Patient, Compliance, Improvement, Alert, Task } = require('../config');
 const dayjs = require('dayjs');
 
 // Middleware to ensure the user is an admin
@@ -474,5 +474,253 @@ router.delete('/patients/:id', ensureAdmin, async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error while deleting patient.' });
     }
 });
+
+
+// GET: Fetch Single Alert Details (for View Modal)
+router.get('/alerts/:id', ensureAdmin, async (req, res) => {
+    try {
+        const alertId = parseInt(req.params.id, 10);
+
+        if (isNaN(alertId)) {
+            return res.status(400).json({ success: false, message: 'Invalid alert ID format.' });
+        }
+        console.log(`Admin attempting to fetch alert ID: ${alertId}`);
+
+        const alertAggregation = await Alert.aggregate([
+            { $match: { Alert_ID: alertId } },
+            {
+                $lookup: {
+                    from: "patients",
+                    localField: "Patient_ID",
+                    foreignField: "Patient_ID",
+                    as: "patientInfo"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$patientInfo",
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ]).exec();
+
+        if (!alertAggregation || alertAggregation.length === 0) {
+            console.warn(`Alert not found for ID: ${alertId}`);
+            return res.status(404).json({ success: false, message: 'Alert not found.' });
+        }
+
+        const alert = alertAggregation[0];
+        alert.patientFullName = alert.patientInfo 
+            ? `${alert.patientInfo.First_Name} ${alert.patientInfo.Last_Name}` 
+            : 'Unknown Patient';
+
+        res.status(200).json(alert);
+    } catch (error) {
+        console.error(`Error fetching alert ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while fetching alert details.' });
+    }
+});
+
+// GET: Fetch existing Task for an Alert
+router.get('/alerts/:id/task', ensureAdmin, async (req, res) => {
+    try {
+        const alertId = parseInt(req.params.id, 10);
+        if (isNaN(alertId)) {
+            return res.status(400).json({ success: false, message: 'Invalid alert ID format.' });
+        }
+
+        const task = await Task.findOne({ Alert_ID: alertId }).lean();
+        if (!task) {
+            return res.status(404).json({ success: false, message: 'No task found for this alert.' });
+        }
+
+        res.status(200).json({ success: true, task });
+    } catch (error) {
+        console.error(`Error fetching task for alert ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while fetching task.' });
+    }
+});
+
+
+// POST: Add a Task for an Alert
+router.post('/alerts/:id/tasks', ensureAdmin, async (req, res) => {
+    try {
+        const alertId = parseInt(req.params.id, 10);
+        const { taskName, taskPriority, taskDescription, completionTime } = req.body;
+
+        if (isNaN(alertId)) {
+            return res.status(400).json({ success: false, message: 'Invalid alert ID format.' });
+        }
+        if (!taskName || !taskPriority || !taskDescription || !completionTime) {
+            return res.status(400).json({ success: false, message: 'Missing required task fields.' });
+        }
+
+        // Check if the alert exists
+        const alert = await Alert.findOne({ Alert_ID: alertId });
+        if (!alert) {
+            return res.status(404).json({ success: false, message: 'Alert not found.' });
+        }
+
+        // Check for existing task for the alert
+        const existingTask = await Task.findOne({ Alert_ID: alertId });
+
+        let updatedTask;
+        if (existingTask) {
+            // If task exists, update it
+            existingTask.Task_Name = taskName;
+            existingTask.Task_Description = taskDescription;
+            existingTask.Task_Priority = taskPriority;
+            existingTask.Completion_Time = new Date(completionTime);
+            updatedTask = await existingTask.save();
+        } else {
+            // If no task exists, create a new one
+            const newTask = new Task({
+                Patient_ID: alert.Patient_ID,
+                Alert_ID: alert.Alert_ID,
+                Task_Name: taskName,
+                Task_Description: taskDescription,
+                Task_Priority: taskPriority,
+                Completion_Time: new Date(completionTime)
+            });
+            updatedTask = await newTask.save();
+        }
+
+        // Always ensure Alert's Task_Assigned is set to 'Yes'
+        alert.Task_Assigned = 'Yes';
+        await alert.save();
+
+        // Fetch updated alert with patient info
+        const updatedAlert = await Alert.aggregate([
+            { $match: { Alert_ID: alertId } },
+            {
+                $lookup: {
+                    from: "patients",
+                    localField: "Patient_ID",
+                    foreignField: "Patient_ID",
+                    as: "patientInfo"
+                }
+            },
+            { $unwind: { path: "$patientInfo", preserveNullAndEmptyArrays: true } },
+            {
+                $addFields: {
+                    patientFullName: { 
+                        $concat: ['$patientInfo.First_Name', ' ', '$patientInfo.Last_Name'] 
+                    }
+                }
+            }
+        ]);
+
+        res.status(201).json({ success: true, message: 'Task assigned/updated successfully!', updatedAlert: updatedAlert[0] });
+
+    } catch (error) {
+        console.error(`Error assigning/updating task for alert ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while assigning/updating task.' });
+    }
+});
+
+
+// DELETE: Delete an Alert
+router.delete('/alerts/:id', ensureAdmin, async (req, res) => {
+    try {
+        const alertId = parseInt(req.params.id, 10);
+
+        if (isNaN(alertId)) {
+            return res.status(400).json({ success: false, message: 'Invalid alert ID format.' });
+        }
+        console.log(`Admin attempting to delete alert ID: ${alertId}`);
+
+        const result = await Alert.findOneAndDelete({ Alert_ID: alertId });
+
+        if (!result) {
+            console.warn(`Alert not found for deletion. ID: ${alertId}`);
+            return res.status(404).json({ success: false, message: 'Alert not found.' });
+        }
+
+        console.log(`Successfully deleted alert ID: ${alertId}`);
+        res.status(200).json({ success: true, message: 'Alert deleted successfully.' });
+    } catch (error) {
+        console.error(`Error deleting alert ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while deleting alert.' });
+    }
+});
+
+
+// GET: Fetch Single Task Details (for View Modal)
+router.get('/tasks/:id', ensureAdmin, async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.id, 10);
+        if (isNaN(taskId)) {
+            return res.status(400).json({ success: false, message: 'Invalid task ID format.' });
+        }
+
+        const taskAggregation = await Task.aggregate([
+            { $match: { Task_ID: taskId } },
+            {
+                $lookup: {
+                    from: "patients",
+                    localField: "Patient_ID",
+                    foreignField: "Patient_ID",
+                    as: "patientInfo"
+                }
+            },
+            { $unwind: { path: "$patientInfo", preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
+                    from: "alerts",
+                    localField: "Alert_ID",
+                    foreignField: "Alert_ID",
+                    as: "alertInfo"
+                }
+            },
+            { $unwind: { path: "$alertInfo", preserveNullAndEmptyArrays: true } }
+        ]).exec();
+
+        if (!taskAggregation || taskAggregation.length === 0) {
+            return res.status(404).json({ success: false, message: 'Task not found.' });
+        }
+
+        const task = taskAggregation[0];
+        task.patientFullName = task.patientInfo 
+            ? `${task.patientInfo.First_Name} ${task.patientInfo.Last_Name}`
+            : 'Unknown Patient';
+        task.patientEmail = task.patientInfo?.Email || 'N/A';
+
+        res.status(200).json(task);
+    } catch (error) {
+        console.error(`Error fetching task ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while fetching task details.' });
+    }
+});
+
+// DELETE: Delete a Task
+router.delete('/tasks/:id', ensureAdmin, async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.id, 10);
+        if (isNaN(taskId)) {
+            return res.status(400).json({ success: false, message: 'Invalid task ID format.' });
+        }
+
+        // Find the task first to get the Alert_ID
+        const task = await Task.findOneAndDelete({ Task_ID: taskId });
+        if (!task) {
+            return res.status(404).json({ success: false, message: 'Task not found.' });
+        }
+
+        // Update the related Alert's Task_Assigned to 'No'
+        if (task.Alert_ID) {
+            await Alert.findOneAndUpdate(
+                { Alert_ID: task.Alert_ID },
+                { $set: { Task_Assigned: 'No' } }
+            );
+        }
+
+        res.status(200).json({ success: true, message: 'Task deleted successfully!' });
+    } catch (error) {
+        console.error(`Error deleting task ID ${req.params.id}:`, error);
+        res.status(500).json({ success: false, message: 'Server error while deleting task.' });
+    }
+});
+
+
 
 module.exports = router;

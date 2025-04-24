@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Admin, Patient, Message, Compliance, Improvement, HeartRate, SpO2, BodyTemperature, FallDetection } = require('../config'); 
+const { Admin, Patient, Message, Compliance, Improvement, HeartRate, SpO2, BodyTemperature, FallDetection, Alert, Task } = require('../config'); 
 const dayjs = require('dayjs');
 
 function requireLogin(role) {
@@ -50,13 +50,15 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             allMessages,
             allCompliances,
             allImprovements,
+            allAlerts,
+            allTasks,
+            dashboardTasks,
             patientCount,
             messageCount,
             complianceCount,
             improvementCount,
-            pendingMessageCount, 
-            pendingComplianceCount, 
-            pendingImprovementCount,
+            alertCount,
+            taskCount,
             todayEnrollmentsCount 
         ] = await Promise.all([
             Admin.findOne({ adminID: adminId }).lean(),
@@ -64,21 +66,48 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             Message.aggregate([{ $sort: { Message_ID: -1 } }, ...patientLookupPipeline]),
             Compliance.aggregate([{ $sort: { Compliance_ID: -1 } }, ...patientLookupPipeline]),
             Improvement.aggregate([{ $sort: { Improvement_ID: -1 } }, ...patientLookupPipeline]),
+            Alert.aggregate([{ $sort: { Alert_ID: -1 } }, ...patientLookupPipeline]),
+            Task.aggregate([
+                { $sort: { Task_ID: -1 } },
+                ...patientLookupPipeline,
+                {
+                    $lookup: {
+                        from: "alerts",
+                        localField: "Alert_ID",
+                        foreignField: "Alert_ID",
+                        as: "alertInfo"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$alertInfo",
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ]),
+            Task.aggregate([
+                { $sort: { Task_ID: -1 } },
+                ...patientLookupPipeline,
+                {
+                    $lookup: {
+                        from: "alerts",
+                        localField: "Alert_ID",
+                        foreignField: "Alert_ID",
+                        as: "alertInfo"
+                    }
+                },
+                { $unwind: { path: "$alertInfo", preserveNullAndEmptyArrays: true } },
+                { $limit: 5 } 
+            ]),
 
             // Counts for Stat Cards
             Patient.countDocuments(),
             Message.countDocuments(),
             Compliance.countDocuments(),
             Improvement.countDocuments(),
-
-            // Counts for 'Alerts' (Pending items)
-            Message.countDocuments({ Status: 'Pending' }),
-            Compliance.countDocuments({ Status: 'Pending' }),
-            Improvement.countDocuments({ Status: 'Pending' }),
-            // Count patients enrolled in last 24 hours
-            Patient.countDocuments({ 
-                Enrollment_Date: { $gte: twentyFourHoursAgo } 
-            })
+            Alert.countDocuments(),
+            Task.countDocuments(), 
+            Patient.countDocuments({ Enrollment_Date: { $gte: twentyFourHoursAgo } })
         ]);
 
         if (!adminData) {
@@ -90,23 +119,24 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
             return;
         }
 
-        // Calculate total 'Alerts' count (sum of pending items)
-        const alertCount = pendingMessageCount + pendingComplianceCount + pendingImprovementCount;
-
         res.render('AdminDashboard/adminDashboard', {
             adminData: adminData,
             patients: allPatients,       
             messages: allMessages,       
             compliances: allCompliances, 
             improvements: allImprovements,
+            alerts: allAlerts, 
+            tasks: allTasks,
 
             // Data for the main dashboard content
             patientCount: patientCount,
             messageCount: messageCount,
             complianceCount: complianceCount,
             improvementCount: improvementCount,
-            alertCount: alertCount,
+            alertCount: alertCount ,
+            taskCount: taskCount,
             dashboardPatients: allPatients.slice(0, 3),
+            dashboardTasks: dashboardTasks,
             message: message,
             todayEnrollmentsCount: todayEnrollmentsCount 
         });

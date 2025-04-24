@@ -304,7 +304,7 @@
                         
                         <div class="program-card">
                             <div class="card-title">Total Tasks Assigned</div>
-                            <div class="card-value">1</div>
+                            <div class="card-value"><%= taskCount %></div>
                         </div>
                         
                         <div class="program-card">
@@ -327,55 +327,21 @@
                     </div>
                     
                     <div class="task-list">
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Reach out to patient</div>
-                                <div class="task-person">Hanna Westervelt</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Review Check-Ins</div>
-                                <div class="task-person">Cooper Franci</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Assign new CGM devices</div>
-                                <div class="task-person">Jocelyn Wilkens</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Reach out to patient</div>
-                                <div class="task-person">Ryan Westervelt</div>
-                            </div>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-avatar">
-                                <img src="/image/admin.png" alt="Avatar">
-                            </div>
-                            <div class="task-details">
-                                <div class="task-description">Check Alerts</div>
-                                <div class="task-person">John Phiel Madsen</div>
-                            </div>
-                        </div>
+                        <% if (dashboardTasks && dashboardTasks.length > 0) { %>
+                            <% dashboardTasks.forEach(task => { %>
+                                <div class="task-item">
+                                    <div class="task-avatar">
+                                        <img src="/image/admin.png" alt="Avatar">
+                                    </div>
+                                    <div class="task-details">
+                                        <div class="task-description"><%= task.Task_Name %></div>
+                                        <div class="task-person"><%= task.patientInfo ? task.patientInfo.First_Name + ' ' + task.patientInfo.Last_Name : 'Unknown Patient' %></div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p style="padding: 10px;">No tasks found.</p>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -649,26 +615,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#T1001</td>
-                                <td>
-                                    <div class="patient-name">
-                                        <span>John Doe</span>
-                                    </div>
-                                </td>
-                                <td>68 years</td>
-                                <td>Heart Rate</td>
-                                <td>Rest for 10 minutes</td>
-                                <td>High</td>
-                                <td>16-01-2023</td>
-                                <td>16-01-2023 11:00 AM</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn task-view-btn" data-id="T1001">View</button>
-                                        <button class="delete-btn" data-id="T1001">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <% if (tasks && tasks.length > 0) { %>
+                                <% tasks.forEach(task => { %>
+                                    <tr data-alert-id="<%= task.Alert_ID %>">
+                                        <td>#T<%= task.Task_ID %></td>
+                                        <td>
+                                            <div class="patient-name">
+                                                <span><%= task.patientInfo ? task.patientInfo.First_Name + ' ' + task.patientInfo.Last_Name : 'Unknown Patient' %></span>
+                                            </div>
+                                        </td>
+                                        <td><%= task.patientInfo ? task.patientInfo.Age + ' years' : 'N/A' %></td>
+                                        <td><%= task.alertInfo ? task.alertInfo.Alert_Type : 'N/A' %></td>
+                                        <td><%= task.Task_Name %></td>
+                                        <td><%= task.Task_Priority %></td>
+                                        <td><%= task.alertInfo ? task.alertInfo.displayDateTime : 'N/A' %></td>
+                                        <td><%= task.displayDateTime %></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="view-btn task-view-btn" data-id="<%= task.Task_ID %>">View</button>
+                                                <button class="delete-btn task-delete-btn" data-id="<%= task.Task_ID %>">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 20px;">No tasks found.</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -684,6 +658,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Custom Task Delete Confirmation Modal -->
+        <div id="taskDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="taskDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="canceltaskDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmtaskDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Task View Modal -->
         <div class="modal-overlay" id="taskViewModal">
@@ -709,7 +695,7 @@
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Contact Information</span>
-                            <span class="info-field-value" id="task_view_contact_info">(555) 123-4567 | john.doe@example.com</span>
+                            <span class="info-field-value" id="task_view_contact_info">john.doe@example.com</span>
                         </div>
                     </div>
                     
@@ -723,6 +709,10 @@
                         <div class="info-field">
                             <span class="info-field-label">Current Value</span>
                             <span class="info-field-value" id="task_view_current_value">110 BPM</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="fallDetectionValue">Fall Detection</span>
+                            <span class="info-field-value" id="task_view_fallDetectionValue"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Normal Range</span>
@@ -748,6 +738,10 @@
                             </span>
                         </div>
                         <div class="info-field">
+                            <span class="info-field-label">Task Date</span>
+                            <span class="info-field-value" id="task_view_task_date">Thursday, 24th April 2025 1:14 PM</span>
+                        </div>
+                        <div class="info-field">
                             <span class="info-field-label">Completion Time</span>
                             <span class="info-field-value" id="task_view_completion_time">16-01-2023 11:00 AM</span>
                         </div>
@@ -763,8 +757,8 @@
             </div>
         </div>
 
-         <!-- Alerts Content -->
-         <main class="content alerts-content" style="display: none;">
+        <!-- Alerts Content -->
+        <main class="content alerts-content" style="display: none;">
             <div class="dashboard-header">
                 <h1>Alerts Details</h1>
                 <div class="date-selector">
@@ -800,35 +794,63 @@
                                 <th>Patient Name</th>
                                 <th>Alert Type</th>
                                 <th>Current Value</th>
+                                <th>Fall Direction</th>
                                 <th>Normal Range</th>
-                                <th>Alert Date & Time</th>
-                                <th>Alert Status</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
                                 <th>Task Assigned</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#A2001</td>
-                                <td>
-                                    <div class="patient-name">
-                                        <span>John Doe</span>
-                                    </div>
-                                </td>
-                                <td>High Blood Pressure</td>
-                                <td>160/100 mmHg</td>
-                                <td>120/80 mmHg</td>
-                                <td>17-01-2023</td>
-                                <td>Unresolved</td>
-                                <td>Yes</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn alert-view-btn" data-id="A2001">View</button>
-                                        <button class="tasks-btn" data-id="P1001">Add Tasks</button>
-                                        <button class="delete-btn" data-id="A2001">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <% if (alerts && alerts.length > 0) { %>
+                                <% alerts.forEach(alert => { %>
+                                    <tr>
+                                        <td>#A<%= alert.Alert_ID %></td>
+                                        <td>
+                                            <div class="patient-name">
+                                                <span><%= alert.patientInfo ? alert.patientInfo.First_Name + ' ' + alert.patientInfo.Last_Name : 'Unknown Patient' %></span>
+                                            </div>
+                                        </td>
+                                        <td><%= alert.Alert_Type %></td>
+                                        <td>
+                                            <% if (alert.Alert_Type === 'Oxygen Saturation (SpO2)') { %>
+                                                <%= alert.Current_Value !== null ? alert.Current_Value + '%' : 'N/A' %>
+                                            <% } else if (alert.Alert_Type === 'Heart Rate') { %>
+                                                <%= alert.Current_Value !== null ? alert.Current_Value + ' BPM' : 'N/A' %>
+                                            <% } else if (alert.Alert_Type === 'Body Temperature') { %>
+                                                <%= alert.Current_Value !== null ? alert.Current_Value + '°C' : 'N/A' %>
+                                            <% } else { %>
+                                                <%= alert.Current_Value !== null ? alert.Current_Value : 'N/A' %>
+                                            <% } %>
+                                        </td>
+                        
+                                        <td>
+                                            <%= alert.Alert_Type === 'Body Fall Detection' ? alert.Fall_Direction : 'N/A' %> 
+                                        </td>
+                        
+                                        <td><%= alert.Normal_Range %></td>
+                                        <td><%= alert.displayDateTime %></td>
+                                        <td>
+                                            <span class="status-badge status-<%= alert.Alert_Status.toLowerCase() %>">
+                                                <%= alert.Alert_Status %>
+                                            </span>
+                                        </td>
+                                        <td><%= alert.Task_Assigned %></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="view-btn alert-view-btn" data-id="<%= alert.Alert_ID %>">View</button>
+                                                <button class="tasks-btn alert-addTask-btn" data-id="<%= alert.Alert_ID %>">Add Tasks</button>
+                                                <button class="delete-btn alert-delete-btn" data-id="<%= alert.Alert_ID %>">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="10" style="text-align: center; padding: 20px;">No alerts found.</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -845,6 +867,18 @@
                 </div>
             </div>
         </main>
+
+        <!-- Custom Alert Delete Confirmation Modal -->
+        <div id="alertDeleteConfirmModal" class="delete-modal" style="display: none;">
+            <div class="delete-modal-content">
+                <h3>Delete Confirmation</h3>
+                <p id="alertDeleteConfirmText" style="margin: 10px 0;"></p>
+                <div class="delete-dialog-buttons">
+                    <button id="cancelalertDeleteBtn" class="btn-delete-cancel">Cancel</button>
+                    <button id="confirmalertDeleteBtn" class="btn-delete-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Alerts View Modal -->
         <div class="modal-overlay" id="alertViewModal">
@@ -870,6 +904,10 @@
                         <div class="info-field">
                             <span class="info-field-label">Current Value</span>
                             <span class="info-field-value" id="alert_view_current_value">160/100 mmHg</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Fall Detection</span>
+                            <span class="info-field-value" id="alert_view_fall_detection">160/100 mmHg</span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Normal Range</span>
@@ -903,26 +941,27 @@
                     <h1>Patient Task Assignment Form</h1>
                     
                     <form id="healthAlertForm">
+                        <input type="hidden" id="alertId" name="alertId">
                         <div class="form-section">
                             <div class="form-section-title">Patient Details</div>
                             <div class="form-rows">
                                 <div class="form-groups">
                                     <label for="patientId">Patient ID</label>
-                                    <input type="text" id="patientId" name="patientId" required>
+                                    <input type="text" id="patientId" name="patientId" required readonly>
                                 </div>
                                 <div class="form-groups">
                                     <label for="patientName">Patient Name</label>
-                                    <input type="text" id="patientName" name="patientName" required>
+                                    <input type="text" id="patientName" name="patientName" required readonly>
                                 </div>
                             </div>
                             <div class="form-rows">
                                 <div class="form-groups">
                                     <label for="patientAge">Patient Age</label>
-                                    <input type="number" id="patientAge" name="patientAge" min="0" max="120" required>
+                                    <input type="number" id="patientAge" name="patientAge" min="0" max="120" required readonly>
                                 </div>
                                 <div class="form-groups">
                                     <label for="contactInfo">Contact Information</label>
-                                    <input type="text" id="contactInfo" name="contactInfo" placeholder="Email or Phone" required>
+                                    <input type="text" id="contactInfo" name="contactInfo" placeholder="Email or Phone" required readonly>
                                 </div>
                             </div>
                         </div>
@@ -933,27 +972,25 @@
                             <div class="form-rows">
                                 <div class="form-groups">
                                     <label for="alertType">Alert Type</label>
-                                    <select id="alertType" name="alertType" required>
-                                        <option value="">Select Alert Type</option>
-                                        <option value="Heart Rate">Heart Rate</option>
-                                        <option value="Oxygen Level">Oxygen Level (SpO2)</option>
-                                        <option value="Body Temperature">Body Temperature</option>
-                                        <option value="Other">Body Fall-Detection</option>
-                                    </select>
+                                    <input type="text" id="alertType" name="alertType" required readonly>
                                 </div>
                                 <div class="form-groups">
                                     <label for="currentValue">Current Value</label>
-                                    <input type="text" id="currentValue" name="currentValue" required>
+                                    <input type="text" id="currentValue" name="currentValue" required readonly>
+                                </div>
+                                <div class="form-groups">
+                                    <label for="fallDetectionValue">Fall Detection</label>
+                                    <input type="text" id="fallDetectionValue" name="fallDetectionValue" required readonly>
                                 </div>
                             </div>
                             <div class="form-rows">
                                 <div class="form-groups">
                                     <label for="normalRange">Normal Range</label>
-                                    <input type="text" id="normalRange" name="normalRange" required>
+                                    <input type="text" id="normalRange" name="normalRange" required readonly>
                                 </div>
                                 <div class="form-groups">
                                     <label for="alertDateTime">Alert Date & Time</label>
-                                    <input type="datetime-local" id="alertDateTime" name="alertDateTime" required>
+                                    <input type="text" id="alertDateTime" name="alertDateTime" required readonly>
                                 </div>
                             </div>
                         </div>

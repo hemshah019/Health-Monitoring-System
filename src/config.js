@@ -301,6 +301,34 @@ AlertSchema.pre('save', async function (next) {
 const Alert = mongoose.model("alerts", AlertSchema);
 
 
+/* ====== Task Schema ====== */
+const TaskSchema = new mongoose.Schema({
+    Task_ID: { type: Number, unique: true },
+    Patient_ID: { type: Number, required: true, index: true },
+    Alert_ID: { type: Number, required: false, index: true },
+    Task_Name: { type: String, required: true },
+    Task_Description: { type: String, required: true },
+    Task_Priority: { type: String, required: true, enum: ['Low', 'Medium', 'High', 'Critical'] },
+    Completion_Time: { type: Date },
+    dateTime: { type: Date },
+    displayDateTime: { type: String }
+});
+
+// Pre-save hook for auto-incrementing Task_ID and setting dateTime
+TaskSchema.pre('save', async function (next) {
+    if (this.isNew) {
+        const lastTask = await Task.findOne({}, {}, { sort: { 'Task_ID': -1 } });
+        this.Task_ID = lastTask ? lastTask.Task_ID + 1 : 10000;
+
+        const now = new Date();
+        this.dateTime = now;
+        this.displayDateTime = dayjs(now).format('dddd, Do MMMM YYYY h:mm A');
+    }
+    next();
+});
+
+const Task = mongoose.model("tasks", TaskSchema);
+
 /* ====== Export All Models ====== */
 module.exports = {
     Patient,
@@ -312,5 +340,6 @@ module.exports = {
     SpO2,          
     BodyTemperature,
     FallDetection,
-    Alert
+    Alert,
+    Task 
 };

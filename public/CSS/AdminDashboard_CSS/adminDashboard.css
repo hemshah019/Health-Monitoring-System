@@ -691,7 +691,7 @@ body {
 .alerts-table, .compliance-table, .improvement-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .patients-table th, .tasks-table th, .messages-table th, 
@@ -1460,6 +1460,9 @@ button:hover {
 .status-approved { background-color: #28a745; color: white; }
 .status-rejected { background-color: #dc3545; color: white; }
 .status-implemented { background-color: #007bff; color: white; }
+.status-low { background-color: #ffc107; color: #333; }       
+.status-high { background-color: #dc3545; color: white; }
+.status-critical { background-color: #ff0019; color: white; }  
 
 /* Style for row during deletion */
 tr.deleting {

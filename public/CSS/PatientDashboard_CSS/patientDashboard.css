@@ -838,7 +838,7 @@ body {
 .heart-rate-table, .body-temperature-table, .oxygen-table, .fall-detection-table, .tasks-table, .alerts-table, .messages-table, .compliance-table, .improvement-table  {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .heart-rate-table th, .body-temperature-table th, .oxygen-table th, .fall-detection-table th, .tasks-table th, .alerts-table th, .messages-table th, .compliance-table th, .improvement-table th,
