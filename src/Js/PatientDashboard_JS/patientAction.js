@@ -1210,4 +1210,73 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchAndDisplayTasks();
     }
 
+    // Upload Patient Profile Image
+    const patientForm = document.getElementById('patientProfileUploadForm');
+    const patientInput = document.getElementById('patientProfileImage');
+    const patientPreview = document.getElementById('patientProfilePreview');
+
+    if (patientForm && patientInput) {
+        patientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = patientInput.files[0];
+            if (!file) {
+                showNotification('Please select an image file.', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            try {
+                const res = await fetch('/image/upload-patient-profile', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Upload failed');
+
+                showNotification('Profile image updated successfully!');
+                patientPreview.src = `${data.imagePath}?t=${Date.now()}`;
+
+            } catch (err) {
+                showNotification(`Upload failed: ${err.message}`, 'error');
+            }
+        });
+    }
+
+    // Delete Patient Profile Image
+    const deletePatientProfileButton = document.getElementById('deleteProfileImage');
+    const patientDeleteModal = document.getElementById('patientProfileDeleteConfirmModal');
+    const confirmPatientDeleteBtn = document.getElementById('confirmPatientProfileDeleteBtn');
+    const cancelPatientDeleteBtn = document.getElementById('cancelPatientProfileDeleteBtn');
+
+    if (deletePatientProfileButton) {
+        deletePatientProfileButton.addEventListener('click', () => {
+            patientDeleteModal.style.display = 'flex';
+        });
+    }
+
+    confirmPatientDeleteBtn.addEventListener('click', async () => {
+        try {
+            const res = await fetch('/image/delete-patient-profile', { method: 'DELETE' });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.message || 'Deletion failed');
+
+            showNotification('Profile image deleted successfully!');
+            patientPreview.src = `${data.defaultImage}?t=${Date.now()}`;
+        } catch (err) {
+            showNotification(`Deletion failed: ${err.message}`, 'error');
+        } finally {
+            patientDeleteModal.style.display = 'none';
+        }
+    });
+
+    cancelPatientDeleteBtn.addEventListener('click', () => {
+        patientDeleteModal.style.display = 'none';
+    });
+
+
 });
