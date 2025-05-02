@@ -14,11 +14,12 @@
         
         <div class="title">Health Monitoring System</div>
 
-        <div class="notification-icon" id="notificationToggle">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
-            </svg>
-            <div class="notification-badge" id="notificationBadge">3</div>
+        <div class="patient-profile-header">
+            <img class="patient-image-header" src="/image/admin.png" alt="Patient">
+            <div class="patient-info-header">
+                <h3><%= patientData.First_Name %> <%= patientData.Last_Name %></h3>
+                <p>Patient</p>
+            </div>
         </div>
     </header>
     <% if (message === 'login-success') { %>
@@ -27,67 +28,6 @@
           <button onclick="document.getElementById('toast').style.display='none'">×</button>
         </div>
       <% } %>
-
-    <!-- Notification Panel -->
-    <div class="notification-panel" id="notificationPanel">
-        <div class="notification-header">
-            <h2>Notifications</h2>
-            <div class="notification-header-buttons">
-                <button class="btn btn-clear" id="clearNotifications">Clear All</button>
-                <button class="btn btn-close" id="closeNotifications">Close</button>
-            </div>
-        </div>
-        <div class="notification-content" id="notificationContent">
-            <div class="notification-item">
-                <div class="notification-icon-small">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M20.5 4.5c-2.49 0-4.24 1.55-5.5 3.09C13.24 6.05 11.49 4.5 9 4.5 5.78 4.5 3 7.1 3 10.32c0 2.21 1.02 4.21 2.39 5.76 1.33 1.5 3.07 2.77 4.86 4.09l1.25.89c.34.25.8.25 1.14 0l1.25-.89c1.79-1.32 3.53-2.59 4.86-4.09 1.37-1.55 2.39-3.55 2.39-5.76C21 7.1 18.22 4.5 15 4.5z"/>
-                    </svg>
-                </div>
-                <div class="notification-text">
-                    <h4>Heart Rate Alert</h4>
-                    <p>Your heart rate reached 120 bpm during your morning exercise.</p>
-                    <div class="notification-time">Today, 9:45 AM</div>
-                </div>
-            </div>
-            <div class="notification-item">
-                <div class="notification-icon-small">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                    </svg>
-                </div>
-                <div class="notification-text">
-                    <h4>Medication Reminder</h4>
-                    <p>It's time to take your afternoon medication.</p>
-                    <div class="notification-time">Today, 2:00 PM</div>
-                </div>
-            </div>
-            <div class="notification-item">
-                <div class="notification-icon-small">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
-                    </svg>
-                </div>
-                <div class="notification-text">
-                    <h4>Appointment Confirmed</h4>
-                    <p>Your appointment with Dr. Johnson has been confirmed for tomorrow at 10:30 AM.</p>
-                    <div class="notification-time">Yesterday, 5:30 PM</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Empty State -->
-        <div class="notification-empty" id="emptyNotifications" style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
-            </svg>
-            <h3>No notifications</h3>
-            <p>You're all caught up!</p>
-        </div>
-    </div>
-
-    <!-- Overlay backdrop -->
-    <div class="overlay" id="overlay"></div>
 
     <div class="container">
         <aside class="sidebar">
@@ -160,14 +100,6 @@
                         <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
                     </svg>
                     Logout
-                </div>
-            </div>
-            
-            <div class="patient-profile">
-                <img class="patient-image" src="/image/admin.png" alt="Patient">
-                <div class="patient-info">
-                    <h3><%= patientData.First_Name %> <%= patientData.Last_Name %></h3>
-                    <p>Patient</p>
                 </div>
             </div>
         </aside>
@@ -464,10 +396,13 @@
                     </table>
                 </div>
 
-                <div class="pagination" data-pagination="patients">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                <div class="pagination" data-pagination="heartRate">
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -537,10 +472,13 @@
                     </table>
                 </div>
 
-                <div class="pagination" data-pagination="patients">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                <div class="pagination" data-pagination="bodyTemp">
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -609,10 +547,13 @@
                     </table>
                 </div>
 
-                <div class="pagination" data-pagination="patients">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                <div class="pagination" data-pagination="oxygen">
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -679,10 +620,13 @@
                     </table>
                 </div>
 
-                <div class="pagination" data-pagination="patients">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                <div class="pagination" data-pagination="fall-detection">
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -874,11 +818,6 @@
                     </div>
                 </div>
 
-                <!-- No Tasks Placeholder -->
-                <div class="no-tasks" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
-                    You don't have any tasks yet.
-                </div>
-
                 <div class="tasks-table-container full-width">
                     <table class="tasks-table">
                         <thead>
@@ -893,27 +832,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#T1001</td>
-                                <td>Heart Rate</td>
-                                <td>Rest for 10 minutes</td>
-                                <td>High</td>
-                                <td>16-01-2023</td>
-                                <td>16-01-2023 11:00 AM</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="view-btn task-view-btn" data-id="">View</button>
-                                        <button class="delete-btn">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
+
+                        </tbody>                                           
                     </table>
                 </div>
                 <div class="pagination" data-pagination="tasks">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -1046,15 +975,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            
+
                         </tbody>
                     </table>
                 </div>
         
                 <div class="pagination" data-pagination="alerts">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -1136,9 +1068,9 @@
                 </div>
 
                 <!-- No Messages Placeholder -->
-                <div class="no-messages" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                <!-- <div class="no-messages" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
                     You don't have any messages yet.
-                </div>
+                </div> -->
         
                 <div class="messages-table-container full-width">
                     <table class="messages-table">
@@ -1159,9 +1091,12 @@
                 </div>
         
                 <div class="pagination" data-pagination="messages">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -1296,9 +1231,9 @@
                 </div>
 
                 <!-- No compliances Placeholder -->
-                <div class="no-compliances" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                <!-- <div class="no-compliances" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
                     You don't have any compliances yet.
-                </div>
+                </div> -->
         
                 <div class="compliance-table-container full-width">
                     <table class="compliance-table">
@@ -1318,10 +1253,13 @@
                     </table>
                 </div>
         
-                <div class="pagination" data-pagination="completions">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                <div class="pagination" data-pagination="compliances">
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>
@@ -1453,9 +1391,9 @@
                 </div>
 
                 <!-- No improvement Placeholder -->
-                <div class="no-improvements" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
+                <!-- <div class="no-improvements" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
                     You don't have any improvements yet.
-                </div>
+                </div> -->
         
                 <div class="improvement-table-container full-width">
                     <table class="improvement-table">
@@ -1476,9 +1414,12 @@
                 </div>
         
                 <div class="pagination" data-pagination="improvements">
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M14 6l1.41 1.41L10.83 12l4.58 4.59L14 18l-6-6 6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="page-buttons"></div>
                     <button class="pagination-btn next">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z" fill="currentColor"/>

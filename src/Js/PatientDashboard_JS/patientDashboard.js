@@ -47,8 +47,6 @@ function scheduleNextUpdate() {
 }
 
 scheduleNextUpdate();
-
-// Optional: Update every minute (for testing purposes, can be removed)
 setInterval(updateAllDateTexts, 60000);
 
 // Clickable date selector (for future functionality)
@@ -67,98 +65,6 @@ document.querySelectorAll('.nav-item-with-dropdown').forEach(item => {
         item.classList.toggle('open');
         dropdownMenu.classList.toggle('open');
     });
-});
-
-// Notification Panel Toggle
-const notificationToggle = document.getElementById('notificationToggle');
-const notificationPanel = document.getElementById('notificationPanel');
-const overlay = document.getElementById('overlay');
-const closeNotifications = document.getElementById('closeNotifications');
-const clearNotifications = document.getElementById('clearNotifications');
-const notificationContent = document.getElementById('notificationContent');
-const emptyNotifications = document.getElementById('emptyNotifications');
-const notificationBadge = document.getElementById('notificationBadge');
-
-// Toggle notification panel
-notificationToggle.addEventListener('click', function() {
-    notificationPanel.classList.toggle('open');
-    overlay.classList.toggle('open');
-});
-
-// Close notification panel
-closeNotifications.addEventListener('click', function() {
-    notificationPanel.classList.remove('open');
-    overlay.classList.remove('open');
-});
-
-// Close when clicking on overlay
-overlay.addEventListener('click', function() {
-    notificationPanel.classList.remove('open');
-    overlay.classList.remove('open');
-});
-
-// Clear all notifications
-clearNotifications.addEventListener('click', function() {
-    notificationContent.style.display = 'none';
-    emptyNotifications.style.display = 'flex';
-    notificationBadge.textContent = '0';
-    notificationBadge.style.display = 'none';
-});
-
-// Sample function to add a new notification (for demonstration)
-function addNotification(title, message, iconType = 'info') {
-    if (emptyNotifications.style.display === 'flex') {
-        emptyNotifications.style.display = 'none';
-        notificationContent.style.display = 'block';
-    }
-    
-    // Create new notification element
-    const newNotification = document.createElement('div');
-    newNotification.className = 'notification-item';
-    
-    // Set icon based on type
-    let iconPath = '';
-    switch(iconType) {
-        case 'heart':
-            iconPath = '<path d="M20.5 4.5c-2.49 0-4.24 1.55-5.5 3.09C13.24 6.05 11.49 4.5 9 4.5 5.78 4.5 3 7.1 3 10.32c0 2.21 1.02 4.21 2.39 5.76 1.33 1.5 3.07 2.77 4.86 4.09l1.25.89c.34.25.8.25 1.14 0l1.25-.89c1.79-1.32 3.53-2.59 4.86-4.09 1.37-1.55 2.39-3.55 2.39-5.76C21 7.1 18.22 4.5 15 4.5z"/>';
-            break;
-        case 'medication':
-            iconPath = '<path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>';
-            break;
-        case 'appointment':
-            iconPath = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>';
-            break;
-        default:
-            iconPath = '<path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>';
-    }
-    
-    // Set notification content
-    newNotification.innerHTML = `
-        <div class="notification-icon-small">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">${iconPath}</svg>
-        </div>
-        <div class="notification-text">
-            <h4>${title}</h4>
-            <p>${message}</p>
-            <div class="notification-time">Just now</div>
-        </div>
-    `;
-    
-    // Add to top of notifications
-    notificationContent.insertBefore(newNotification, notificationContent.firstChild);
-    
-    // Update badge count
-    const currentCount = parseInt(notificationBadge.textContent) || 0;
-    notificationBadge.textContent = currentCount + 1;
-    notificationBadge.style.display = 'flex';
-}
-
-// Close notification panel when pressing Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && notificationPanel.classList.contains('open')) {
-        notificationPanel.classList.remove('open');
-        overlay.classList.remove('open');
-    }
 });
 
 // NAVIGATION
@@ -478,110 +384,125 @@ function setupSearchFunctionality() {
 }
 
 // PAGINATION FUNCTIONALITY
+let paginationState = {}; 
 function setupPagination() {
-    const itemsPerPage = 10;
-    
+    const itemsPerPage = 20;
+
     document.querySelectorAll('[data-pagination]').forEach(paginationContainer => {
-        const table = paginationContainer.closest('.content').querySelector('table');
+        const sectionKey = paginationContainer.getAttribute('data-pagination');
+        if (!paginationState[sectionKey]) paginationState[sectionKey] = 1;
+
+        const section = paginationContainer.closest('.content');
+        const table = section.querySelector('table');
         if (!table) return;
-        
-        const paginationButtons = paginationContainer.querySelectorAll('.pagination-btn');
-        const nextButton = paginationContainer.querySelector('.pagination-btn.next');
+
+        const allRows = Array.from(table.querySelectorAll('tbody tr:not(.no-results)'));
+        const totalPages = Math.ceil(allRows.length / itemsPerPage);
+
+        paginationContainer.innerHTML = `
+            <button class="pagination-btn prev">‹</button>
+            <div class="page-buttons"></div>
+            <button class="pagination-btn next">›</button>
+        `;
+
         const prevButton = paginationContainer.querySelector('.pagination-btn.prev');
-        
-        let currentPage = 1;
-        
-        function updatePagination() {
-            const rows = Array.from(table.querySelectorAll('tbody tr:not(.no-results)'));
-            const totalPages = Math.ceil(rows.length / itemsPerPage);
-            
-            // Hide all rows
-            rows.forEach(row => row.style.display = 'none');
-            
-            // Show rows for current page
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            
-            rows.slice(startIndex, endIndex).forEach(row => {
-                row.style.display = '';
-            });
-            
-            // Update pagination buttons
-            paginationButtons.forEach(button => {
-                button.classList.remove('active');
-                if (button.textContent === currentPage.toString()) {
-                    button.classList.add('active');
-                }
-                
-                // Show/hide numbered buttons based on current page
-                const pageNum = parseInt(button.textContent);
-                if (!isNaN(pageNum)) {
-                    if (pageNum <= 3 || pageNum >= totalPages - 2 || 
-                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)) {
-                        button.style.display = '';
-                    } else {
-                        button.style.display = 'none';
-                    }
-                    
-                    // Show ellipsis for gaps
-                    if (pageNum === 4 && currentPage > 4) {
-                        button.style.display = '';
-                        button.innerHTML = '...';
-                        button.disabled = true;
-                    } else if (pageNum === totalPages - 3 && currentPage < totalPages - 3) {
-                        button.style.display = '';
-                        button.innerHTML = '...';
-                        button.disabled = true;
-                    }
-                }
-            });
-            
-            // Enable/disable next/prev buttons
-            if (prevButton) {
-                prevButton.disabled = currentPage === 1;
+        const nextButton = paginationContainer.querySelector('.pagination-btn.next');
+        const pageButtonsContainer = paginationContainer.querySelector('.page-buttons');
+
+        if (paginationState[sectionKey] > totalPages) {
+            paginationState[sectionKey] = totalPages;
+        }
+
+        // Generate buttons once
+        renderPageButtons();
+        updatePagination();
+
+        function renderPageButtons() {
+            pageButtonsContainer.innerHTML = '';
+
+            const maxVisible = 5;
+            let startPage = Math.max(1, paginationState[sectionKey] - 2);
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
             }
-            if (nextButton) {
-                nextButton.disabled = currentPage === totalPages || totalPages === 0;
+
+            if (startPage > 1) {
+                addPageButton(1);
+                if (startPage > 2) addEllipsis();
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                addPageButton(i);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) addEllipsis();
+                addPageButton(totalPages);
             }
         }
-        
-        // Numbered page buttons
-        paginationButtons.forEach(button => {
-            if (!button.classList.contains('next') && !button.classList.contains('prev')) {
-                button.addEventListener('click', () => {
-                    if (!isNaN(parseInt(button.textContent))) {
-                        currentPage = parseInt(button.textContent);
-                        updatePagination();
-                    }
-                });
+
+        function addPageButton(pageNum) {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn';
+            btn.textContent = pageNum;
+
+            btn.addEventListener('click', () => {
+                paginationState[sectionKey] = pageNum;
+                updatePagination();
+
+                // Set active state manually
+                const allButtons = pageButtonsContainer.querySelectorAll('.pagination-btn');
+                allButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+
+            if (pageNum === paginationState[sectionKey]) {
+                btn.classList.add('active');
+            }
+
+            pageButtonsContainer.appendChild(btn);
+        }
+
+        function addEllipsis() {
+            const span = document.createElement('span');
+            span.className = 'pagination-ellipsis';
+            span.textContent = '...';
+            pageButtonsContainer.appendChild(span);
+        }
+
+        function updatePagination() {
+            const start = (paginationState[sectionKey] - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+
+            allRows.forEach(row => row.style.display = 'none');
+            allRows.slice(start, end).forEach(row => row.style.display = '');
+
+            // Update active state on page buttons
+            const allButtons = pageButtonsContainer.querySelectorAll('.pagination-btn');
+            allButtons.forEach(btn => {
+                const btnPage = parseInt(btn.textContent);
+                btn.classList.toggle('active', btnPage === paginationState[sectionKey]);
+            });
+
+            prevButton.disabled = paginationState[sectionKey] === 1;
+            nextButton.disabled = paginationState[sectionKey] === totalPages;
+        }
+
+        prevButton.addEventListener('click', () => {
+            if (paginationState[sectionKey] > 1) {
+                paginationState[sectionKey]--;
+                updatePagination();
             }
         });
-        
-        // Next button
-        if (nextButton) {
-            nextButton.addEventListener('click', () => {
-                const rows = table.querySelectorAll('tbody tr:not(.no-results)');
-                const totalPages = Math.ceil(rows.length / itemsPerPage);
-                
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updatePagination();
-                }
-            });
-        }
-        
-        // Previous button (if exists)
-        if (prevButton) {
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    updatePagination();
-                }
-            });
-        }
-        
-        // Initial pagination setup
-        updatePagination();
+
+        nextButton.addEventListener('click', () => {
+            if (paginationState[sectionKey] < totalPages) {
+                paginationState[sectionKey]++;
+                updatePagination();
+            }
+        });
     });
 }
 
@@ -589,12 +510,15 @@ function setupPagination() {
 document.addEventListener('DOMContentLoaded', () => {
     setupSearchFunctionality();
     setupPagination();
-    
-    // Re-run pagination when content changes
+
+    let debounceTimeout;
     const observer = new MutationObserver(() => {
-        setupPagination();
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            setupPagination();
+        }, 150);
     });
-    
+
     document.querySelectorAll('.content').forEach(content => {
         observer.observe(content, { childList: true, subtree: true });
     });

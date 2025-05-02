@@ -17,7 +17,6 @@ const ensurePatient = (req, res, next) => {
     next();
 };
 
-
 // Generate alerts for a specific patient
 router.get('/generate-alerts/:patientId', async (req, res) => {
     try {
@@ -38,8 +37,6 @@ router.get('/generate-alerts', async (req, res) => {
         res.status(500).send('Error generating alerts');
     }
 });
-
-
 
 // Fetch alerts for logged-in patient
 router.get('/patient-alerts', ensurePatient, async (req, res) => {
@@ -71,8 +68,5 @@ router.delete('/:id', ensurePatient, async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error while deleting alert.' });
     }
 });
-
-
-
 
 module.exports = router;

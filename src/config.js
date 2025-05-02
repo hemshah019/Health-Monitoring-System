@@ -30,7 +30,8 @@ const PatientSchema = new mongoose.Schema({
     Password: { type: String, required: true },
     Role: { type: String, default: 'Patient' },
     Enrollment_DateTime: { type: String },
-    Enrollment_Date: { type: Date }
+    Enrollment_Date: { type: Date },
+    patientProfileImage: { type: String, default: '' } 
 });
 
 // Pre-save hook for Patient ID and Enrollment DateTime
@@ -57,7 +58,8 @@ const AdminSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, default: 'admin' }
+    role: { type: String, default: 'admin' },
+    profileImage: { type: String, default: '' } 
 });
 
 // Pre-save hook for Admin ID (optional, but good practice)
@@ -243,8 +245,8 @@ const BodyTemperature = mongoose.model("body_temperatures", BodyTemperatureSchem
 const FallDetectionSchema = new mongoose.Schema({
     Fall_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
-    Fall_Detected: { type: String, required: true, enum: ['Yes'] },
-    Fall_Direction: { type: String, required: true, enum : ['Forward Fall', 'Backward Fall', 'Left Side Fall', 'Right Side Fall']},
+    Fall_Detected: { type: String, required: true, enum: ['Yes', 'No'] },
+    Fall_Direction: { type: String, required: true, enum : ['Forward Fall', 'Backward Fall', 'Left Side Fall', 'Right Side Fall', 'Stable']},
     dateTime: { type: Date },
     displayDateTime: { type: String }
 });
@@ -280,9 +282,7 @@ const AlertSchema = new mongoose.Schema({
     dateTime: { type: Date },
     displayDateTime: { type: String },
     Alert_Status: { type: String, required: true, enum: ['Medium', 'Critical', 'High', 'Low'] },
-    Task_Assigned: { type: String, default: 'No' },
-    Admin_Response: { type: String, default: null },
-    Response_Date: { type: Date, default: null }
+    Task_Assigned: { type: String, default: 'No' }
 });
 
 // Pre-save hook for auto-incrementing Alert_ID and setting Alert_DateTime

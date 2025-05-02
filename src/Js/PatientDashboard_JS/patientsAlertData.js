@@ -1,18 +1,13 @@
 // Define globally accessible functions
 function fetchAndDisplayAlerts() {
     const alertTableBody = document.querySelector('.alerts-table tbody');
-    const noAlertsPlaceholder = document.querySelector('.no-alerts');
 
     if (!alertTableBody) {
         console.warn("Alert table body not found. Skipping fetch.");
         return;
     }
-    if (!noAlertsPlaceholder) {
-        console.warn("No alerts placeholder not found.");
-    }
 
-    alertTableBody.innerHTML = '<tr><td colspan="8">Loading alerts...</td></tr>';
-    if (noAlertsPlaceholder) noAlertsPlaceholder.style.display = 'none';
+    alertTableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Loading alerts...</td></tr>';
 
     fetch('/alerts/patient-alerts')
         .then(response => {
@@ -25,9 +20,12 @@ function fetchAndDisplayAlerts() {
             alertTableBody.innerHTML = '';
 
             if (alerts.length === 0) {
-                if (noAlertsPlaceholder) noAlertsPlaceholder.style.display = 'block';
+                alertTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align:center;">No alert data found.</td>
+                    </tr>
+                `;
             } else {
-                if (noAlertsPlaceholder) noAlertsPlaceholder.style.display = 'none';
                 alerts.forEach(alert => {
                     const row = document.createElement('tr');
                     row.setAttribute('data-alert-id', alert._id);
@@ -52,10 +50,10 @@ function fetchAndDisplayAlerts() {
         })
         .catch(error => {
             console.error('Error fetching alerts:', error);
-            alertTableBody.innerHTML = `<tr><td colspan="8" class="error-message">Could not load alerts. Please try again later.</td></tr>`;
-            if (noAlertsPlaceholder) noAlertsPlaceholder.style.display = 'none';
+            alertTableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: red;">Could not load alerts. Please try again later.</td></tr>`;
         });
 }
+
 
 // Global Variables for Delete Alert
 let alertToDelete = null;

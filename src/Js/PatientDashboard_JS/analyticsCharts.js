@@ -160,8 +160,8 @@ function renderHeartRateCharts(data) {
                     },
                     y: {
                         beginAtZero: false,
-                        suggestedMin: 50,
-                        suggestedMax: 180
+                        suggestedMin: 40,
+                        suggestedMax: 200
                     }
                 }
             },

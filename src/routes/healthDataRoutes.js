@@ -3,6 +3,92 @@ const { HeartRate, SpO2, BodyTemperature, FallDetection, Patient } = require('..
 
 const router = express.Router();
 
+/* ----------------- IoT Sensor Data Endpoints (for ESP32) ----------------- */
+
+// POST Heart Rate & SpO2 Data
+router.post('/heartrate-spo2', async (req, res) => {
+    const { patientId, heartRate, spo2, heartRateStatus, spo2Status, normalHeartRate, normalSpO2 } = req.body;
+
+    try {
+        // Validate patient existence
+        const patient = await Patient.findOne({ Patient_ID: patientId });
+        if (!patient) return res.status(400).json({ message: 'Invalid patient ID.' });
+
+        // Save Heart Rate
+        const newHeartRate = new HeartRate({
+            Patient_ID: patientId,
+            Current_Heart_Rate: heartRate,
+            Average_Heart_Rate: heartRate,
+            Normal_Heart_Rate: normalHeartRate,
+            Status: heartRateStatus
+        });
+        await newHeartRate.save();
+
+        // Save SpO2
+        const newSpO2 = new SpO2({
+            Patient_ID: patientId,
+            Current_SpO2: spo2,
+            Average_SpO2: spo2,
+            Normal_SpO2: normalSpO2,
+            Status: spo2Status
+        });
+        await newSpO2.save();
+
+        res.status(201).json({ message: 'Heart Rate and SpO2 data saved successfully.' });
+    } catch (error) {
+        console.error('Error saving Heart Rate & SpO2:', error);
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
+// POST Temperature Data
+router.post('/temperature', async (req, res) => {
+    const { patientId, temperature, normalTemperature, status } = req.body;
+
+    try {
+        const patient = await Patient.findOne({ Patient_ID: patientId });
+        if (!patient) return res.status(400).json({ message: 'Invalid patient ID.' });
+
+        const newTemp = new BodyTemperature({
+            Patient_ID: patientId,
+            Current_Temperature: temperature,
+            Average_Temperature: temperature,
+            Normal_Temperature: normalTemperature,
+            Status: status
+        });
+        await newTemp.save();
+
+        res.status(201).json({ message: 'Temperature data saved successfully.' });
+    } catch (error) {
+        console.error('Error saving Temperature:', error);
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
+// POST Fall Detection Data
+router.post('/fall-detection', async (req, res) => {
+    const { patientId, fallDetected, fallDirection } = req.body;
+
+    try {
+        const patient = await Patient.findOne({ Patient_ID: patientId });
+        if (!patient) return res.status(400).json({ message: 'Invalid patient ID.' });
+
+        const newFall = new FallDetection({
+            Patient_ID: patientId,
+            Fall_Detected: fallDetected,
+            Fall_Direction: fallDirection
+        });
+        await newFall.save();
+
+        res.status(201).json({ message: 'Fall Detection data saved successfully.' });
+    } catch (error) {
+        console.error('Error saving Fall Detection:', error);
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
+/* ----------------- Patient Authenticated Routes (Frontend) ----------------- */
+
 // Middleware to check if the user is authenticated as a patient
 const isPatientAuthenticated = (req, res, next) => {
     console.log('Session user:', req.session.user);

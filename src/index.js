@@ -14,6 +14,7 @@ const adminActionsRoutes = require('./routes/adminActionsRoutes');
 const healthDataRoutes = require('./routes/healthDataRoutes'); 
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const patientAlertRoutes = require('./routes/patientAlertRoutes'); 
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Import alert generator
 const { generateAlertsForAllPatients } = require('../utils/alertGenerator'); 
@@ -74,6 +75,8 @@ app.use('/admin', adminActionsRoutes);
 app.use('/health', healthDataRoutes);
 app.use('/analytics', analyticsRoutes);
 app.use('/alerts', patientAlertRoutes);
+app.use('/image', uploadRoutes);
+
 
 // Server Start
 const port = process.env.PORT || 3000;

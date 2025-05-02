@@ -18,7 +18,7 @@ function requireLogin(role) {
     };
 }
 
-// --- Aggregation Pipeline Helper ---
+// Aggregation Pipeline Helper
 const patientLookupPipeline = [
     {
         $lookup: {

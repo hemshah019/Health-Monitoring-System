@@ -44,19 +44,13 @@ function showNotification(message, type = 'success') {
 // Global fetch functions that can be accessed from anywhere
 function fetchAndDisplayMessages() {
     const messageTableBody = document.querySelector('.messages-table tbody');
-    const noMessagesPlaceholder = document.querySelector('.no-messages');
 
     if (!messageTableBody) {
         console.warn("Message table body not found. Skipping fetch.");
         return;
     }
-     if (!noMessagesPlaceholder) {
-        console.warn("No messages placeholder not found.");
-    }
 
-
-    messageTableBody.innerHTML = '<tr><td colspan="6">Loading messages...</td></tr>';
-    if (noMessagesPlaceholder) noMessagesPlaceholder.style.display = 'none';
+    messageTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading messages...</td></tr>';
 
     fetch('/messages')
         .then(response => {
@@ -69,9 +63,12 @@ function fetchAndDisplayMessages() {
             messageTableBody.innerHTML = '';
 
             if (messages.length === 0) {
-                if (noMessagesPlaceholder) noMessagesPlaceholder.style.display = 'block';
+                messageTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align:center;">No message data found.</td>
+                    </tr>
+                `;
             } else {
-                 if (noMessagesPlaceholder) noMessagesPlaceholder.style.display = 'none';
                 messages.forEach(msg => {
                     const row = document.createElement('tr');
                     row.setAttribute('data-message-id', msg.Message_ID);
@@ -94,25 +91,19 @@ function fetchAndDisplayMessages() {
         })
         .catch(error => {
             console.error('Error fetching messages:', error);
-            messageTableBody.innerHTML = `<tr><td colspan="6" class="error-message">Could not load messages. Please try again later.</td></tr>`;
-            if (noMessagesPlaceholder) noMessagesPlaceholder.style.display = 'none';
+            messageTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">Could not load messages. Please try again later.</td></tr>`;
         });
 }
 
 function fetchAndDisplayCompliance() {
     const complianceTableBody = document.querySelector('.compliance-table tbody');
-    const noCompliancePlaceholder = document.querySelector('.no-compliances');
 
     if (!complianceTableBody) {
         console.warn("Compliance table body not found. Skipping fetch.");
         return;
     }
-    if (!noCompliancePlaceholder) {
-        console.warn("No compliance placeholder not found.");
-    }
 
-    complianceTableBody.innerHTML = '<tr><td colspan="6">Loading compliance records...</td></tr>';
-    if (noCompliancePlaceholder) noCompliancePlaceholder.style.display = 'none';
+    complianceTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading compliance records...</td></tr>';
 
     fetch('/compliances')
         .then(response => {
@@ -125,9 +116,12 @@ function fetchAndDisplayCompliance() {
             complianceTableBody.innerHTML = '';
 
             if (complianceRecords.length === 0) {
-                if (noCompliancePlaceholder) noCompliancePlaceholder.style.display = 'block';
+                complianceTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align:center;">No compliance data found.</td>
+                    </tr>
+                `;
             } else {
-                if (noCompliancePlaceholder) noCompliancePlaceholder.style.display = 'none';
                 complianceRecords.forEach(record => {
                     const row = document.createElement('tr');
                     row.setAttribute('data-compliance-id', record.Compliance_ID);
@@ -150,26 +144,19 @@ function fetchAndDisplayCompliance() {
         })
         .catch(error => {
             console.error('Error fetching compliance records:', error);
-            complianceTableBody.innerHTML = `<tr><td colspan="6" class="error-message">Could not load compliance records. Please try again later.</td></tr>`;
-            if (noCompliancePlaceholder) noCompliancePlaceholder.style.display = 'none';
+            complianceTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">Could not load compliance records. Please try again later.</td></tr>`;
         });
 }
 
 function fetchAndDisplayImprovements() {
     const improvementTableBody = document.querySelector('.improvement-table tbody');
-    const noImprovementPlaceholder = document.querySelector('.no-improvements');
 
     if (!improvementTableBody) {
         console.warn("Improvement table body not found. Skipping fetch.");
         return;
     }
-     if (!noImprovementPlaceholder) {
-        console.warn("No improvement placeholder not found.");
-    }
 
-
-    improvementTableBody.innerHTML = '<tr><td colspan="6">Loading improvement records...</td></tr>';
-    if (noImprovementPlaceholder) noImprovementPlaceholder.style.display = 'none';
+    improvementTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading improvement records...</td></tr>';
 
     fetch('/improvements')
         .then(response => {
@@ -182,9 +169,12 @@ function fetchAndDisplayImprovements() {
             improvementTableBody.innerHTML = '';
 
             if (improvements.length === 0) {
-                if (noImprovementPlaceholder) noImprovementPlaceholder.style.display = 'block';
+                improvementTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align:center;">No improvement data found.</td>
+                    </tr>
+                `;
             } else {
-                 if (noImprovementPlaceholder) noImprovementPlaceholder.style.display = 'none';
                 improvements.forEach(imp => {
                     const row = document.createElement('tr');
                     row.setAttribute('data-improvement-id', imp.Improvement_ID);
@@ -207,36 +197,38 @@ function fetchAndDisplayImprovements() {
         })
         .catch(error => {
             console.error('Error fetching improvements:', error);
-            improvementTableBody.innerHTML = `<tr><td colspan="6" class="error-message">Could not load improvements. Please try again later.</td></tr>`;
-            if (noImprovementPlaceholder) noImprovementPlaceholder.style.display = 'none';
+            improvementTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">Could not load improvements. Please try again later.</td></tr>`;
         });
 }
+
 
 // Task Functions
 function fetchAndDisplayTasks() {
     const taskTableBody = document.querySelector('.tasks-table tbody');
-    const noTasksPlaceholder = document.querySelector('.no-tasks');
 
     if (!taskTableBody) {
         console.warn("Task table body not found.");
         return;
     }
 
-    taskTableBody.innerHTML = '<tr><td colspan="7">Loading tasks...</td></tr>';
-    if (noTasksPlaceholder) noTasksPlaceholder.style.display = 'none';
+    taskTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Loading tasks...</td></tr>';
 
     fetch('/tasks')
         .then(response => response.json())
         .then(tasks => {
             taskTableBody.innerHTML = '';
+
             if (tasks.length === 0) {
-                if (noTasksPlaceholder) noTasksPlaceholder.style.display = 'block';
+                taskTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center;">No task data found.</td>
+                    </tr>
+                `;
             } else {
-                if (noTasksPlaceholder) noTasksPlaceholder.style.display = 'none';
                 tasks.forEach(task => {
                     const alertType = task.alertDetails?.Alert_Type || 'N/A';
                     const alertDateTime = task.alertDetails?.displayDateTime || 'N/A';
-                
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>#T${task.Task_ID}</td>
@@ -258,9 +250,10 @@ function fetchAndDisplayTasks() {
         })
         .catch(error => {
             console.error('Error fetching tasks:', error);
-            taskTableBody.innerHTML = `<tr><td colspan="7">Could not load tasks. Please try again later.</td></tr>`;
+            taskTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: red;">Could not load tasks. Please try again later.</td></tr>`;
         });
 }
+
 
 
 function getCurrentDateTime() {

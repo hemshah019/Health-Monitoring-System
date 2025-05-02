@@ -1219,8 +1219,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification(`Failed to assign task: ${error.message}`, 'error');
         }
     });
-    
-
 
     // ALERT DELETE ACTION
     const alertDeleteButtons = document.querySelectorAll('.alert-delete-btn');
@@ -1392,4 +1390,78 @@ document.addEventListener('DOMContentLoaded', () => {
         taskIdToDelete = null;
         taskRowToDelete = null;
     });
+
+
+    // Upload Profile Image
+    const profileForm = document.getElementById('adminProfileUploadForm');
+    const profileInput = document.getElementById('adminProfileImage');
+    const profilePreview = document.getElementById('adminProfilePreview');
+
+    if (profileForm && profileInput) {
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = profileInput.files[0];
+            if (!file) {
+                showNotification('Please select an image file.', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            try {
+                const res = await fetch('/image/upload-profile', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Upload failed');
+
+                showNotification('Profile image updated successfully!');
+                profilePreview.src = `${data.imagePath}?t=${Date.now()}`;
+
+            } catch (err) {
+                showNotification(`Upload failed: ${err.message}`, 'error');
+            }
+        });
+    }
+
+    // Delete Profile Image
+    const deleteProfileButton = document.getElementById('deleteProfileImage');
+    const profileDeleteModal = document.getElementById('profileDeleteConfirmModal');
+    const confirmProfileDeleteBtn = document.getElementById('confirmProfileDeleteBtn');
+    const cancelProfileDeleteBtn = document.getElementById('cancelProfileDeleteBtn');
+
+    // Show modal on delete click
+    if (deleteProfileButton) {
+        deleteProfileButton.addEventListener('click', () => {
+            profileDeleteModal.style.display = 'flex';
+        });
+    }
+
+    // Confirm delete
+    confirmProfileDeleteBtn.addEventListener('click', async () => {
+        try {
+            const res = await fetch('/image/delete-profile', { method: 'DELETE' });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.message || 'Deletion failed');
+
+            showNotification('Profile image deleted successfully!');
+            document.getElementById('adminProfilePreview').src = `${data.defaultImage}?t=${Date.now()}`;
+        } catch (err) {
+            showNotification(`Deletion failed: ${err.message}`, 'error');
+        } finally {
+            profileDeleteModal.style.display = 'none';
+        }
+    });
+
+    // Cancel delete
+    cancelProfileDeleteBtn.addEventListener('click', () => {
+        profileDeleteModal.style.display = 'none';
+    });
+
+
 });
