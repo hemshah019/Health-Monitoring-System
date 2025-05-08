@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Patient Health Data Script Loaded");
 
-    // Add this function at the top of your script
+    // This function is to show alert notification
     function showNotification(message, type = 'success') {
         let notificationContainer = document.getElementById('notification-container');
         if (!notificationContainer) {
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="close-notification">×</span>
         `;
         
-        // Add to container
+        // Added to container
         notificationContainer.appendChild(notification);
         
         // Handle close button click
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
     
-    // Add this CSS to your stylesheet
+    // style of notification
     document.head.insertAdjacentHTML('beforeend', `
     <style>
         #notification-container {
@@ -133,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fallDetectionContent = document.querySelector('.content.fall-detection-content');
     const fallDetectionTableBody = document.querySelector('.fall-detection-table tbody');
 
-    // --- Helper Functions ---
     const showLoading = (tbody) => {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Loading data...</td></tr>';
     };
@@ -516,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const errorData = await response.json();
                         errorMsg = errorData.message || errorMsg;
-                    } catch (e) { /* Ignore parsing error */ }
+                    } catch (e) { }
                     throw new Error(errorMsg);
                 }
 
@@ -580,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const errorData = await response.json();
                         errorMsg = errorData.message || errorMsg;
-                    } catch (e) { /* Ignore parsing error */ }
+                    } catch (e) { }
                     throw new Error(errorMsg);
                 }
 
@@ -644,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const errorData = await response.json();
                         errorMsg = errorData.message || errorMsg;
-                    } catch (e) { /* Ignore parsing error */ }
+                    } catch (e) { }
                     throw new Error(errorMsg);
                 }
 
@@ -708,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const errorData = await response.json();
                         errorMsg = errorData.message || errorMsg;
-                    } catch (e) { /* Ignore parsing error */ }
+                    } catch (e) { }
                     throw new Error(errorMsg);
                 }
 
@@ -741,7 +740,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const heartRateObserver = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    // Check if the content is now displayed
                     const isDisplayed = heartRateContent.style.display !== 'none';
                     if (isDisplayed && heartRateTableBody.rows.length <= 1) {
                        console.log("Heart Rate content visible, fetching data...");
@@ -791,7 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const bodyTempObserver = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    // Check if the content is now displayed
                     const isDisplayed = bodyTempContent.style.display !== 'none';
                     if (isDisplayed && bodyTempTableBody.rows.length <= 1) {
                        console.log("Body Temperature content visible, fetching data...");
@@ -816,7 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const fallDetectionObserver = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    // Check if the content is now displayed
                     const isDisplayed = fallDetectionContent.style.display !== 'none';
                     if (isDisplayed && fallDetectionTableBody.rows.length <= 1) {
                     console.log("Fall Detection content visible, fetching data...");

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         phoneNumber: document.getElementById('phoneNumber').value,
         email: document.getElementById('email').value,
         username: document.getElementById('username').value,
-        password: '' // Password is empty by default for security
+        password: ''
     };
 
     // Save button click handler
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Delete account button click handler
     deleteAccountBtn.addEventListener('click', function() {
-        // Create confirmation modal
+        // Create confirmation modal of Delete
         const modal = document.createElement('div');
         modal.className = 'confirmation-modal';
         modal.innerHTML = `
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         document.body.appendChild(modal);
 
-        // Add styles for the modal
+        // Add styles for the modal of delete
         const style = document.createElement('style');
         style.textContent = `
             .confirmation-modal {
@@ -191,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to show alert messages
     function showAlert(message, type) {
-        // Remove any existing alerts
         const existingAlert = document.querySelector('.custom-alert');
         if (existingAlert) {
             existingAlert.remove();
@@ -201,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alert.className = `custom-alert ${type}`;
         alert.textContent = message;
 
-        // Add styles for the alert
+        // Add styles for the alert message
         const style = document.createElement('style');
         style.textContent = `
             .custom-alert {

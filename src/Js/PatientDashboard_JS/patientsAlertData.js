@@ -1,4 +1,4 @@
-// Define globally accessible functions
+// Fetch and Render Alerts
 function fetchAndDisplayAlerts() {
     const alertTableBody = document.querySelector('.alerts-table tbody');
 
@@ -9,6 +9,7 @@ function fetchAndDisplayAlerts() {
 
     alertTableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Loading alerts...</td></tr>';
 
+    // Fetch alert data from backend
     fetch('/alerts/patient-alerts')
         .then(response => {
             if (!response.ok) {
@@ -55,7 +56,7 @@ function fetchAndDisplayAlerts() {
 }
 
 
-// Global Variables for Delete Alert
+// Delete Modal State & Control
 let alertToDelete = null;
 let deleteAlertButton = null;
 
@@ -131,7 +132,7 @@ document.getElementById('alertDeleteConfirmModal').addEventListener('click', (e)
     }
 });
 
-// Existing Event Delegation (update to use modal trigger)
+// Existing Event Delegation
 document.addEventListener('DOMContentLoaded', () => {
     fetchAndDisplayAlerts();
 
@@ -147,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Function to Show Notification alert
 function showNotification(message, type = 'success') {
     let notificationContainer = document.getElementById('notification-container');
     if (!notificationContainer) {

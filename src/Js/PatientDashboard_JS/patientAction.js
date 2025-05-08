@@ -1,4 +1,4 @@
-// Define these functions globally so they can be called from anywhere
+// Function to show notification to the contain
 function showNotification(message, type = 'success') {
     let notificationContainer = document.getElementById('notification-container');
     if (!notificationContainer) {
@@ -15,7 +15,7 @@ function showNotification(message, type = 'success') {
         <span class="close-notification">×</span>
     `;
 
-    // Add to container
+    // Added to container
     notificationContainer.appendChild(notification);
 
     // Handle close button click
@@ -41,7 +41,7 @@ function showNotification(message, type = 'success') {
     }, 5000);
 }
 
-// Global fetch functions that can be accessed from anywhere
+// Fetching Message Data form Backend
 function fetchAndDisplayMessages() {
     const messageTableBody = document.querySelector('.messages-table tbody');
 
@@ -95,6 +95,7 @@ function fetchAndDisplayMessages() {
         });
 }
 
+// Fetching Compliance Data form Backend
 function fetchAndDisplayCompliance() {
     const complianceTableBody = document.querySelector('.compliance-table tbody');
 
@@ -148,6 +149,7 @@ function fetchAndDisplayCompliance() {
         });
 }
 
+// Fetching Improvements Data form Backend
 function fetchAndDisplayImprovements() {
     const improvementTableBody = document.querySelector('.improvement-table tbody');
 
@@ -201,8 +203,7 @@ function fetchAndDisplayImprovements() {
         });
 }
 
-
-// Task Functions
+// Fetching Tasks Data form Backend
 function fetchAndDisplayTasks() {
     const taskTableBody = document.querySelector('.tasks-table tbody');
 
@@ -254,8 +255,7 @@ function fetchAndDisplayTasks() {
         });
 }
 
-
-
+// Function to get current date and time for showing in table 
 function getCurrentDateTime() {
     const now = new Date();
     const offset = now.getTimezoneOffset();
@@ -263,19 +263,21 @@ function getCurrentDateTime() {
     return localDate.toISOString().slice(0, 16);
 }
 
+// Function to close view modal
 function closeModal(modal) {
     if (modal) {
         modal.classList.remove('active');
     }
 }
 
+// Function of open modal
 function openModal(modal) {
     if (modal) {
         modal.classList.add('active');
     }
 }
 
-// Add notification styles and DOMContentLoaded logic
+// Adding notification styles and DOMContentLoaded logic
 document.addEventListener('DOMContentLoaded', function() {
     if (!document.getElementById('notification-styles')) {
         const styleSheet = document.createElement("style");
@@ -387,7 +389,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(styleSheet);
     }
 
-
     // Add New Item Popups
     const addMessageBtn = document.querySelector('.messages-actions .add-new-btn');
     const addComplianceBtn = document.querySelector('.compliance-actions .add-new-btn');
@@ -438,7 +439,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Form Submissions
+
+    // Form Submissions Action
     // Message Submit
     const submitMessageBtn = document.getElementById('submitMessage');
     const messageForm = document.getElementById('newMessageForm');
@@ -586,8 +588,8 @@ document.addEventListener('DOMContentLoaded', function() {
          console.warn('Improvement submission button or form not found.');
     }
 
-    // View and Delete Logic
-
+    // View and Delete Action Logic
+    
     // MESSAGE SPECIFIC VIEW/DELETE
     const messageContentArea = document.querySelector('.content.messages-content');
     const messageTableBody = messageContentArea?.querySelector('.messages-table tbody');
@@ -646,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' }
             });
     
-            // Check if response is OK, even if it doesn't contain JSON (like a 204 No Content)
+            // Check if response is OK, even if it doesn't contain JSON
             if (!response.ok && response.status !== 204) {
                 let errorMsg = `HTTP error! status: ${response.status}`;
                 try {
@@ -1210,6 +1212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchAndDisplayTasks();
     }
 
+    // UPLOAD IMAGE ACTION
     // Upload Patient Profile Image
     const patientForm = document.getElementById('patientProfileUploadForm');
     const patientInput = document.getElementById('patientProfileImage');
@@ -1246,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // DELETE IMAGE ACTION
     // Delete Patient Profile Image
     const deletePatientProfileButton = document.getElementById('deleteProfileImage');
     const patientDeleteModal = document.getElementById('patientProfileDeleteConfirmModal');
@@ -1277,6 +1281,4 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelPatientDeleteBtn.addEventListener('click', () => {
         patientDeleteModal.style.display = 'none';
     });
-
-
 });

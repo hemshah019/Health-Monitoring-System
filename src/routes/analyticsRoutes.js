@@ -65,7 +65,7 @@ router.get('/heart-rate/:patientId', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error fetching heart rate analytics:', error);
+        console.error('[Health Montoring System] Error fetching heart rate analytics:', error);
         res.status(500).json({ success: false, message: 'Error fetching heart rate data' });
     }
 });
@@ -92,6 +92,7 @@ router.get('/spo2/:patientId', async (req, res) => {
             acc[status] = (acc[status] || 0) + 1;
             return acc;
         }, {});
+
         const pieChartData = Object.entries(pieCounts).map(([status, count]) => ({
             status,
             count,
@@ -133,6 +134,7 @@ router.get('/temperature/:patientId', async (req, res) => {
             acc[status] = (acc[status] || 0) + 1;
             return acc;
         }, {});
+
         const pieChartData = Object.entries(pieCounts).map(([status, count]) => ({
             status,
             count,
@@ -158,12 +160,9 @@ router.get('/fall-detection/:patientId', async (req, res) => {
     try {
         const patientId = parseInt(req.params.patientId);
         const falls = await FallDetection.find({ Patient_ID: patientId }).limit(30);
-
-        // Stat Cards
         const totalFalls = falls.length;
         const lastFall = falls.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))[0];
 
-        // Chart 1: Falls Over Time (group by day)
         const fallsOverTime = {};
         falls.forEach(fall => {
             const dateKey = dayjs(fall.dateTime).format('Do MMM');
@@ -174,7 +173,6 @@ router.get('/fall-detection/:patientId', async (req, res) => {
             count
         }));
 
-        // Chart 2: Fall Direction Distribution
         const directionCounts = {};
         falls.forEach(fall => {
             directionCounts[fall.Fall_Direction] = (directionCounts[fall.Fall_Direction] || 0) + 1;
@@ -195,8 +193,9 @@ router.get('/fall-detection/:patientId', async (req, res) => {
             lineChartData,
             pieChartData
         });
+
     } catch (err) {
-        console.error('Error fetching fall detection analytics:', err);
+        console.error('[Health Montoring System] Error fetching fall detection analytics:', err);
         res.status(500).json({ success: false, message: 'Failed to load fall detection data' });
     }
 });

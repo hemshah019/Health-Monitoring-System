@@ -1,4 +1,6 @@
+// Initialize Tab Switching Events
 document.addEventListener('DOMContentLoaded', function() {
+    // Add click listeners to each tab link
     const tabLinks = document.querySelectorAll('.tab-link');
     tabLinks.forEach(tab => {
         tab.addEventListener('click', function() {
@@ -7,14 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Load heart rate data when tab is active
+    // Automatically load heart rate data on first load
     const heartRateTab = document.getElementById('heart-rate-tab');
     if (heartRateTab) {
         loadHeartRateData();
     }
 });
 
+// Handle Tab Switching and Chart Load
 function switchTab(tabName) {
+    // Deactivate all panels and tabs
     document.querySelectorAll('.tab-panel').forEach(panel => {
         panel.classList.remove('active');
     });
@@ -23,10 +27,11 @@ function switchTab(tabName) {
         tab.classList.remove('active');
     });
 
+    // Activate the selected panel and tab
     document.getElementById(tabName).classList.add('active');
     document.querySelector(`.tab-link[data-tab="${tabName}"]`).classList.add('active');
 
-    // Load data for the selected tab
+    // Load respective chart data based on tab selected
     if (tabName === 'heart-rate-tab') {
         loadHeartRateData();
     }
@@ -41,6 +46,7 @@ function switchTab(tabName) {
     }
 }
 
+// Load Heart Rate Chart and Stats
 function loadHeartRateData() {
     const patientId = parseInt(document.querySelector('body').getAttribute('data-patient-id'));
     
@@ -59,30 +65,33 @@ function loadHeartRateData() {
         });
 }
 
+// Load SpO2 Chart and Stats
 function loadSpO2Data() {
     const patientId = parseInt(document.querySelector('body').getAttribute('data-patient-id'));
     fetch(`/analytics/spo2/${patientId}`)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                renderGenericLinePieChart(data, 'spO2', 'Oxygen Saturation (%)');
+                renderSpO2Charts(data);
                 updateStatBox(data, 'SpO2', '%');
             }
         });
 }
 
+// Load Temperature Chart and Stats
 function loadTemperatureData() {
     const patientId = parseInt(document.querySelector('body').getAttribute('data-patient-id'));
     fetch(`/analytics/temperature/${patientId}`)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                renderGenericLinePieChart(data, 'temperature', 'Body Temperature (°C)');
+                renderTemperatureCharts(data);
                 updateStatBox(data, 'Temperature', '°C');
             }
         });
 }
 
+// Load Fall Detection Chart and Stats
 function loadFallDetectionData() {
     const patientId = parseInt(document.querySelector('body').getAttribute('data-patient-id'));
     fetch(`/analytics/fall-detection/${patientId}`)
@@ -95,10 +104,9 @@ function loadFallDetectionData() {
         });
 }
 
-
-
+// Render Heart Rate Line and Pie Charts
 function renderHeartRateCharts(data) {
-    // Line Chart
+    // Line Chart of Heart Rate
     const lineCtx = document.getElementById('heartRateLineChart');
     if (lineCtx) {
         new Chart(lineCtx, {
@@ -123,55 +131,78 @@ function renderHeartRateCharts(data) {
             },
             options: {
                 responsive: true,
+                layout: {
+                  padding: {
+                    left: 25,
+                    right: 25
+                  }
+                },
                 plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            afterLabel: function(context) {
-                                const index = context.dataIndex;
-                                return `Status: ${data.lineChartData[index].status}`;
-                            }
-                        }
-                    },
-                    datalabels: {
-                        align: 'top',
-                        anchor: 'end',
-                        formatter: function(value) {
-                            return value;
-                        },
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        },
-                        color: function(context) {
-                            return '#333';
-                        }
+                  legend: {
+                    position: 'top',
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: context => `Heart Rate: ${context.raw} BPM`,
+                      afterLabel: context => {
+                        const index = context.dataIndex;
+                        return `Status: ${data.lineChartData[index].status}`;
+                      }
                     }
+                  },
+                  datalabels: {
+                    align: 'top',
+                    anchor: 'end',
+                    offset: 6,
+                    clip: false,
+                    formatter: value => `${value} BPM`,
+                    font: {
+                      weight: 'bold',
+                      size: 14
+                    },
+                    color: '#333'
+                  }
                 },
                 scales: {
-                    x: {
-                        type: 'category',
-                        title: {
-                            display: true,
-                            text: 'Date & Time'
-                        }
-                    },
-                    y: {
-                        beginAtZero: false,
-                        suggestedMin: 40,
-                        suggestedMax: 200
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Date & Time',
+                      font: {
+                        size: 16
+                      }
                     }
+                  },
+                  y: {
+                    beginAtZero: false,
+                    suggestedMin: 40,
+                    suggestedMax: 140,
+                    ticks: {
+                      callback: value => `${value} BPM`,
+                      font: {
+                        size: 14
+                      }
+                    },
+                    title: {
+                      display: true,
+                      text: 'Heart Rate (BPM)',
+                      font: {
+                        size: 16
+                      }
+                    }
+                  }
                 }
-            },
+              },
             plugins: [ChartDataLabels]
         });
     }
 
-    // Pie Chart
+    // Pie Chart of HeartRate Status
     const pieCtx = document.getElementById('heartRatePieChart');
     if (pieCtx) {
+        pieCtx.style.maxWidth = '650px';
+        pieCtx.style.margin = '0 auto';
+
         new Chart(pieCtx, {
             type: 'pie',
             data: {
@@ -179,36 +210,40 @@ function renderHeartRateCharts(data) {
                 datasets: [{
                     data: data.pieChartData.map(item => item.count),
                     backgroundColor: [
-                        'rgba(0, 187, 0, 0.8)', 
-                        'rgba(255, 183, 0, 0.8)', 
-                        'rgba(255, 0, 55, 0.8)'  
+                        'rgba(0, 187, 0, 0.8)',     // Normal
+                        'rgba(255, 183, 0, 0.8)',   // Low
+                        'rgba(255, 0, 55, 0.8)'     // High
                     ],
-                    borderColor: '#fff',           
-                    borderWidth: 2                   
+                    borderColor: '#fff',
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                layout: {
+                    padding: 10
+                },
                 plugins: {
                     legend: {
                         position: 'right',
+                        align: 'center',
                         labels: {
                             boxWidth: 15,
                             padding: 15,
                             font: {
-                                size: 12
+                                size: 16,
+                                weight: 'bold'
                             },
                             generateLabels: function(chart) {
                                 const data = chart.data;
                                 if (data.labels.length && data.datasets.length) {
-                                    return data.labels.map((label, i) => {                                   
-                                        return {
-                                            text: `${label}`,
-                                            fillStyle: data.datasets[0].backgroundColor[i],
-                                            hidden: false,
-                                            index: i
-                                        };
-                                    });
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label}`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    }));
                                 }
                                 return [];
                             }
@@ -229,7 +264,7 @@ function renderHeartRateCharts(data) {
                         color: '#fff',
                         font: {
                             weight: 'bold',
-                            size: 12
+                            size: 15
                         },
                         formatter: function(value, context) {
                             const label = context.chart.data.labels[context.dataIndex];
@@ -238,29 +273,27 @@ function renderHeartRateCharts(data) {
                         },
                         anchor: 'center',
                         align: 'center',
-                        offset: 0
+                        offset: 0,
+                        clip: false
                     }
-                },
-                layout: {
-                    padding: 20
                 }
             },
             plugins: [ChartDataLabels]
         });
-        
-        // Add total readings text below the chart
+
+        // Display total readings
         const totalReadings = data.lineChartData.length;
         const chartContainer = pieCtx.parentElement;
-        
-        // Remove any existing total readings element to prevent duplicates
+
+        // Avoid duplicate total count
         const existingTotalElement = chartContainer.querySelector('.total-readings');
         if (existingTotalElement) {
             chartContainer.removeChild(existingTotalElement);
         }
-        
+
         const totalElement = document.createElement('div');
         totalElement.className = 'total-readings';
-        totalElement.textContent = `Total readings: ${totalReadings}`;
+        totalElement.textContent = `Total Readings: ${totalReadings}`;
         totalElement.style.textAlign = 'center';
         totalElement.style.marginTop = '10px';
         totalElement.style.fontWeight = 'bold';
@@ -268,6 +301,7 @@ function renderHeartRateCharts(data) {
     }
 }
 
+// Render Heart Rate Stats
 function updateHeartRateStats(data) {
     const avgElement = document.getElementById('avgHeartRate');
     if (avgElement) {
@@ -294,15 +328,17 @@ function updateHeartRateStats(data) {
     }
 }
 
-function renderGenericLinePieChart(data, prefix, labelText) {
-    const lineCtx = document.getElementById(`${prefix}LineChart`);
+// Render SpO2 Charts
+function renderSpO2Charts(data) {
+    // Line Chart of SpO2
+    const lineCtx = document.getElementById('spO2LineChart');
     if (lineCtx) {
         new Chart(lineCtx, {
             type: 'line',
             data: {
                 labels: data.lineChartData.map(item => item.date),
                 datasets: [{
-                    label: labelText,
+                    label: 'Oxygen Saturation (%)',
                     data: data.lineChartData.map(item => item.value),
                     borderColor: 'rgb(0, 123, 255)',
                     backgroundColor: 'rgba(0, 123, 255, 0.2)',
@@ -319,39 +355,47 @@ function renderGenericLinePieChart(data, prefix, labelText) {
             },
             options: {
                 responsive: true,
+                layout: {
+                    padding: { left: 25, right: 25 }
+                },
                 plugins: {
-                    legend: {
-                        position: 'top',
-                    },
+                    legend: { position: 'top' },
                     tooltip: {
                         callbacks: {
-                            afterLabel: function(context) {
-                                const index = context.dataIndex;
-                                return `Status: ${data.lineChartData[context.dataIndex].status}`;
-                            }
+                            afterLabel: context => `Status: ${data.lineChartData[context.dataIndex].status}`
                         }
                     },
                     datalabels: {
                         align: 'top',
                         anchor: 'end',
-                        formatter: function(value) {
-                            return value;
-                        },
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        },
-                        color: function(context) {
-                            return '#333';
-                        }
+                        offset: 6,
+                        clip: false,
+                        formatter: value => `${value}%`,
+                        font: { weight: 'bold', size: 14 },
+                        color: '#333'
                     }
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: 'Date & Time' }
+                        title: {
+                            display: true,
+                            text: 'Date & Time',
+                            font: { size: 16 }
+                        }
                     },
                     y: {
-                        beginAtZero: false
+                        beginAtZero: false,
+                        suggestedMin: 90,
+                        suggestedMax: 102,
+                        ticks: {
+                            callback: value => `${value}%`,
+                            font: { size: 14 }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Oxygen Saturation (%)',
+                            font: { size: 16 }
+                        }
                     }
                 }
             },
@@ -359,9 +403,12 @@ function renderGenericLinePieChart(data, prefix, labelText) {
         });
     }
 
-    // Pie Chart
-    const pieCtx = document.getElementById(`${prefix}PieChart`);
+    // Pie Chart of SpO2 Status
+    const pieCtx = document.getElementById('spO2PieChart');
     if (pieCtx) {
+        pieCtx.style.maxWidth = '650px';
+        pieCtx.style.margin = '0 auto';
+
         new Chart(pieCtx, {
             type: 'pie',
             data: {
@@ -375,35 +422,27 @@ function renderGenericLinePieChart(data, prefix, labelText) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                layout: { padding: 10 },
                 plugins: {
                     legend: {
                         position: 'right',
+                        align: 'center',
                         labels: {
                             boxWidth: 15,
                             padding: 15,
-                            font: {
-                                size: 12
-                            },
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                if (data.labels.length && data.datasets.length) {
-                                    return data.labels.map((label, i) => {                                   
-                                        return {
-                                            text: `${label}`,
-                                            fillStyle: data.datasets[0].backgroundColor[i],
-                                            hidden: false,
-                                            index: i
-                                        };
-                                    });
-                                }
-                                return [];
-                            }
+                            font: { size: 16, weight: 'bold' },
+                            generateLabels: chart => chart.data.labels.map((label, i) => ({
+                                text: label,
+                                fillStyle: chart.data.datasets[0].backgroundColor[i],
+                                hidden: false,
+                                index: i
+                            }))
                         }
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
-                                const label = context.label || ''
+                            label: context => {
                                 const value = context.raw || 0;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = Math.round((value / total) * 100);
@@ -413,31 +452,28 @@ function renderGenericLinePieChart(data, prefix, labelText) {
                     },
                     datalabels: {
                         color: '#fff',
-                        font: {
-                            weight: 'bold',
-                            size: 12
-                        },
-                        formatter: function(value, context) {
+                        font: { weight: 'bold', size: 15 },
+                        formatter: (value, context) => {
                             const label = context.chart.data.labels[context.dataIndex];
-                            const percentage = Math.round((value / context.dataset.data.reduce((a, b) => a + b, 0)) * 100);
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
                             return `${label}\n${percentage}%`;
                         },
                         anchor: 'center',
                         align: 'center',
-                        offset: 0
+                        offset: 0,
+                        clip: false
                     }
-                },
-                layout: {
-                    padding: 20
                 }
             },
             plugins: [ChartDataLabels]
         });
-        // Add total readings text below the chart
+
+        // Display total readings
         const totalReadings = data.lineChartData.length;
         const chartContainer = pieCtx.parentElement;
         
-        // Remove any existing total readings element to prevent duplicates
+        // Avoid duplicate total count
         const existingTotalElement = chartContainer.querySelector('.total-readings');
         if (existingTotalElement) {
             chartContainer.removeChild(existingTotalElement);
@@ -445,7 +481,7 @@ function renderGenericLinePieChart(data, prefix, labelText) {
         
         const totalElement = document.createElement('div');
         totalElement.className = 'total-readings';
-        totalElement.textContent = `Total readings: ${totalReadings}`;
+        totalElement.textContent = `Total Readings: ${totalReadings}`;
         totalElement.style.textAlign = 'center';
         totalElement.style.marginTop = '10px';
         totalElement.style.fontWeight = 'bold';
@@ -453,6 +489,168 @@ function renderGenericLinePieChart(data, prefix, labelText) {
     }
 }
 
+// Render Body Temperature Charts
+function renderTemperatureCharts(data) {
+    // Line Chart of Body Temperature
+    const lineCtx = document.getElementById('temperatureLineChart');
+    if (lineCtx) {
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: data.lineChartData.map(item => item.date),
+                datasets: [{
+                    label: 'Body Temperature (°C)',
+                    data: data.lineChartData.map(item => item.value),
+                    borderColor: 'rgb(255, 247, 0)',
+                    backgroundColor: 'rgba(221, 255, 0, 0.46)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    pointBackgroundColor: data.lineChartData.map(item =>
+                        item.status === 'High' ? 'rgba(255, 99, 132, 1)' :
+                        item.status === 'Low' ? 'rgb(255, 183, 0)' :
+                        'rgb(0, 186, 0)'
+                    ),
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                layout: {
+                    padding: { left: 25, right: 25 }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: context => `Status: ${data.lineChartData[context.dataIndex].status}`
+                        }
+                    },
+                    datalabels: {
+                        align: 'top',
+                        anchor: 'end',
+                        offset: 6,
+                        clip: false,
+                        formatter: value => `${value}°C`,
+                        font: { weight: 'bold', size: 14 },
+                        color: '#333'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date & Time',
+                            font: { size: 16 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: 35,
+                        suggestedMax: 38,
+                        ticks: {
+                            callback: value => `${value}°C`,
+                            font: { size: 14 }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Body Temperature (°C)',
+                            font: { size: 16 }
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    // Pie Chart of Body Temperature Status
+    const pieCtx = document.getElementById('temperaturePieChart');
+    if (pieCtx) {
+        pieCtx.style.maxWidth = '650px';
+        pieCtx.style.margin = '0 auto';
+
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: data.pieChartData.map(item => item.status),
+                datasets: [{
+                    data: data.pieChartData.map(item => item.count),
+                    backgroundColor: ['rgba(0, 187, 0, 0.8)', 'rgba(255, 183, 0, 0.8)', 'rgba(255, 0, 55, 0.8)'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                layout: { padding: 10 },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        align: 'center',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 15,
+                            font: { size: 16, weight: 'bold' },
+                            generateLabels: chart => chart.data.labels.map((label, i) => ({
+                                text: label,
+                                fillStyle: chart.data.datasets[0].backgroundColor[i],
+                                hidden: false,
+                                index: i
+                            }))
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: context => {
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: ${value} readings (${percentage}%)`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 15 },
+                        formatter: (value, context) => {
+                            const label = context.chart.data.labels[context.dataIndex];
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}\n${percentage}%`;
+                        },
+                        anchor: 'center',
+                        align: 'center',
+                        offset: 0,
+                        clip: false
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
+        // Display total readings
+        const totalReadings = data.lineChartData.length;
+        const chartContainer = pieCtx.parentElement;
+        
+        // Avoid duplicate total count
+        const existingTotalElement = chartContainer.querySelector('.total-readings');
+        if (existingTotalElement) {
+            chartContainer.removeChild(existingTotalElement);
+        }
+        
+        const totalElement = document.createElement('div');
+        totalElement.className = 'total-readings';
+        totalElement.textContent = `Total Readings: ${totalReadings}`;
+        totalElement.style.textAlign = 'center';
+        totalElement.style.marginTop = '10px';
+        totalElement.style.fontWeight = 'bold';
+        chartContainer.appendChild(totalElement)
+    }
+}
+
+// Render SpO2 and Temp Stats
 function updateStatBox(data, prefix, unitLabel) {
     const avgElem = document.getElementById(`avg${prefix}`);
     const lastElem = document.getElementById(`last${prefix}`);
@@ -470,8 +668,9 @@ function updateStatBox(data, prefix, unitLabel) {
 }
 
 
+// // Render Fall Bar and Pie Charts
 function renderFallDetectionCharts(data) {
-    // Falls Over Time (Line/Bar Chart)
+    // Bar Chart of Total Fall in a day
     const lineCtx = document.getElementById('fallOverTimeChart');
     if (lineCtx) {
         new Chart(lineCtx, {
@@ -484,6 +683,33 @@ function renderFallDetectionCharts(data) {
                     backgroundColor: 'rgba(255, 0, 55, 0.6)',
                     borderColor: 'rgb(255, 0, 55)',
                     borderWidth: 2,
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.5
+                }]
+            },
+            options: {
+                responsive: true,
+                layout: {
+                    padding: { left: 20, right: 20, top: 10, bottom: 10 }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `Falls: ${context.raw}`;
+                            }
+                        }
+                    },
                     datalabels: {
                         anchor: 'end',
                         align: 'start',
@@ -492,24 +718,7 @@ function renderFallDetectionCharts(data) {
                             weight: 'bold',
                             size: 12
                         },
-                        formatter: function (value) {
-                            return `${value}`;
-                        }
-                    }
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `Falls: ${context.raw}`;
-                            }
-                        }
+                        formatter: value => `${value}`
                     }
                 },
                 scales: {
@@ -517,7 +726,10 @@ function renderFallDetectionCharts(data) {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Number of Falls'
+                            text: 'Number of Falls',
+                            font: {
+                                size: 14
+                            }
                         },
                         ticks: {
                             precision: 0
@@ -526,7 +738,15 @@ function renderFallDetectionCharts(data) {
                     x: {
                         title: {
                             display: true,
-                            text: 'Date'
+                            text: 'Date',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 45,
+                            minRotation: 0
                         }
                     }
                 }
@@ -534,11 +754,13 @@ function renderFallDetectionCharts(data) {
             plugins: [ChartDataLabels]
         });
     }
-    
 
-    // Fall Direction Distribution (Pie Chart)
+    // Pie Chart of Body Fall Direction
     const pieCtx = document.getElementById('fallDirectionPieChart');
     if (pieCtx) {
+        pieCtx.style.maxWidth = '650px';
+        pieCtx.style.margin = '0 auto';
+
         new Chart(pieCtx, {
             type: 'pie',
             data: {
@@ -557,8 +779,35 @@ function renderFallDetectionCharts(data) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                layout: {
+                    padding: 10
+                },
                 plugins: {
-                    legend: { position: 'right' },
+                    legend: { 
+                        position: 'right',
+                        align: 'center',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 15,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label}`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                                return [];
+                            }
+                        }
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -571,7 +820,7 @@ function renderFallDetectionCharts(data) {
                     },
                     datalabels: {
                         color: '#fff',
-                        font: { weight: 'bold', size: 10 },
+                        font: { weight: 'bold', size: 15 },
                         formatter: function(value, context) {
                             const label = context.chart.data.labels[context.dataIndex];
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -579,15 +828,36 @@ function renderFallDetectionCharts(data) {
                             return `${label}\n${percentage}%`;
                         },
                         anchor: 'center',
-                        align: 'center'
+                        align: 'center',
+                        offset: 0,
+                        clip: false
                     }
                 }
             },
             plugins: [ChartDataLabels]
         });
+
+        // Display total readings
+        const totalReadings = data.lineChartData.length;
+        const chartContainer = pieCtx.parentElement;
+
+        // Avoid duplicate total count
+        const existingTotalElement = chartContainer.querySelector('.total-readings');
+        if (existingTotalElement) {
+            chartContainer.removeChild(existingTotalElement);
+        }
+
+        const totalElement = document.createElement('div');
+        totalElement.className = 'total-readings';
+        totalElement.textContent = `Total Readings: ${totalReadings}`;
+        totalElement.style.textAlign = 'center';
+        totalElement.style.marginTop = '10px';
+        totalElement.style.fontWeight = 'bold';
+        chartContainer.appendChild(totalElement);
     }
 }
 
+// Render Fall Detection Stats
 function updateFallDetectionStats(data) {
     const totalElem = document.getElementById('totalFalls');
     const lastDateElem = document.getElementById('lastFallDate');

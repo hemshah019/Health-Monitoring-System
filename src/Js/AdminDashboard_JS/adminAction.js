@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-        // Add this function at the top of your script
+        //
         function showNotification(message, type = 'success') {
             let notificationContainer = document.getElementById('notification-container');
             if (!notificationContainer) {
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="close-notification">×</span>
             `;
             
-            // Add to container
+            //
             notificationContainer.appendChild(notification);
             
             // Handle close button click
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 5000);
         }
         
-        // Add this CSS to your stylesheet
+        // 
         document.head.insertAdjacentHTML('beforeend', `
         <style>
             #notification-container {
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </style>
         `);
 
-    // Helper function to update status badge
+    // Function to update status badge
     function updateStatusBadge(tableSelector, itemId, newStatus) {
         const buttonInRow = document.querySelector(`${tableSelector} button[data-id="${itemId}"]`);
         if (!buttonInRow) {
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Find the status badge span using the data-field attribute
+        // Finding the status badge span using the data-field attribute
         const statusBadge = row.querySelector('span[data-field="status-badge"]');
         if (!statusBadge) {
             console.warn(`Could not find status badge span in row for item ID ${itemId}.`);
@@ -142,12 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update the CSS class
         const statusClass = `status-${newStatus.toLowerCase().replace(/ /g, '-')}`;
         statusBadge.className = `status-badge ${statusClass}`;
-
-        console.log(`Updated status badge for item ID ${itemId} to: ${newStatus}`);
     }
 
 
-    // MESSAGES VIEW MODAL
+    // MESSAGES VIEW, RESPONSE, & DELETE ACTION
+    // Messages View Modal
     const messageModal = document.getElementById('messageViewModal');
     const closeMessageModalBtn = document.getElementById('closeMessageModal');
     const closeMessageModalFooterBtn = document.getElementById('closeMessageModalBtn');
@@ -173,20 +172,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('message_view_responsedate').textContent = formatDate(data.Response_Date);
         document.getElementById('message_view_status').textContent = data.Status || 'N/A';
 
-        // Optionally update status badge class
+        // update status badge class
         const statusBadge = document.getElementById('message_view_status');
         if (statusBadge) {
              statusBadge.className = `info-field-value status-badge status-${(data.Status || '').toLowerCase().replace(' ', '-')}`;
         }
     }
 
-    // Add click listeners to all VIEW buttons
+    // Adding click listeners to all VIEW buttons
     messageViewButtons.forEach(button => {
         button.addEventListener('click', async function() {
             const messageId = this.getAttribute('data-id');
             if (!messageId) return;
 
-            console.log(`Fetching details for message ID: ${messageId}`);
             try {
                 const response = await fetch(`/admin/messages/${messageId}`);
                 if (!response.ok) {
@@ -194,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
                 }
                 const messageData = await response.json();
-                console.log('Received message data:', messageData);
 
                 populateMessageModal(messageData);
                 messageModal.classList.add('active');
@@ -219,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // MESSAGE RESPONSE MODAL
+    // Message Response Modal
     const messageResponseModal = document.getElementById('messageResponseModal');
     const closeMessageResponseModal = document.getElementById('closeMessageResponseModal');
     const cancelMessageResponse = document.getElementById('cancelMessageResponse');
@@ -256,8 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', async function() {
             const messageId = this.getAttribute('data-id');
             if (!messageId) return;
-
-            console.log(`Fetching details for response form, message ID: ${messageId}`);
             try {
                 const response = await fetch(`/admin/messages/${messageId}`);
                 if (!response.ok) {
@@ -303,8 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
             response_date: document.getElementById('response_date').value,
         };
 
-        console.log(`Submitting response for message ID: ${messageId}`);
-
         try {
             const response = await fetch(`/admin/messages/respond/${messageId}`, {
                 method: 'POST',
@@ -333,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // MESSAGE DELETE ACTION
+    // Message Delete Action
     const messageDeleteButtons = document.querySelectorAll('.message-delete-btn');
     const messageDeleteConfirmModal = document.getElementById('messageDeleteConfirmModal');
     const confirmMessageDeleteBtn = document.getElementById('confirmMessageDeleteBtn');
@@ -401,7 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // COMPLIANCE VIEW MODAL
+    // COMPLIANCE VIEW, RESPONSE, & DELETE ACTION 
+    // Compliance View Modal
     const complianceModal = document.getElementById('complianceViewModal');
     const closeComplianceModal = document.getElementById('closeComplianceModal');
     const closeComplianceBtn = document.getElementById('closeComplianceModalBtn');
@@ -432,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const complianceId = this.getAttribute('data-id');
             if (!complianceId) return;
 
-            console.log(`Fetching details for compliance ID: ${complianceId}`);
             try {
                 const response = await fetch(`/admin/compliances/${complianceId}`);
                 if (!response.ok) {
@@ -440,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
                 }
                 const complianceData = await response.json();
-                console.log('Received compliance data:', complianceData);
 
                 populateComplianceModal(complianceData);
                 complianceModal.classList.add('active');
@@ -464,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // COMPLIANCE FEEDBACK MODAL (RESPONSE)
+    // Compliance Feedback Model (Response)
     const complianceResponseModal = document.getElementById('complianceResponseModal');
     const closeComplianceResponseModal = document.getElementById('closeComplianceResponseModal');
     const cancelComplianceResponse = document.getElementById('cancelComplianceResponse');
@@ -500,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const complianceId = this.getAttribute('data-id');
             if (!complianceId) return;
 
-            console.log(`Fetching details for compliance feedback form, ID: ${complianceId}`);
             try {
                 const response = await fetch(`/admin/compliances/${complianceId}`);
                 if (!response.ok) {
@@ -548,8 +539,6 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback_date: document.getElementById('feedback_date').value,
         };
 
-        console.log(`Submitting feedback for compliance ID: ${complianceId} with status: ${selectedStatus}`);
-
         try {
             const response = await fetch(`/admin/compliances/feedback/${complianceId}`, {
                 method: 'POST',
@@ -576,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // COMPLIANCE DELETE ACTION
+    // Compliance Delete Action
     const complianceDeleteButtons = document.querySelectorAll('.compliance-delete-btn');
     const deleteConfirmModal = document.getElementById('deleteConfirmModal');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
@@ -640,7 +629,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
 
-    // IMPROVEMENT VIEW MODAL
+    // IMPROVEMENT VIEW, RESPONSE, & DELETE ACTION 
+    // Improvement View Modal
     const improvementModal = document.getElementById('improvementViewModal');
     const closeImprovementModal = document.getElementById('closeImprovementModal');
     const closeImprovementBtn = document.getElementById('closeImprovementModalBtn');
@@ -672,7 +662,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const improvementId = this.getAttribute('data-id');
             if (!improvementId) return;
 
-            console.log(`Fetching details for improvement ID: ${improvementId}`);
             try {
                 const response = await fetch(`/admin/improvements/${improvementId}`);
                 if (!response.ok) {
@@ -680,7 +669,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
                 }
                 const improvementData = await response.json();
-                console.log('Received improvement data:', improvementData);
 
                 populateImprovementModal(improvementData);
                 improvementModal.classList.add('active');
@@ -704,7 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // IMPROVEMENT RESPONSE MODAL
+    // Improvement Response Modal
     const improvementResponseModal = document.getElementById('improvementResponseModal');
     const closeImprovementResponseModal = document.getElementById('closeImprovementResponseModal');
     const cancelImprovementResponse = document.getElementById('cancelImprovementResponse');
@@ -736,7 +724,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const improvementId = this.getAttribute('data-id');
             if (!improvementId) return;
 
-            console.log(`Fetching details for improvement response form, ID: ${improvementId}`);
             try {
                 const response = await fetch(`/admin/improvements/${improvementId}`);
                 if (!response.ok) {
@@ -744,11 +731,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
                 }
                 const improvementData = await response.json();
-
-                console.log('Received improvement data object:', improvementData);
-                // Check the specific property value and type
-                console.log('Value of improvementData.Implementation_Date:', improvementData.Implementation_Date);
-                console.log('Type of improvementData.Implementation_Date:', typeof improvementData.Implementation_Date);
 
                 populateImprovementResponseForm(improvementData);
                 improvementResponseModal.classList.add('active');
@@ -787,8 +769,6 @@ document.addEventListener('DOMContentLoaded', () => {
             implementation_date: implementationDateValue || null,
         };
 
-        console.log(`Submitting response for improvement ID: ${improvementId}`, formData);
-
         try {
             const response = await fetch(`/admin/improvements/respond/${improvementId}`, {
                 method: 'POST',
@@ -815,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // IMPROVEMENT DELETE ACTION
+    // Improvement Delete Action
     const improvementDeleteButtons = document.querySelectorAll('.improvement-delete-btn');
     const improvementDeleteConfirmModal = document.getElementById('improvementDeleteConfirmModal');
     const confirmImprovementDeleteBtn = document.getElementById('confirmImprovementDeleteBtn');
@@ -848,7 +828,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const result = await response.json();
-
             if (!response.ok) {
                 throw new Error(result.message || `HTTP error! status: ${response.status}`);
             }
@@ -881,13 +860,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // PATIENT VIEW MODAL
+    // PATIENT VIEW & DELETE ACTION
+    // Patient View Modal
     const patientModal = document.getElementById('patientViewModal');
     const closePatientModalBtn = document.getElementById('closePatientModal');
     const closePatientModalFooterBtn = document.getElementById('closePatientModalBtn');
     const patientViewButtons = document.querySelectorAll('.patient-view-btn');
 
-    // Helper to format dates (similar to others, ensure dayjs is available)
+    // function to format dates
     const formatPatientDate = (dateString, format = 'DD-MM-YYYY') => {
         if (!dateString) return 'N/A';
         try {
@@ -911,7 +891,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
     // Function to populate the Patient VIEW modal
     function populatePatientModal(data) {
         document.getElementById('view_patient_id').textContent = `#P${data.Patient_ID || 'N/A'}`;
@@ -934,7 +913,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const patientId = this.getAttribute('data-id');
             if (!patientId) return;
 
-            console.log(`Fetching details for patient ID: ${patientId}`);
             try {
                 const response = await fetch(`/admin/patients/${patientId}`);
                 if (!response.ok) {
@@ -942,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
                 }
                 const patientData = await response.json();
-                console.log('Received patient data:', patientData);
 
                 populatePatientModal(patientData);
                 patientModal.classList.add('active');
@@ -966,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // PATIENT DELETE ACTION
+    // Patients Delete Action
     const patientDeleteButtons = document.querySelectorAll('.patient-delete-btn');
     const patientDeleteConfirmModal = document.getElementById('patientDeleteConfirmModal');
     const confirmPatientDeleteBtn = document.getElementById('confirmPatientDeleteBtn');
@@ -1034,7 +1011,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // ALERT VIEW MODAL
+    // ALERT VIEW, ADD TASK, & DELETE ACTION
+    // Alert View Modal
     const alertModal = document.getElementById('alertViewModal');
     const closeAlertModalBtn = document.getElementById('closeAlertModal');
     const closeAlertModalFooterBtn = document.getElementById('closeAlertModalBtn');
@@ -1104,7 +1082,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ALERT ADD TASK ACTION
+    // Alert Add Tasks Action
     const alertAddTaskButtons = document.querySelectorAll('.alert-addTask-btn');
     const taskPopup = document.getElementById('taskPopup');
     const resetBtn = document.getElementById('resetBtn');
@@ -1120,20 +1098,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || 'Failed to fetch alert details.');
     
-                // Populate Patient Details (as before)
+                // Populate Patient Details
                 document.getElementById('patientId').value = data.Patient_ID || 'N/A';
                 document.getElementById('patientName').value = data.patientFullName || 'Unknown Patient';
                 document.getElementById('patientAge').value = data.patientInfo?.Age || 'N/A';
                 document.getElementById('contactInfo').value = data.patientInfo?.Email || data.patientInfo?.Phone_Number || 'N/A';
     
-                // Populate Alert Details (as before)
+                // Populate Alert Details
                 document.getElementById('alertType').value = data.Alert_Type || 'N/A';
                 document.getElementById('currentValue').value = data.Current_Value || 'N/A';
                 document.getElementById('fallDetectionValue').value = data.Fall_Direction || 'N/A';
                 document.getElementById('normalRange').value = data.Normal_Range || 'N/A';
                 document.getElementById('alertDateTime').value = data.displayDateTime || 'N/A';
     
-                // Check for existing task (Add this block)
+                // Check for existing task
                 const taskResponse = await fetch(`/admin/alerts/${alertId}/task`);
                 const taskData = await taskResponse.json();
                 if (taskResponse.ok && taskData.task) {
@@ -1161,8 +1139,6 @@ document.addEventListener('DOMContentLoaded', () => {
             taskPopup.style.display = 'flex';
         });
     });
-
-
 
     // Reset Task form
     resetBtn.addEventListener('click', () => {
@@ -1220,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ALERT DELETE ACTION
+    // Alert Delete Action
     const alertDeleteButtons = document.querySelectorAll('.alert-delete-btn');
     const alertDeleteConfirmModal = document.getElementById('alertDeleteConfirmModal');
     const confirmAlertDeleteBtn = document.getElementById('confirmalertDeleteBtn');
@@ -1283,7 +1259,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // TASK VIEW MODAL
+    // TASKS VIEW & DELETE ACTION
+    // Tasks view Modal
     const taskModal = document.getElementById('taskViewModal');
     const closeTaskModalBtn = document.getElementById('closeTaskModal');
     const closeTaskModalFooterBtn = document.getElementById('closeTaskModalBtn');
@@ -1340,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // TASK DELETE ACTION
+    // Tasks Delete Action
     const taskDeleteButtons = document.querySelectorAll('.task-delete-btn');
     const taskDeleteConfirmModal = document.getElementById('taskDeleteConfirmModal');
     const confirmTaskDeleteBtn = document.getElementById('confirmtaskDeleteBtn');
@@ -1392,6 +1369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // UPLODE & DELETE ADMIN PROFILE IMAGE ACTION
     // Upload Profile Image
     const profileForm = document.getElementById('adminProfileUploadForm');
     const profileInput = document.getElementById('adminProfileImage');
@@ -1462,6 +1440,4 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelProfileDeleteBtn.addEventListener('click', () => {
         profileDeleteModal.style.display = 'none';
     });
-
-
 });

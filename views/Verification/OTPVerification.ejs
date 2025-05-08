@@ -7,68 +7,74 @@
     <link rel="stylesheet" href="/CSS/Verification_CSS/OTPVerification.css">
 </head>
 <body>
-    <% if (error) { %>
-        <div class="toast error" id="error-toast">
-          <span><%= error %></span>
-          <button class="close" onclick="hideToast('error-toast')">&times;</button>
-        </div>
-      <% } %>
-      
-      <% if (message) { %>
-        <div class="toast success" id="success-toast">
-          <span><%= message %></span>
-          <button class="close" onclick="hideToast('success-toast')">&times;</button>
-        </div>
-      <% } %>       
-    <div class="header">
-        <div style="display: flex; align-items: center;">
-            <img src="/image/logo.png" alt="Health Monitoring System Logo" class="logo">
-            <h2>Health Monitoring System</h2>
-        </div>
-        <a href="/register" class="create-account">Create an account</a>
+  <!-- Error Message PopUp -->
+  <% if (error) { %>
+    <div class="toast error" id="error-toast">
+      <span><%= error %></span>
+      <button class="close" onclick="hideToast('error-toast')">&times;</button>
     </div>
-    <div class="container">
-        <img src="/image/OTP.png" alt="OTP Icon" class="icon-image">
-        <h2>OTP Verification</h2>
-        <p>We have sent an OTP to your email. Please enter it below to continue.</p>
-        
-        <form action="/verify-otp" method="post">
-            <input type="hidden" name="email" value="<%= email %>">
-            
-            <div class="otp-input-container">
-                <input type="text" class="otp-input" maxlength="1" id="otp-input-1">
-                <input type="text" class="otp-input" maxlength="1" id="otp-input-2">
-                <input type="text" class="otp-input" maxlength="1" id="otp-input-3">
-                <input type="text" class="otp-input" maxlength="1" id="otp-input-4">
-            </div>
-            
-            <input type="hidden" name="otp" id="full-otp">
-            
-            <button type="submit" class="btn">Verify OTP</button>
-        </form>
-        
-        <p class="resend-link">Didn't receive the OTP? <a href="/forgot-password">Click to resend</a></p>
-        <p class="back-link"><a href="/">← Back to sign in</a></p>
-        <div class="progress-bar">
-            <div class="bar"></div>
-            <div class="bar active"></div>
-            <div class="bar"></div>
-        </div>
+  <% } %>
+
+  <!-- Success Message PopUp -->
+  <% if (message) { %>
+    <div class="toast success" id="success-toast">
+      <span><%= message %></span>
+      <button class="close" onclick="hideToast('success-toast')">&times;</button>
     </div>
-    <script src="/Js/Verification_JS/OTPVerification.js"></script>
-    <script>
-        function hideToast(id) {
-          const toast = document.getElementById(id);
-          if (toast) toast.style.display = 'none';
-        }
+  <% } %>
+    
+  <!-- Hearder Section -->
+  <div class="header">
+      <div style="display: flex; align-items: center;">
+          <img src="/image/logo.png" alt="Health Monitoring System Logo" class="logo">
+          <h2>Health Monitoring System</h2>
+      </div>
+      <a href="/register" class="create-account">Create an account</a>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+      <img src="/image/OTP.png" alt="OTP Icon" class="icon-image">
+      <h2>OTP Verification</h2>
+      <p>We have sent an OTP to your email. Please enter it below to continue.</p>
       
-        // Optional: auto-hide after 4 seconds
-        setTimeout(() => {
-          const errorToast = document.getElementById('error-toast');
-          const successToast = document.getElementById('success-toast');
-          if (errorToast) errorToast.style.display = 'none';
-          if (successToast) successToast.style.display = 'none';
-        }, 4000);
-      </script>
+      <!-- OTP Form -->
+      <form action="/verify-otp" method="post">
+          <input type="hidden" name="email" value="<%= email %>">
+          
+          <div class="otp-input-container">
+              <input type="text" class="otp-input" maxlength="1" id="otp-input-1">
+              <input type="text" class="otp-input" maxlength="1" id="otp-input-2">
+              <input type="text" class="otp-input" maxlength="1" id="otp-input-3">
+              <input type="text" class="otp-input" maxlength="1" id="otp-input-4">
+          </div>
+          
+          <input type="hidden" name="otp" id="full-otp">
+          
+          <button type="submit" class="btn">Verify OTP</button>
+      </form>
+      
+      <p class="resend-link">Didn't receive the OTP? <a href="/forgot-password">Click to resend</a></p>
+      <p class="back-link"><a href="/">← Back to sign in</a></p>
+      <div class="progress-bar">
+          <div class="bar"></div>
+          <div class="bar active"></div>
+          <div class="bar"></div>
+      </div>
+  </div>
+  <script src="/Js/Verification_JS/OTPVerification.js"></script>
+  <script>
+      function hideToast(id) {
+        const toast = document.getElementById(id);
+        if (toast) toast.style.display = 'none';
+      }
+
+      setTimeout(() => {
+        const errorToast = document.getElementById('error-toast');
+        const successToast = document.getElementById('success-toast');
+        if (errorToast) errorToast.style.display = 'none';
+        if (successToast) successToast.style.display = 'none';
+      }, 5000);
+    </script>
 </body>
 </html>

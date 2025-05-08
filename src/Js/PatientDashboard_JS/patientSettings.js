@@ -1,16 +1,19 @@
+// Execute when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
+    // Get DOM elements
     const settingsContent = document.querySelector('.settings-content');
-
     const saveBtn = settingsContent?.querySelector('.save-btn');
     const cancelBtn = settingsContent?.querySelector('.cancel-btn');
     const deleteAccountBtn = settingsContent?.querySelector('.delete-account-btn');
 
+    // Functions to get/set form values
     const getValue = id => document.getElementById(id)?.value || '';
     const setValue = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.value = val;
     };
 
+    // Store original values for cancel functionality
     const originalValues = {
         settings_username: getValue('settings_username'),
         firstName: getValue('firstName'),
@@ -23,11 +26,13 @@ document.addEventListener('DOMContentLoaded', function () {
         settings_address: getValue('settings_address'),
     };
 
+    // Cancel button handler - reverts all changes
     cancelBtn?.addEventListener('click', function () {
         Object.entries(originalValues).forEach(([id, val]) => setValue(id, val));
         showAlert('Your changes have been canceled', 'info');
     });
 
+    // Save button handler - validates and saves changes
     saveBtn?.addEventListener('click', async function () {
         const updatedData = {
             username: getValue('settings_username'),
@@ -41,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
             address: getValue('settings_address')
         };
 
+        // Validate required fields
         if (!updatedData.firstName || !updatedData.lastName || !updatedData.email || !updatedData.phoneNumber) {
             showAlert('Please fill in all required fields', 'error');
             return;
@@ -63,6 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Send update request to server
         try {
             const response = await fetch('/updatePatientProfile', {
                 method: 'POST',
@@ -93,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Delete account button handler - shows confirmation modal
     deleteAccountBtn?.addEventListener('click', function () {
         const modal = document.createElement('div');
         modal.className = 'confirmation-modal';
@@ -108,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
         document.body.appendChild(modal);
 
+        // Add modal styles
         const style = document.createElement('style');
         style.textContent = `
             .confirmation-modal {
@@ -148,12 +157,14 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
         document.head.appendChild(style);
 
+        // Cancel button handler
         modal.querySelector('.modal-cancel-btn').addEventListener('click', () => {
             modal.remove();
             style.remove();
             showAlert('Account deletion canceled', 'info');
         });
 
+        // Confirm button handler
         modal.querySelector('.modal-confirm-btn').addEventListener('click', async () => {
             try {
                 const response = await fetch('/deletePatientAccount', {
@@ -179,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Function to Shows a temporary alert message
     function showAlert(message, type) {
         const existingAlert = document.querySelector('.custom-alert');
         if (existingAlert) existingAlert.remove();

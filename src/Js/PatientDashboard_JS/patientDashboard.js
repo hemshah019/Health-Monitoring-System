@@ -255,6 +255,43 @@ function initNavigation() {
         setActiveNavAndSub('Customer Care', 2, 'customer');
     });
 
+    // Vital Boxes Click Events of Health Vital Signs
+    document.querySelector('.vital-box.heart-rate-box')?.addEventListener('click', () => {
+        showContent(heartRateContent);
+        setActiveNavAndSub('Health Vital Signs', 0, 'health');
+    });
+
+    document.querySelector('.vital-box.temp-box')?.addEventListener('click', () => {
+        showContent(bodyTempContent);
+        setActiveNavAndSub('Health Vital Signs', 1, 'health');
+    });
+
+    document.querySelector('.vital-box.oxygen-box')?.addEventListener('click', () => {
+        showContent(oxygenContent);
+        setActiveNavAndSub('Health Vital Signs', 2, 'health');
+    });
+
+    document.querySelector('.vital-box.fall-box')?.addEventListener('click', () => {
+        showContent(fallContent);
+        setActiveNavAndSub('Health Vital Signs', 3, 'health');
+    });
+
+    // Customer Care Boxes Click Events
+    document.querySelector('.vital-box.messages-box')?.addEventListener('click', () => {
+        showContent(messagesContent);
+        setActiveNavAndSub('Customer Care', 0, 'customer');
+    });
+
+    document.querySelector('.vital-box.compliances-box')?.addEventListener('click', () => {
+        showContent(compliancesContent);
+        setActiveNavAndSub('Customer Care', 1, 'customer');
+    });
+
+    document.querySelector('.vital-box.improvements-box')?.addEventListener('click', () => {
+        showContent(improvementsContent);
+        setActiveNavAndSub('Customer Care', 2, 'customer');
+    });
+
     // View All buttons
     document.querySelectorAll('.view-all').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -528,3 +565,39 @@ setTimeout(() => {
     const toast = document.getElementById('toast');
     if (toast) toast.style.display = 'none';
   }, 3000);
+
+
+  // TOGGLE MENU
+document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    function checkWidth() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('mobile-hidden');
+        } else {
+            sidebar.classList.remove('mobile-hidden', 'mobile-active');
+        }
+    }
+
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+
+    // Toggle sidebar on menu button click
+    menuToggle?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sidebar.classList.toggle('mobile-hidden');
+        sidebar.classList.toggle('mobile-active');
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function (e) {
+        const isClickInsideSidebar = sidebar.contains(e.target);
+        const isClickOnToggle = menuToggle.contains(e.target);
+
+        if (!isClickInsideSidebar && !isClickOnToggle && window.innerWidth <= 768) {
+            sidebar.classList.add('mobile-hidden');
+            sidebar.classList.remove('mobile-active');
+        }
+    });
+});

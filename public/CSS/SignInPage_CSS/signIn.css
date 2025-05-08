@@ -1,3 +1,4 @@
+/* Default browser margins/padding and set up flex container for the entire page */
 body {
     margin: 0;
     padding: 0;
@@ -8,12 +9,14 @@ body {
     background: url('/image/background.jpg') no-repeat center center/cover;
 }
 
+/* Main Container of all contain */
 .container {
     display: flex;
     align-items: center;
     height: 100%;
 }
 
+/* Form Contain */
 .left-section {
     display: flex;
     flex-direction: column;
@@ -82,6 +85,7 @@ label {
     pointer-events: none;
 }
 
+/* Password toggle button */
 .toggle-password {
     cursor: pointer;
     pointer-events: auto;
@@ -96,6 +100,7 @@ label {
     height: 20px;
 }
 
+/* Custom dropdown styling */
 .role-dropdown {
     appearance: none;
     background-color: white;
@@ -110,6 +115,7 @@ label {
     margin-bottom: 5px;
 }
 
+/* Submit button styling */
 button {
     width: 100%;
     padding: 15px;
@@ -126,6 +132,7 @@ button:hover {
     background-color: #5588BB;
 }
 
+/* Link styling */
 a {
     color: #6699CC;
     text-decoration: none;
@@ -135,6 +142,7 @@ a:hover {
     text-decoration: underline;
 }
 
+/* Toast notification styling */
 .toast {
     position: fixed;
     top: 20px;
@@ -173,4 +181,192 @@ a:hover {
 
 .hidden {
     display: none;
+}
+
+
+/* MEDIA QUERIES - Updated to match other pages */
+
+/* Tablet View */
+@media screen and (max-width: 1024px) {
+    body {
+        padding-right: 0;
+        justify-content: center;
+    }
+    
+    .container {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .left-section {
+        padding-left: 50px;
+        width: 80%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding-top: 30px;
+    }
+    
+    .logo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .logo {
+        width: 180px;
+        height: 180px;
+        margin-left: 0;
+    }
+    
+    h1 {
+        font-size: 26px;
+        text-align: center;
+    }
+    
+    h2 {
+        text-align: center;
+    }
+}
+
+/* Mobile View */
+@media screen and (max-width: 768px) {
+    body {
+        background-position: center top;
+        height: auto;
+        min-height: 100vh;
+        padding: 0;
+    }
+    
+    .container {
+        justify-content: center;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .left-section {
+        padding: 20px;
+        width: 90%;
+        max-width: 400px;
+        margin: 20px auto;
+        background-color: transparent;
+        border-radius: 10px;
+    }
+    
+    .logo-container {
+        margin-bottom: 15px;
+    }
+    
+    .logo {
+        width: 120px;
+        height: 120px;
+    }
+    
+    h1 {
+        font-size: 22px;
+        margin-top: 5px;
+    }
+    
+    h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    .input-group input, 
+    .role-dropdown {
+        padding: 12px 10px;
+        font-size: 16px;
+    }
+    
+    .options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    button {
+        padding: 12px;
+    }
+    
+    .toast {
+        width: 80%;
+        right: 10%;
+        left: 10%;
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile View */
+@media screen and (max-width: 480px) {
+    .left-section {
+        padding: 15px;
+        width: 95%;
+        margin: 10px auto;
+    }
+    
+    .logo {
+        width: 100px;
+        height: 100px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    h2 {
+        font-size: 16px;
+    }
+    
+    .input-group input, 
+    .role-dropdown {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    button {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .toast {
+        width: 90%;
+        right: 5%;
+        left: 5%;
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    body {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .container {
+        height: auto;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .left-section {
+        padding: 15px;
+        margin: 10px auto;
+    }
+    
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+    
+    h1 {
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .input-group {
+        margin-bottom: 10px;
+    }
 }

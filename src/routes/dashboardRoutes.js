@@ -3,17 +3,18 @@ const router = express.Router();
 const { Admin, Patient, Message, Compliance, Improvement, HeartRate, SpO2, BodyTemperature, FallDetection, Alert, Task } = require('../config'); 
 const dayjs = require('dayjs');
 
+// Middleware to ensure the role is an admin or patients
 function requireLogin(role) {
     return (req, res, next) => {
         if (!req.session.user || req.session.user.role !== role) {
-            console.log(`⚠️ Unauthorized access attempt to /${role}Dashboard. Redirecting to login.`);
+            console.log(`[Health Montoring System] Unauthorized access attempt to /${role}Dashboard. Redirecting to login.`);
             req.session.destroy(err => {
                  if (err) console.error("Error destroying session on unauthorized access:", err);
                  return res.redirect('/?message=auth_required');
             });
             return;
         }
-        console.log(`🔑 Authorized access for role: ${role}, ID: ${req.session.user.id}`);
+        console.log(`[Health Montoring System] Authorized access for role: ${role}, ID: ${req.session.user.id}`);
         next();
     };
 }
@@ -111,7 +112,7 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
         ]);
 
         if (!adminData) {
-            console.error(`❌ ERROR: Admin data not found in DB for logged-in admin ID: ${adminId}`);
+            console.error(`[Health Montoring System] ERROR: Admin data not found in DB for logged-in admin ID: ${adminId}`);
             req.session.destroy(err => {
                 if (err) console.error("Error destroying session for missing admin:", err);
                 return res.redirect('/?message=session_error');
@@ -142,7 +143,7 @@ router.get('/adminDashboard', requireLogin('admin'), async (req, res) => {
         });
 
     } catch (error) {
-        console.error("❌ Error fetching data for admin dashboard:", error);
+        console.error("[Health Montoring System] Error fetching data for admin dashboard:", error);
         res.status(500).render('Errors/500', { errorMsg: "An error occurred while loading the admin dashboard."});
     }
 });
@@ -174,7 +175,7 @@ router.post('/updateAdminProfile', requireLogin('admin'), async (req, res) => {
 
         res.json({ message: 'Profile updated successfully' });
     } catch (error) {
-        console.error('Error updating admin profile:', error);
+        console.error('[Health Montoring System] Error updating admin profile:', error);
         res.status(500).json({ message: 'Failed to update profile' });
     }
 });
@@ -193,13 +194,13 @@ router.post('/deleteAdminAccount', requireLogin('admin'), async (req, res) => {
         // Destroy the session
         req.session.destroy(err => {
             if (err) {
-                console.error('Error destroying session:', err);
+                console.error('[Health Montoring System] Error destroying session:', err);
                 return res.status(500).json({ message: 'Error during account deletion' });
             }
             res.json({ message: 'Account deleted successfully' });
         });
     } catch (error) {
-        console.error('Error deleting admin account:', error);
+        console.error('[Health Montoring System] Error deleting admin account:', error);
         res.status(500).json({ message: 'Failed to delete account' });
     }
 });
@@ -250,9 +251,9 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
         ]);
 
         if (!patientData) {
-            console.error(`❌ ERROR: Patient data not found in DB for logged-in patient ID: ${patientId}`);
+            console.error(`[Health Montoring System] ERROR: Patient data not found in DB for logged-in patient ID: ${patientId}`);
             req.session.destroy(err => {
-                if (err) console.error("Error destroying session for missing patient:", err);
+                if (err) console.error("[Health Montoring System] Error destroying session for missing patient:", err);
                 return res.redirect('/?message=session_error');
             });
             return;
@@ -276,7 +277,7 @@ router.get('/patientDashboard', requireLogin('patient'), async (req, res) => {
         });
 
     } catch (error) {
-        console.error(`❌ Error fetching patient data or counts for dashboard (ID: ${req.session.user?.id}):`, error);
+        console.error(`[Health Montoring System] Error fetching patient data or counts for dashboard (ID: ${req.session.user?.id}):`, error);
         res.status(500).render('Errors/500', {
             title: 'Server Error',
             errorMsg: "An error occurred while loading your dashboard."
@@ -314,8 +315,9 @@ router.post('/updatePatientProfile', requireLogin('patient'), async (req, res) =
         }
 
         res.json({ message: 'Profile updated successfully' });
+
     } catch (error) {
-        console.error('Error updating patient profile:', error);
+        console.error('[Health Montoring System] Error updating patient profile:', error);
         res.status(500).json({ message: 'Failed to update profile' });
     }
 });
@@ -333,13 +335,14 @@ router.post('/deletePatientAccount', requireLogin('patient'), async (req, res) =
         // Destroy the session
         req.session.destroy(err => {
             if (err) {
-                console.error('Error destroying session:', err);
+                console.error('[Health Montoring System] Error destroying session:', err);
                 return res.status(500).json({ message: 'Error during account deletion' });
             }
             res.json({ message: 'Account deleted successfully' });
         });
+
     } catch (error) {
-        console.error('Error deleting patient account:', error);
+        console.error('[Health Montoring System] Error deleting patient account:', error);
         res.status(500).json({ message: 'Failed to delete account' });
     }
 });

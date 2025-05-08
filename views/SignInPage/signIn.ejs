@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="/CSS/SignInPage_CSS/signIn.css">
 </head>
 <body>
+    <!-- Error & Success Message PopUp -->
     <div id="toastMessage" class="toast hidden"></div>
     <% if (successMessage) { %>
         <div id="toast" class="toast success">
           <span><%= successMessage %></span>
           <span class="close" onclick="document.getElementById('toast').style.display='none'">×</span>
         </div>
-      <% } %>
+    <% } %>
+
+    <!-- Main Container -->
     <div class="container">
         <div class="left-section">
             <div class="logo-container">
@@ -22,6 +25,8 @@
             </div>
             <div class="form-container">
                 <h2>Sign In</h2>
+
+                <!-- SignIn Form -->
                 <form action="/SignInPage/signIn" method="post">
                     <label for="email">Email or Username</label>
                     <div class="input-group">

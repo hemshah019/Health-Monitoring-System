@@ -17,6 +17,7 @@ const ensurePatient = (req, res, next) => {
     next();
 };
 
+// Alert Generating Action
 // Generate alerts for a specific patient
 router.get('/generate-alerts/:patientId', async (req, res) => {
     try {

@@ -1,4 +1,4 @@
-// FUNCTION FOR AUTOMATICALLY GENERATED DATE
+// Function for Automatically generating Date
 function formatDate(date) {
     const dayOfWeek = date.toLocaleString('default', { weekday: 'long' });
     const day = date.getDate();
@@ -116,6 +116,7 @@ function handleNavigation() {
 
 // View All buttons handler
 function handleViewAllButtons() {
+
     // Task's View All button
     const viewAllTasks = document.querySelector('.view-all-tasks');
     if (viewAllTasks) {
@@ -145,7 +146,7 @@ function handleViewAllButtons() {
     }
 }
 
-// Helper function to hide all content sections
+// Function to hide all content sections
 function hideAllContentSections() {
     const sections = [
         '.content:not(.patients-content)',
@@ -164,7 +165,7 @@ function hideAllContentSections() {
     });
 }
 
-// Helper function to update active navigation item
+// Function to update active navigation item
 function updateActiveNavItem(itemText) {
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
@@ -175,7 +176,7 @@ function updateActiveNavItem(itemText) {
     });
 }
 
-// Date update function (mock - replace with your actual implementation)
+// Date update function
 function updateAllDateTexts() {
     const dateElements = document.querySelectorAll('[data-date]');
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -225,7 +226,7 @@ function togglePasswordVisibility() {
 }
 
 
-// LOGOUT
+// LOGOUT ACTION
 const logoutButton = document.getElementById('logout-button');
 const logoutDialog = document.getElementById('logout-dialog');
 const cancelButton = document.getElementById('cancel-logout');
@@ -255,8 +256,9 @@ logoutDialog.addEventListener('click', function(event) {
 });
 
 
-// SEARCH FUNCTIONALITY
+// SEARCH FUNCTIONALITY ACTION
 function setupSearchFunctionality() {
+
     // Search functionality for all tables
     document.querySelectorAll('.search-box input').forEach(searchInput => {
         searchInput.addEventListener('input', function() {
@@ -436,8 +438,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
+// Setting the message toast to 3 Sec
 setTimeout(() => {
     const toast = document.getElementById('toast');
     if (toast) toast.style.display = 'none';
 }, 3000);
+
+
+// TOGGLE MENU
+document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    function checkWidth() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('mobile-hidden');
+        } else {
+            sidebar.classList.remove('mobile-hidden', 'mobile-active');
+        }
+    }
+
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+
+    // Toggle sidebar on menu button click
+    menuToggle?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        sidebar.classList.toggle('mobile-hidden');
+        sidebar.classList.toggle('mobile-active');
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function (e) {
+        const isClickInsideSidebar = sidebar.contains(e.target);
+        const isClickOnToggle = menuToggle.contains(e.target);
+
+        if (!isClickInsideSidebar && !isClickOnToggle && window.innerWidth <= 768) {
+            sidebar.classList.add('mobile-hidden');
+            sidebar.classList.remove('mobile-active');
+        }
+    });
+});

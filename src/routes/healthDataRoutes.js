@@ -3,8 +3,7 @@ const { HeartRate, SpO2, BodyTemperature, FallDetection, Patient } = require('..
 
 const router = express.Router();
 
-/* ----------------- IoT Sensor Data Endpoints (for ESP32) ----------------- */
-
+// IoT Sensor Data Endpoints (for ESP32)
 // POST Heart Rate & SpO2 Data
 router.post('/heartrate-spo2', async (req, res) => {
     const { patientId, heartRate, spo2, heartRateStatus, spo2Status, normalHeartRate, normalSpO2 } = req.body;
@@ -35,8 +34,9 @@ router.post('/heartrate-spo2', async (req, res) => {
         await newSpO2.save();
 
         res.status(201).json({ message: 'Heart Rate and SpO2 data saved successfully.' });
+
     } catch (error) {
-        console.error('Error saving Heart Rate & SpO2:', error);
+        console.error('[Health Montoring System] Error saving Heart Rate & SpO2:', error);
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 });
@@ -59,8 +59,9 @@ router.post('/temperature', async (req, res) => {
         await newTemp.save();
 
         res.status(201).json({ message: 'Temperature data saved successfully.' });
+
     } catch (error) {
-        console.error('Error saving Temperature:', error);
+        console.error('[Health Montoring System] Error saving Temperature:', error);
         res.status(500).json({ message: 'Server Error', error: error.message });
     }
 });
@@ -87,13 +88,10 @@ router.post('/fall-detection', async (req, res) => {
     }
 });
 
-/* ----------------- Patient Authenticated Routes (Frontend) ----------------- */
-
+// Patient Authenticated Routes (Frontend)
 // Middleware to check if the user is authenticated as a patient
 const isPatientAuthenticated = (req, res, next) => {
-    console.log('Session user:', req.session.user);
-    
-    // Check for user session with case-insensitive property names
+    // Check for user session
     if (req.session.user && 
         (req.session.user.role === 'patient' || req.session.user.Role === 'Patient') && 
         (req.session.user.id || req.session.user.Patient_ID)) {
@@ -135,9 +133,6 @@ router.get('/heart-rate', isPatientAuthenticated, async (req, res) => {
 // DELETE HEARTRATE DATA
 router.delete('/heart-rate/:id', isPatientAuthenticated, async (req, res) => {
     try {
-        console.log('Session user:', req.session.user);
-        console.log('Patient ID from middleware:', req.patientId);
-
         const recordId = parseInt(req.params.id, 10);
         const patientId = req.patientId;
 
@@ -153,8 +148,6 @@ router.delete('/heart-rate/:id', isPatientAuthenticated, async (req, res) => {
         if (!result) {
             return res.status(404).json({ message: 'Heart rate record not found or access denied.' });
         }
-
-        console.log(`Heart rate record ${recordId} deleted successfully for patient ${patientId}`);
         res.status(200).json({ message: 'Heart rate record deleted successfully.' });
 
     } catch (error) {
@@ -198,8 +191,6 @@ router.delete('/spo2/:id', isPatientAuthenticated, async (req, res) => {
         if (!result) {
             return res.status(404).json({ message: 'SpO2 record not found or access denied.' });
         }
-
-        console.log(`SpO2 record ${recordId} deleted successfully for patient ${patientId}`);
         res.status(200).json({ message: 'SpO2 record deleted successfully.' });
 
     } catch (error) {
@@ -242,8 +233,6 @@ router.delete('/body-temperature/:id', isPatientAuthenticated, async (req, res) 
         if (!result) {
             return res.status(404).json({ message: 'Body temperature record not found or access denied.' });
         }
-
-        console.log(`Body temperature record ${recordId} deleted successfully for patient ${patientId}`);
         res.status(200).json({ message: 'Body temperature record deleted successfully.' });
 
     } catch (error) {
@@ -287,8 +276,7 @@ router.delete('/fall-detection/:id', isPatientAuthenticated, async (req, res) =>
         if (!result) {
             return res.status(404).json({ message: 'Fall detection record not found or access denied.' });
         }
-
-        console.log(`Fall detection record ${recordId} deleted successfully for patient ${patientId}`);
+        
         res.status(200).json({ message: 'Fall detection record deleted successfully.' });
 
     } catch (error) {

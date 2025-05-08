@@ -7,7 +7,15 @@
     <link rel="stylesheet" href="/CSS/PatientDashboard_CSS/patientDashboard.css">
 </head>
 <body data-patient-id="<%= patient.Patient_ID %>"> 
+    <!-- Hearder Section -->
     <header class="header">
+        <button class="menu-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
         <div class="logo-container">
             <img src="/image/logo.png" alt="Company Logo" class="logo">
         </div>
@@ -22,6 +30,7 @@
             </div>
         </div>
     </header>
+
     <% if (message === 'login-success') { %>
         <div id="toast" class="toast success">
           <span>Signed in successfully!</span>
@@ -29,6 +38,7 @@
         </div>
       <% } %>
 
+    <!-- Side Bar Section -->
     <div class="container">
         <aside class="sidebar">
             <div class="nav-items">
@@ -116,6 +126,7 @@
             </div>
         </div>
 
+        <!-- Patient Dashboard Section -->
         <main class="content">
             <div class="dashboard-header">
                 <h1>Dashboard</h1>
@@ -133,7 +144,9 @@
                 </div>
             </div>
 
+            <!-- Stats Sections -->
             <div class="stats-container">
+                
                 <!-- Heart Rate Card -->
                 <div class="stat-card">
                     <div class="stat-card-header">
@@ -287,6 +300,7 @@
                     </div>
                 </div>
 
+                <!-- Tasks Section -->
                 <div class="dashboard-section tasks-section">
                     <div class="section-header">
                         <h2>My Task's</h2>
@@ -391,7 +405,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -467,7 +481,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -542,7 +556,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -615,7 +629,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -844,7 +858,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>                                           
                     </table>
                 </div>
@@ -883,17 +897,18 @@
                     <h2>Task & Alert Details</h2>
                     <button class="close-modal" id="closeTaskModal">&times;</button>
                 </div>
-                <div class="modal-body">                    
+                <div class="modal-body">   
+
                     <!-- Health Alert Details Section -->
                     <h3 class="section-title">Health Alert Details</h3>
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Alert Type</span>
-                            <span class="info-field-value" id="task_view_alert_type">Heart Rate</span>
+                            <span class="info-field-value" id="task_view_alert_type"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Current Value</span>
-                            <span class="info-field-value" id="task_view_current_value">110 BPM</span>
+                            <span class="info-field-value" id="task_view_current_value"></span>
                         </div>
                         <div class="info-field">
                             <span class="fallDetectionValue">Fall Detection</span>
@@ -901,11 +916,11 @@
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Normal Range</span>
-                            <span class="info-field-value" id="task_view_normal_range">60-100 BPM</span>
+                            <span class="info-field-value" id="task_view_normal_range"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Alert Date & Time</span>
-                            <span class="info-field-value" id="task_view_alert_datetime">16-01-2023 10:30 AM</span>
+                            <span class="info-field-value" id="task_view_alert_datetime"></span>
                         </div>
                     </div>
                     
@@ -914,25 +929,25 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Task Name</span>
-                            <span class="info-field-value" id="task_view_task_name">Rest for 10 minutes</span>
+                            <span class="info-field-value" id="task_view_task_name"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Task Priority</span>
                             <span class="info-field-value" id="task_view_task_priority">
-                                <span class="priority-badge priority-high">High</span>
+                                <span class="priority-badge priority-high"></span>
                             </span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Task Date</span>
-                            <span class="info-field-value" id="task_view_task_date">Thursday, 24th April 2025 1:14 PM</span>
+                            <span class="info-field-value" id="task_view_task_date"></span>
                         </div>
                         <div class="info-field">
-                            <span class="info-field-label">Completion Time</span>
-                            <span class="info-field-value" id="task_view_completion_time">16-01-2023 11:00 AM</span>
+                            <span class="info-field-label"></span>
+                            <span class="info-field-value" id="task_view_completion_time"></span>
                         </div>
                         <div class="info-field info-field-full">
-                            <span class="info-field-label">Task Description</span>
-                            <span class="info-field-value" id="task_view_task_description">Patient should stop any physical activity and rest in a seated or lying position for at least 10 minutes. Monitor heart rate after rest period and report if still elevated.</span>
+                            <span class="info-field-label"></span>
+                            <span class="info-field-value" id="task_view_task_description"></span>
                         </div>
                     </div>
                 </div>
@@ -987,7 +1002,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -1078,11 +1093,6 @@
                     </div>
                     <div class="messages-actions"><button class="add-new-btn">Add Message</button></div>
                 </div>
-
-                <!-- No Messages Placeholder -->
-                <!-- <div class="no-messages" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
-                    You don't have any messages yet.
-                </div> -->
         
                 <div class="messages-table-container full-width">
                     <table class="messages-table">
@@ -1141,31 +1151,31 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Message ID</span>
-                            <span class="info-field-value" id="message_view_id">#M2001</span>
+                            <span class="info-field-value" id="message_view_id"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Message Type</span>
-                            <span class="info-field-value" id="message_view_type">Inquiry</span>
+                            <span class="info-field-value" id="message_view_type"></span>
                         </div>
                         <div class="info-field info-field-full">
                             <span class="info-field-label">Message Content</span>
-                            <span class="info-field-value" id="message_view_content">What should I do if my heart rate remains high?</span>
+                            <span class="info-field-value" id="message_view_content"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Date & Time</span>
-                            <span class="info-field-value" id="message_view_datetime">17-01-2023</span>
+                            <span class="info-field-value" id="message_view_datetime"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Status</span>
-                            <span class="info-field-value" id="message_view_status">Resolved</span>
+                            <span class="info-field-value" id="message_view_status"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Admin Response</span>
-                            <span class="info-field-value" id="message_view_response">Follow relaxation exercises</span>
+                            <span class="info-field-value" id="message_view_response"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Response Date</span>
-                            <span class="info-field-value" id="message_view_responsedate">18-01-2023</span>
+                            <span class="info-field-value" id="message_view_responsedate"></span>
                         </div>
                     </div>
                 </div>
@@ -1175,6 +1185,7 @@
             </div>
         </div>
 
+        <!-- Message Form -->
         <div id="newMessagePopup" class="popup-overlay">
             <div class="popup-form">
                 <div class="popup-header">
@@ -1241,11 +1252,6 @@
                     </div>
                     <div class="compliance-actions"><button class="add-new-btn">Add Compliance</button></div>
                 </div>
-
-                <!-- No compliances Placeholder -->
-                <!-- <div class="no-compliances" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
-                    You don't have any compliances yet.
-                </div> -->
         
                 <div class="compliance-table-container full-width">
                     <table class="compliance-table">
@@ -1260,7 +1266,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -1304,31 +1310,31 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Compliance ID</span>
-                            <span class="info-field-value" id="compliance_view_id">#C1001</span>
+                            <span class="info-field-value" id="compliance_view_id"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Compliance Type</span>
-                            <span class="info-field-value" id="compliance_view_type">Medication Plan</span>
+                            <span class="info-field-value" id="compliance_view_type"></span>
                         </div>
                         <div class="info-field info-field-full">
                             <span class="info-field-label">Compliance Notes</span>
-                            <span class="info-field-value" id="compliance_view_notes">Followed prescribed medication plan</span>
+                            <span class="info-field-value" id="compliance_view_notes"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Compliance Date</span>
-                            <span class="info-field-value" id="compliance_view_date">20-01-2023</span>
+                            <span class="info-field-value" id="compliance_view_date"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Status</span>
-                            <span class="info-field-value" id="compliance_view_status">Resolved</span>
+                            <span class="info-field-value" id="compliance_view_status"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Admin Feedback</span>
-                            <span class="info-field-value" id="compliance_view_feedback">Good job maintaining your medication schedule</span>
+                            <span class="info-field-value" id="compliance_view_feedback"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Response Date</span>
-                            <span class="info-field-value" id="compliance_view_response">221-01-2023</span>
+                            <span class="info-field-value" id="compliance_view_response"></span>
                         </div>
                     </div>
                 </div>
@@ -1401,12 +1407,7 @@
                     </div>
                     <div class="improvement-actions"><button class="add-new-btn">Add Improvement</button></div>
                 </div>
-
-                <!-- No improvement Placeholder -->
-                <!-- <div class="no-improvements" style="display: none; text-align: center; margin: 20px 0; font-weight: bold; color: #777;">
-                    You don't have any improvements yet.
-                </div> -->
-        
+       
                 <div class="improvement-table-container full-width">
                     <table class="improvement-table">
                         <thead>
@@ -1420,7 +1421,7 @@
                             </tr>
                         </thead>
                         <tbody>
-
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -1464,31 +1465,31 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Improvement ID</span>
-                            <span class="info-field-value" id="improvement_view_id">#I1001</span>
+                            <span class="info-field-value" id="improvement_view_id"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Category</span>
-                            <span class="info-field-value" id="improvement_view_category">System Improvement</span>
+                            <span class="info-field-value" id="improvement_view_category"></span>
                         </div>
                         <div class="info-field info-field-full">
                             <span class="info-field-label">Suggestion Description</span>
-                            <span class="info-field-value" id="improvement_view_description">Enhance dashboard responsiveness</span>
+                            <span class="info-field-value" id="improvement_view_description"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Date Submitted</span>
-                            <span class="info-field-value" id="improvement_view_date">10-01-2023</span>
+                            <span class="info-field-value" id="improvement_view_date"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Status</span>
-                            <span class="info-field-value" id="improvement_view_status">Pending</span>
+                            <span class="info-field-value" id="improvement_view_status"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Admin Response</span>
-                            <span class="info-field-value" id="improvement_view_response">Thank you for your suggestion. We'll review it.</span>
+                            <span class="info-field-value" id="improvement_view_response"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Implementation Date</span>
-                            <span class="info-field-value" id="improvement_view_implementation_date">-</span>
+                            <span class="info-field-value" id="improvement_view_implementation_date"></span>
                         </div>
                     </div>
                 </div>
@@ -1612,6 +1613,7 @@
                     </div>
                     
                     <div class="profile-form">
+
                         <!-- Profile Information -->
                         <h3>Profile Information</h3>
                         <div class="form-row">
@@ -1717,6 +1719,7 @@
             </div>
         </main>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="/Js/PatientDashboard_JS/patientDashboard.js"></script>
@@ -1725,5 +1728,6 @@
     <script src="/Js/PatientDashboard_JS/analyticsCharts.js"></script>
     <script src="/Js/PatientDashboard_JS/patientsAlertData.js"></script>
     <script src="/Js/PatientDashboard_JS/patientSettings.js"></script>
+
 </body>
 </html>

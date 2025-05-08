@@ -62,7 +62,7 @@ router.post('/register', async (req, res) => {
         res.redirect('/?message=registration-success');
     } 
     catch (error) {
-        console.error("❌ Error registering patient:", error);
+        console.error("[Health Montoring System] Error registering patient:", error);
         res.render('RegisterPage/register', { error: "An error occurred during registration. Please try again." });
     }
 });
@@ -106,7 +106,7 @@ router.post('/SignInPage/signIn', async (req, res) => {
         return res.redirect(`/${role}Dashboard?message=login-success`);
     } 
     catch (error) {
-        console.error("❌ Error during sign-in:", error);
+        console.error("[Health Montoring System] Error during sign-in:", error);
         return res.redirect('/?message=signin-error');
     }
 });
@@ -114,12 +114,12 @@ router.post('/SignInPage/signIn', async (req, res) => {
 // GET Logout
 router.get('/auth/logout', (req, res) => {
     if (req.session && req.session.user) {
-        console.log(`👋 Logging out user: ID ${req.session.user.id} | Role: ${req.session.user.role}`);
+        console.log(`[Health Montoring System] Logging out user: ID ${req.session.user.id} | Role: ${req.session.user.role}`);
     }
 
     req.session.destroy(err => {
         if (err) {
-            console.error('❌ Logout error:', err);
+            console.error('[Health Montoring System] Logout error:', err);
             return res.send("Logout failed");
         }
         res.clearCookie('connect.sid');

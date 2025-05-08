@@ -1,7 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
-// const collection = require('../config');
 const { Patient, Admin } = require('../config');
 
 const router = express.Router();
@@ -17,7 +16,7 @@ module.exports = (transporter, otpStore) => {
     router.post('/forgot-password', async (req, res) => {
         try {
             const { email } = req.body;
-            console.log('Received email:', email);
+            console.log('[Health Montoring System] Received email:', email);
 
             if (!email) {
                 return res.render('Verification/ForgotPassword', {
@@ -46,7 +45,7 @@ module.exports = (transporter, otpStore) => {
             const expiresAt = Date.now() + 10 * 60 * 1000;
             otpStore.set(email, { otp, expiresAt });
 
-            console.log(`OTP for ${email}: ${otp}`);
+            console.log(`[Health Montoring System] OTP for ${email}: ${otp}`);
 
             // Send the OTP via email
             const mailOptions = {
@@ -170,7 +169,7 @@ module.exports = (transporter, otpStore) => {
             };
             try {
                 await transporter.sendMail(mailOptions);
-                console.log(`OTP email sent successfully to ${email}`);
+                console.log(`[Health Montoring System] OTP email sent successfully to ${email}`);
                 res.redirect(`/otp-verification?email=${encodeURIComponent(email)}`);
             } catch (mailError) {
                 console.error('Error sending OTP email:', mailError);
@@ -309,7 +308,7 @@ module.exports = (transporter, otpStore) => {
                 );
             }
 
-            console.log(`Password updated successfully for ${email}`);
+            console.log(`[Health Montoring System] Password updated successfully for ${email}`);
 
             res.redirect('/?message=password-reset-success');
 

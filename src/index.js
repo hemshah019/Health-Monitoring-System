@@ -57,9 +57,9 @@ const transporter = nodemailer.createTransport({
 // Verify transporter configuration on startup.
 transporter.verify(function (error, success) {
     if (error) {
-        console.error("Nodemailer configuration error:", error);
+        console.error("[Health Montoring System] Nodemailer configuration error:", error);
     } else {
-        console.log("Nodemailer is ready to send emails");
+        console.log("[Health Montoring System] Nodemailer is ready to send emails");
     }
 });
 
@@ -81,14 +81,14 @@ app.use('/image', uploadRoutes);
 // Server Start
 const port = process.env.PORT || 3000;
 app.listen(port, async  () => {
-    console.log(`Server running on Port: ${port}`);
-    console.log(`Access application at: http://localhost:${port}`);
+    console.log(`[Health Montoring System] Server running on Port: ${port}`);
+    console.log(`[Health Montoring System] Access application at: http://localhost:${port}`);
 
     // Run alert generation on startup
     try {
         await generateAlertsForAllPatients();
-        console.log("✅ Initial alert check completed.");
+        console.log("[Health Montoring System] Initial alert check completed.");
     } catch (err) {
-        console.error("❌ Error during alert generation at startup:", err);
+        console.error("[Health Montoring System] Error during alert generation at startup:", err);
     }
 });

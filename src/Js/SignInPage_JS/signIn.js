@@ -1,4 +1,4 @@
-// function to see and hide password
+// function to toggles password visibility between text and password input
 function togglePasswordVisibility() {
     const passwordInput = document.querySelector('input[name="Password"]');
     const eyeClosedIcon = document.querySelector('.eye-closed');
@@ -15,54 +15,54 @@ function togglePasswordVisibility() {
     }
 }
 
-
+// Get URL query parameters to check for messages to display
 const params = new URLSearchParams(window.location.search);
 const messageType = params.get('message');
 
+// Reference to toast notification element
 const toast = document.getElementById('toastMessage');
 
+// Message configurations with text and type (success/error)
 const messages = {
     "login-success": { text: "Signed in successfully!", type: "success" },
     "invalid-username": { text: "Username not found!", type: "error" },
     "invalid-password": { text: "Incorrect password!", type: "error" },
     "password-reset-success": { text: "Password reset successful!", type: "success" },
-    "missing-fields":  { text: "Missing Fields!", type: "error" }
+    "missing-fields":  { text: "Missing Role Fields!", type: "error" }
 };
 
+// Display toast message if valid message type exists in URL
 if (messageType && messages[messageType]) {
     const { text, type } = messages[messageType];
+
     toast.textContent = text;
     toast.className = `toast ${type}`;
     toast.classList.remove('hidden');
 
-    // Add close (X) button
     const closeBtn = document.createElement('span');
     closeBtn.textContent = '×';
     closeBtn.classList.add('close');
     closeBtn.onclick = () => toast.classList.add('hidden');
     toast.appendChild(closeBtn);
 
-    // Auto-dismiss after 3 seconds
     setTimeout(() => {
         toast.classList.add('hidden');
     }, 3000);
 
-      // Remove query param from URL after showing toast
-  if (window.location.search.includes('message=logout-success')) {
     const url = new URL(window.location);
     url.searchParams.delete('message');
     window.history.replaceState({}, document.title, url.pathname);
-  }
 }
 
+// Fallback auto-dismiss for any toast after 3 seconds
 setTimeout(() => {
     const toast = document.getElementById('toast');
     if (toast) toast.style.display = 'none';
-  }, 3000);
+}, 3000);
 
-  // Remove query param from URL after showing toast
-  if (window.location.search.includes('message=logout-success')) {
+// Special case handling for logout success message
+if (window.location.search.includes('message=logout-success')) {
     const url = new URL(window.location);
     url.searchParams.delete('message');
     window.history.replaceState({}, document.title, url.pathname);
-  }
+}

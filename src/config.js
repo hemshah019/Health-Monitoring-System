@@ -10,12 +10,12 @@ dayjs.extend(weekday);
 const connect = mongoose.connect("mongodb://localhost:27017/HealthMonitoringSystemDB");
 
 connect.then(() => {
-    console.log('Connected to MongoDB Successfully...');
+    console.log('[Health Montoring System] Connected to MongoDB Successfully...');
 }).catch((err) => {
-    console.error('Failed to connect to MongoDB:', err);
+    console.error('[Health Montoring System] Failed to connect to MongoDB:', err);
 });
 
-/* ====== Patient Schema ====== */
+// Patient Schema
 const PatientSchema = new mongoose.Schema({
     Patient_ID: { type: Number, unique: true },
     First_Name: { type: String, required: true },
@@ -34,7 +34,7 @@ const PatientSchema = new mongoose.Schema({
     patientProfileImage: { type: String, default: '' } 
 });
 
-// Pre-save hook for Patient ID and Enrollment DateTime
+// Auto-Incrementing & generting Patient ID for Patient and setting Enrollment DateTime
 PatientSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastPatient = await Patient.findOne({}, {}, { sort: { 'Patient_ID': -1 } });
@@ -47,9 +47,11 @@ PatientSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Patient to interact with the 'patients' collection in MongoDB  
 const Patient = mongoose.model("patients", PatientSchema);
 
-/* ====== Admin Schema ====== */
+
+// Admin Schema
 const AdminSchema = new mongoose.Schema({
     adminID: { type: Number, unique: true },
     firstName: { type: String, required: true },
@@ -62,7 +64,7 @@ const AdminSchema = new mongoose.Schema({
     profileImage: { type: String, default: '' } 
 });
 
-// Pre-save hook for Admin ID (optional, but good practice)
+// Auto-Incrementing Admin ID for Admin
 AdminSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastAdmin = await Admin.findOne({}, {}, { sort: { 'adminID': -1 } });
@@ -71,9 +73,10 @@ AdminSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Admin to interact with the 'admins' collection in MongoDB  
 const Admin = mongoose.model("admins", AdminSchema);
 
-/* ====== Message Schema ====== */
+// Message Schema
 const MessageSchema = new mongoose.Schema({
     Message_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -85,7 +88,7 @@ const MessageSchema = new mongoose.Schema({
     Response_Date: { type: Date, default: null }
 });
 
-// Pre-save hook for auto-incrementing Message_ID
+// Auto-Incrementing & generting Message ID for Message and setting Message_Sent_DateTime
 MessageSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastMessage = await Message.findOne({}, {}, { sort: { 'Message_ID': -1 } });
@@ -98,10 +101,11 @@ MessageSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Message to interact with the 'messages' collection in MongoDB  
 const Message = mongoose.model("messages", MessageSchema);
 
 
-/* ====== Compliance Schema ====== */
+// Compliance Schema
 const ComplianceSchema = new mongoose.Schema({
     Compliance_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -113,7 +117,7 @@ const ComplianceSchema = new mongoose.Schema({
     Feedback_Date: { type: Date, default: null }
 });
 
-// Pre-save hook for auto-incrementing Compliance_ID
+// Auto-Incrementing & generting Compliance ID for Compliance and setting Compliance_Date
 ComplianceSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastCompliance = await Compliance.findOne({}, {}, { sort: { 'Compliance_ID': -1 } });
@@ -126,10 +130,11 @@ ComplianceSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Compliance to interact with the 'compliances' collection in MongoDB 
 const Compliance = mongoose.model("compliances", ComplianceSchema);
 
 
-/* ====== Improvement Schema ====== */
+// Improvement Schema
 const ImprovementSchema = new mongoose.Schema({
     Improvement_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -141,7 +146,7 @@ const ImprovementSchema = new mongoose.Schema({
     Implementation_Date: { type: Date, default: null }
 });
 
-// Pre-save hook for auto-incrementing Improvement_ID
+// Auto-Incrementing & generting Improvement ID for Improvement and setting Date_Submitted
 ImprovementSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastImprovement = await Improvement.findOne({}, {}, { sort: { 'Improvement_ID': -1 } });
@@ -154,10 +159,11 @@ ImprovementSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Improvement to interact with the 'improvements' collection in MongoDB 
 const Improvement = mongoose.model("improvements", ImprovementSchema);
 
 
-/* ====== Heart Rate Schema ====== */
+// Heart Rate Schema
 const HeartRateSchema = new mongoose.Schema({
     Heart_Rate_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true }, 
@@ -169,7 +175,7 @@ const HeartRateSchema = new mongoose.Schema({
     Status: { type: String, required: true }
 });
 
-// Pre-save hook for Heart Rate ID and DateTime
+// Auto-Incrementing & generting Heart_Rate_ID for HeartRate and setting DisplayDateTime
 HeartRateSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastHeartRate = await this.constructor.findOne({}, {}, { sort: { 'Heart_Rate_ID': -1 } });
@@ -182,10 +188,11 @@ HeartRateSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for HeartRate to interact with the 'heart_rates' collection in MongoDB
 const HeartRate = mongoose.model("heart_rates", HeartRateSchema);
 
 
-/* ====== SpO2 (Oxygen Saturation) Schema ====== */
+// SpO2 (Oxygen Saturation) Schema
 const SpO2Schema = new mongoose.Schema({
     SpO2_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true }, 
@@ -197,7 +204,7 @@ const SpO2Schema = new mongoose.Schema({
     Status: { type: String, required: true }
 });
 
-// Pre-save hook for SpO2 ID and DateTime
+// Auto-Incrementing & generting SpO2_ID for Sp02 and setting DisplayDateTime
 SpO2Schema.pre('save', async function (next) {
     if (this.isNew) {
         const lastSpO2 = await this.constructor.findOne({}, {}, { sort: { 'SpO2_ID': -1 } });
@@ -210,10 +217,11 @@ SpO2Schema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for SpO2 to interact with the 'spo2' collection in MongoDB
 const SpO2 = mongoose.model("spo2", SpO2Schema);
 
 
-/* ====== Body Temperature Schema ====== */
+// Body Temperature Schema
 const BodyTemperatureSchema = new mongoose.Schema({
     Temperature_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -225,7 +233,7 @@ const BodyTemperatureSchema = new mongoose.Schema({
     Status: { type: String, required: true } 
 });
 
-// Pre-save hook for Temperature ID and DateTime
+// Auto-Incrementing & generting Temperature_ID for Sp02 and setting DisplayDateTime
 BodyTemperatureSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastTemperature = await this.constructor.findOne({}, {}, { sort: { 'Temperature_ID': -1 } });
@@ -238,10 +246,11 @@ BodyTemperatureSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for BodyTemperature to interact with the 'body_temperatures' collection in MongoDB
 const BodyTemperature = mongoose.model("body_temperatures", BodyTemperatureSchema);
 
 
-/* ====== Fall Detection Schema ====== */
+// Fall Detection Schema
 const FallDetectionSchema = new mongoose.Schema({
     Fall_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -251,7 +260,7 @@ const FallDetectionSchema = new mongoose.Schema({
     displayDateTime: { type: String }
 });
 
-// Pre-save hook for auto-incrementing Fall_ID and setting Date_Time
+// Auto-Incrementing & generting Fall_ID for FallDetection and setting DisplayDateTime
 FallDetectionSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastFall = await FallDetection.findOne({}, {}, { sort: { 'Fall_ID': -1 } });
@@ -264,10 +273,11 @@ FallDetectionSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for FallDetection to interact with the 'body_fall_detections' collection in MongoDB
 const FallDetection = mongoose.model("body_fall_detections", FallDetectionSchema);
 
 
-/* ====== Alert Schema ====== */
+// Alert Schema
 const AlertSchema = new mongoose.Schema({
     Alert_ID: { type: Number, unique: true },
     Heart_Rate_ID: { type: Number, required: false, index: true, default: null },  
@@ -285,7 +295,7 @@ const AlertSchema = new mongoose.Schema({
     Task_Assigned: { type: String, default: 'No' }
 });
 
-// Pre-save hook for auto-incrementing Alert_ID and setting Alert_DateTime
+// Auto-Incrementing & generting Alert_ID for Alert and setting Alert_DateTime
 AlertSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastAlert = await Alert.findOne({}, {}, { sort: { 'Alert_ID': -1 } });
@@ -298,10 +308,11 @@ AlertSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Alert to interact with the 'alerts' collection in MongoDB
 const Alert = mongoose.model("alerts", AlertSchema);
 
 
-/* ====== Task Schema ====== */
+// Task Schema
 const TaskSchema = new mongoose.Schema({
     Task_ID: { type: Number, unique: true },
     Patient_ID: { type: Number, required: true, index: true },
@@ -314,7 +325,7 @@ const TaskSchema = new mongoose.Schema({
     displayDateTime: { type: String }
 });
 
-// Pre-save hook for auto-incrementing Task_ID and setting dateTime
+// Auto-Incrementing & generting Task_ID for Task and setting displayDateTime
 TaskSchema.pre('save', async function (next) {
     if (this.isNew) {
         const lastTask = await Task.findOne({}, {}, { sort: { 'Task_ID': -1 } });
@@ -327,9 +338,11 @@ TaskSchema.pre('save', async function (next) {
     next();
 });
 
+// Creates & exports Mongoose model for Task to interact with the 'tasks' collection in MongoD
 const Task = mongoose.model("tasks", TaskSchema);
 
-/* ====== Export All Models ====== */
+
+// Export All Models 
 module.exports = {
     Patient,
     Admin,

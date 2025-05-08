@@ -3,7 +3,7 @@ const router = express.Router();
 const { Message, Compliance, Improvement, Task, Alert, Patient } = require('../config');
 const dayjs = require('dayjs');
 
-
+// Middleware to ensure the role is an patients
 const ensurePatient = (req, res, next) => {
     if (!req.session.user || req.session.user.role !== 'patient') {
         console.warn('Unauthorized access attempt to patient action.');
@@ -17,10 +17,11 @@ const ensurePatient = (req, res, next) => {
     next();
 };
 
+
+// Message Action
 // Submit New Message
 router.post('/submit-message', async (req, res) => {
     try {
-        console.log('Session Data:', req.session);
         const { messageType, messageContent, messageDate } = req.body;
 
         const patient = req.session.user;
@@ -47,7 +48,6 @@ router.post('/submit-message', async (req, res) => {
 // Fetch Messages
 router.get('/messages', async (req, res) => {
     try {
-        console.log('Session Data:', req.session);
         const patient = req.session.user;
 
         if (!patient || patient.role !== 'patient') {
@@ -71,7 +71,6 @@ router.get('/messages/:id', ensurePatient, async (req, res) => {
         if (isNaN(messageId)) {
              return res.status(400).json({ success: false, message: 'Invalid message ID format.' });
         }
-        console.log(`Attempting to fetch message ID: ${messageId} for Patient_ID: ${patientId}`);
 
         const message = await Message.findOne({
             Message_ID: messageId,
@@ -83,7 +82,6 @@ router.get('/messages/:id', ensurePatient, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Message not found or you do not have permission to view it.' });
         }
 
-        console.log(`Successfully fetched message ID: ${messageId}`);
         res.status(200).json(message);
 
     } catch (error) {
@@ -101,7 +99,6 @@ router.delete('/messages/:id', ensurePatient, async (req, res) => {
          if (isNaN(messageId)) {
              return res.status(400).json({ success: false, message: 'Invalid message ID format.' });
         }
-        console.log(`Attempting to delete message ID: ${messageId} for Patient_ID: ${patientId}`);
 
         const result = await Message.findOneAndDelete({
             Message_ID: messageId,
@@ -112,7 +109,7 @@ router.delete('/messages/:id', ensurePatient, async (req, res) => {
             console.warn(`Message not found or access denied for deletion. ID: ${messageId}, Patient_ID: ${patientId}`);
             return res.status(404).json({ success: false, message: 'Message not found or you do not have permission to delete it.' });
         }
-        console.log(`Successfully deleted message ID: ${messageId} for Patient_ID: ${patientId}`);
+
         res.status(200).json({ success: true, message: 'Message deleted successfully.' });
 
     } catch (error) {
@@ -122,6 +119,7 @@ router.delete('/messages/:id', ensurePatient, async (req, res) => {
 });
 
 
+// Compliances Action
 // Submit New Compliances
 router.post('/submit-compliance', async (req, res) => {
     try {
@@ -220,6 +218,7 @@ router.delete('/compliances/:id', ensurePatient, async (req, res) => {
 });
 
 
+// Impropement Action 
 // Submit New Improvement
 router.post('/submit-improvement', async (req, res) => {
     try {
@@ -240,6 +239,7 @@ router.post('/submit-improvement', async (req, res) => {
 
         await newImprovement.save();
         res.status(200).json({ success: true, message: 'Improvement submitted successfully' });
+
     } catch (error) {
         console.error('Error saving improvement:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -257,6 +257,7 @@ router.get('/improvements', async (req, res) => {
 
         const improvements = await Improvement.find({ Patient_ID: patient.id }).sort({ Improvement_ID: -1 });
         res.status(200).json(improvements);
+
     } catch (error) {
         console.error('Error fetching improvements:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -309,12 +310,15 @@ router.delete('/improvements/:id', ensurePatient, async (req, res) => {
         }
 
         res.status(200).json({ success: true, message: 'Improvement deleted successfully.' });
+
     } catch (error) {
         console.error(`Error deleting improvement ID ${req.params.id}:`, error);
         res.status(500).json({ success: false, message: 'Server error while deleting improvement.' });
     }
 });
 
+
+// Tasks Action
 // Fetch Tasks
 router.get('/tasks', ensurePatient, async (req, res) => {
     try {
@@ -334,12 +338,12 @@ router.get('/tasks', ensurePatient, async (req, res) => {
         ]);
 
         res.status(200).json(tasks);
+
     } catch (error) {
         console.error('Error fetching tasks:', error);
         res.status(500).json({ success: false, message: 'Server error while fetching tasks.' });
     }
 });
-
 
 // View Tasks
 router.get('/tasks/:id', ensurePatient, async (req, res) => {
@@ -386,19 +390,18 @@ router.delete('/tasks/:id', ensurePatient, async (req, res) => {
         }
 
         const task = await Task.findOne({ Task_ID: taskId, Patient_ID: patientId });
-
         if (!task) {
             return res.status(404).json({ success: false, message: 'Task not found or unauthorized deletion.' });
         }
 
         // Delete the task
         await Task.deleteOne({ Task_ID: taskId, Patient_ID: patientId });
-
         if (task.Alert_ID) {
             await Alert.updateOne({ Alert_ID: task.Alert_ID }, { $set: { Task_Assigned: 'No' } });
         }
 
         res.status(200).json({ success: true, message: 'Task deleted successfully and alert updated.' });
+        
     } catch (error) {
         console.error('Error deleting task:', error);
         res.status(500).json({ success: false, message: 'Server error while deleting task.' });

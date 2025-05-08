@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 async function sendAlertEmail(patientId, alertType, currentValue, normalRange, alertStatus, fallDirection = null) {
     const patient = await Patient.findOne({ Patient_ID: patientId });
     if (!patient) {
-        console.error(`Patient with ID ${patientId} not found.`);
+        console.error(`[Health Montoring System] Patient with ID ${patientId} not found.`);
         return;
     }
 
@@ -79,13 +79,13 @@ async function sendAlertEmail(patientId, alertType, currentValue, normalRange, a
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`📧 Alert email sent to ${patient.Email}`);
+        console.log(`[Health Montoring System] Alert email sent to ${patient.Email}`);
     } catch (error) {
-        console.error('❌ Error sending alert email:', error);
+        console.error('[Health Montoring System] Error sending alert email:', error);
     }
 }
 
-// Helper: Get next Alert_ID
+// Gets next available Alert_ID
 async function getNextAlertId() {
     const lastAlert = await Alert.findOne({}, {}, { sort: { 'Alert_ID': -1 } });
     return lastAlert ? lastAlert.Alert_ID + 1 : 9000;
@@ -188,26 +188,26 @@ async function generateAlertsForPatient(patientId) {
                 Alert_Type: 'Body Fall Detection',
                 Current_Value: null,
                 Fall_Direction: fall.Fall_Direction,
-                Normal_Range: 'N/A',
+                Normal_Range: 'Stable',
                 dateTime: fall.dateTime,
                 displayDateTime: fall.displayDateTime,
                 Alert_Status: 'Critical',
             });
 
-            await sendAlertEmail(fall.Patient_ID, `Body Fall Detection`, null, 'N/A', 'Critical', fall.Fall_Direction);
+            await sendAlertEmail(fall.Patient_ID, `Body Fall Detection`, null, 'Stable', 'Critical', fall.Fall_Direction);
         }
 
         // Insert Alerts
         if (alertsToInsert.length > 0) {
             await Alert.insertMany(alertsToInsert);
-            console.log(`Inserted ${alertsToInsert.length} alerts for patient ${patientId}`);
+            console.log(`[Health Montoring System] Inserted ${alertsToInsert.length} alerts for patient ${patientId}`);
             return true;
         } else {
-            console.log(`No new alerts to insert for patient ${patientId}`);
+            console.log(`[Health Montoring System] No new alerts to insert for patient ${patientId}`);
             return false;
         }
     } catch (error) {
-        console.error('Error generating alerts:', error);
+        console.error('[Health Montoring System] Error generating alerts:', error);
         return false;
     }
 }
@@ -224,13 +224,14 @@ async function generateAlertsForAllPatients() {
         }
 
         if (totalPatientsWithAlerts > 0) {
-            console.log(`✅ Generated alerts for ${totalPatientsWithAlerts} patients.`);
+            console.log(`[Health Montoring System] Generated alerts for ${totalPatientsWithAlerts} patients.`);
         } else {
-            console.log('✅ No alert-worthy health data found at startup.');
+            console.log('[Health Montoring System] No alert-worthy health data found at startup.');
         }
     } catch (error) {
-        console.error('Error generating alerts for all patients:', error);
+        console.error('[Health Montoring System] Error generating alerts for all patients:', error);
     }
 }
 
+// Exports alert generation functions for patients
 module.exports = { generateAlertsForPatient, generateAlertsForAllPatients };
