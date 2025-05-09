@@ -170,7 +170,8 @@ module.exports = (transporter, otpStore) => {
             try {
                 await transporter.sendMail(mailOptions);
                 console.log(`[Health Montoring System] OTP email sent successfully to ${email}`);
-                res.redirect(`/otp-verification?email=${encodeURIComponent(email)}`);
+                // res.redirect(`/otp-verification?email=${encodeURIComponent(email)}`);
+                res.redirect(`/otp-verification?email=${encodeURIComponent(email)}&message=${encodeURIComponent('OTP sent to your email')}`);
             } catch (mailError) {
                 console.error('Error sending OTP email:', mailError);
                 return res.render('Verification/ForgotPassword', {
@@ -189,12 +190,26 @@ module.exports = (transporter, otpStore) => {
     });
 
     // GET - OTP Verification
+    // router.get('/otp-verification', (req, res) => {
+    //     const email = req.query.email;
+    //     const message = req.query.message;
+    //     if (!email) {
+    //         return res.redirect('/forgot-password');
+    //     }
+    //     res.render('Verification/OTPVerification',  { email, error: null, message: message || null });
+    // });
+
     router.get('/otp-verification', (req, res) => {
         const email = req.query.email;
-        if (!email) {
-            return res.redirect('/forgot-password');
-        }
-        res.render('Verification/OTPVerification',  { email, error: null, message: null });
+        const message = req.query.message;
+
+        if (!email) return res.redirect('/forgot-password');
+
+        res.render('Verification/OTPVerification', {
+            email,
+            error: null,
+            message: message || null,
+        });
     });
 
     // POST - Verify OTP
@@ -231,7 +246,9 @@ module.exports = (transporter, otpStore) => {
 
             if (otp === storedOTPData.otp) {
                 otpStore.delete(email);
-                res.redirect(`/new-password?email=${encodeURIComponent(email)}`);
+                // res.redirect(`/new-password?email=${encodeURIComponent(email)}`);
+                res.redirect(`/new-password?email=${encodeURIComponent(email)}&message=${encodeURIComponent('OTP verified! Now you can change password')}`);
+
             } else {
                 return res.render('Verification/OTPVerification', {
                     email,
@@ -247,13 +264,27 @@ module.exports = (transporter, otpStore) => {
     });
 
     // GET route for New Password page
+    // router.get('/new-password', (req, res) => {
+    //     const email = req.query.email;
+    //     if (!email) {
+    //         return res.redirect('/forgot-password');
+    //     }
+    //     res.render('Verification/NewPassword', { email, error: null, message: null });
+    // });
+
     router.get('/new-password', (req, res) => {
         const email = req.query.email;
-        if (!email) {
-            return res.redirect('/forgot-password');
-        }
-        res.render('Verification/NewPassword', { email, error: null, message: null });
+        const message = req.query.message;
+
+        if (!email) return res.redirect('/forgot-password');
+
+        res.render('Verification/NewPassword', {
+            email,
+            error: null,
+            message: message || null
+        });
     });
+
 
     // POST route to update the password
     router.post('/update-password', async (req, res) => {

@@ -953,12 +953,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const getDateText = (dateValue) => dateValue ? new Date(dateValue).toLocaleString() : 'N/A';
 
         document.getElementById('improvement_view_id').textContent = `#I${getText(improvement.Improvement_ID)}`;
-        document.getElementById('improvement_view_type').textContent = getText(improvement.Improvement_Type);
-        document.getElementById('improvement_view_notes').textContent = getText(improvement.Improvement_Notes);
-        document.getElementById('improvement_view_date').textContent = getDateText(improvement.Improvement_Date);
+        document.getElementById('improvement_view_category').textContent = getText(improvement.Category);
+        document.getElementById('improvement_view_description').textContent = getText(improvement.Suggestion_Description);
+        document.getElementById('improvement_view_date').textContent = getDateText(improvement.Date_Submitted);
         document.getElementById('improvement_view_status').textContent = getText(improvement.Status);
-        document.getElementById('improvement_view_feedback').textContent = getText(improvement.Admin_Feedback);
-        document.getElementById('improvement_view_response').textContent = getDateText(improvement.Feedback_Date);
+        document.getElementById('improvement_view_response').textContent = getText(improvement.Admin_Response);
+        document.getElementById('improvement_view_implementation_date').textContent = getDateText(improvement.Implementation_Date);
     }
 
     async function deleteImprovement(improvementId, buttonElement) {
@@ -1241,7 +1241,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!res.ok) throw new Error(data.message || 'Upload failed');
 
                 showNotification('Profile image updated successfully!');
-                patientPreview.src = `${data.imagePath}?t=${Date.now()}`;
+
+                const newImagePath = `${data.imagePath}?t=${Date.now()}`;
+                if (patientPreview) patientPreview.src = newImagePath;
+                const headerImage = document.querySelector('.patient-image-header');
+                if (headerImage) headerImage.src = newImagePath;
 
             } catch (err) {
                 showNotification(`Upload failed: ${err.message}`, 'error');
@@ -1270,7 +1274,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!res.ok) throw new Error(data.message || 'Deletion failed');
 
             showNotification('Profile image deleted successfully!');
-            patientPreview.src = `${data.defaultImage}?t=${Date.now()}`;
+
+            const defaultImagePath = `${data.defaultImage}?t=${Date.now()}`;
+            if (patientPreview) patientPreview.src = defaultImagePath;
+            const headerImage = document.querySelector('.patient-image-header');
+            if (headerImage) headerImage.src = defaultImagePath;
+
         } catch (err) {
             showNotification(`Deletion failed: ${err.message}`, 'error');
         } finally {

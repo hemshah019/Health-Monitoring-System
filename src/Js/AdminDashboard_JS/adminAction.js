@@ -1183,18 +1183,22 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification(result.message || 'Task assigned successfully!');
             taskPopup.style.display = 'none';
     
-            // Refresh just the updated row (like Improvement logic)
+            // Update Task_Assigned in alert row
             const row = document.querySelector(`.alert-addTask-btn[data-id="${alertId}"]`).closest('tr');
             if (row) {
-                // Update relevant columns (Task_Assigned and others if needed)
                 row.querySelector('td:nth-child(9)').textContent = result.updatedAlert.Task_Assigned || 'No';
             }
+
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
     
         } catch (error) {
             console.error('Error assigning task:', error);
             showNotification(`Failed to assign task: ${error.message}`, 'error');
         }
     });
+
 
     // Alert Delete Action
     const alertDeleteButtons = document.querySelectorAll('.alert-delete-btn');
@@ -1398,7 +1402,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!res.ok) throw new Error(data.message || 'Upload failed');
 
                 showNotification('Profile image updated successfully!');
-                profilePreview.src = `${data.imagePath}?t=${Date.now()}`;
+
+                const newImagePath = `${data.imagePath}?t=${Date.now()}`;
+                if (profilePreview) profilePreview.src = newImagePath;
+                const headerImage = document.querySelector('.admin-image-header');
+                if (headerImage) headerImage.src = newImagePath;
 
             } catch (err) {
                 showNotification(`Upload failed: ${err.message}`, 'error');
@@ -1428,7 +1436,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error(data.message || 'Deletion failed');
 
             showNotification('Profile image deleted successfully!');
-            document.getElementById('adminProfilePreview').src = `${data.defaultImage}?t=${Date.now()}`;
+
+            const defaultImagePath = `${data.defaultImage}?t=${Date.now()}`;
+            if (profilePreview) profilePreview.src = defaultImagePath;
+            const headerImage = document.querySelector('.admin-image-header');
+            if (headerImage) headerImage.src = defaultImagePath;
+
         } catch (err) {
             showNotification(`Deletion failed: ${err.message}`, 'error');
         } finally {

@@ -267,7 +267,7 @@
                             <% dashboardTasks.forEach(task => { %>
                                 <div class="task-item">
                                     <div class="task-avatar">
-                                        <img src="/image/admin.png" alt="Avatar">
+                                        <img src="<%= task.patientInfo && task.patientInfo.patientProfileImage ? task.patientInfo.patientProfileImage : '/image/patient.png' %>?t=<%= Date.now() %>" alt="Avatar" class="task-avatar-img"/>
                                     </div>
                                     <div class="task-details">
                                         <div class="task-description"><%= task.Task_Name %></div>
@@ -309,12 +309,16 @@
                                     <tr>
                                         <td>#P<%= patient.Patient_ID %></td>
                                         <td>
-                                            <div class="patient-name">
-                                                <div class="patient-avatar">
-                                                    <img src="/image/admin.png" alt="Patient">
-                                                </div>
-                                                <span><%= patient.First_Name %> <%= patient.Last_Name %></span>
+                                        <div class="patient-name">
+                                            <div class="patient-avatar">
+                                            <img 
+                                                src="<%= patient.patientProfileImage ? patient.patientProfileImage : '/image/patient.png' %>?t=<%= Date.now() %>" 
+                                                alt="Patient" 
+                                                class="patient-avatar-img"
+                                            >
                                             </div>
+                                            <span><%= patient.First_Name %> <%= patient.Last_Name %></span>
+                                        </div>
                                         </td>
                                         <td><%= patient.Age %> years</td>
                                         <td><%= patient.Gender %></td>
@@ -389,9 +393,13 @@
                                 <td>#P<%= patient.Patient_ID %></td>
                                 <td>
                                     <div class="patient-name">
-                                        <div class="patient-avatar">
-                                            <img src="/image/admin.png" alt="Patient">
-                                        </div>
+                                            <div class="patient-avatar">
+                                                <img 
+                                                    src="<%= patient.patientProfileImage ? patient.patientProfileImage : '/image/patient.png' %>?t=<%= Date.now() %>" 
+                                                    alt="Patient" 
+                                                    class="patient-avatar-img"
+                                                >
+                                            </div>
                                         <span><%= patient.First_Name %> <%= patient.Last_Name %></span>
                                     </div>
                                 </td>
@@ -626,19 +634,19 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Patient ID</span>
-                            <span class="info-field-value" id="task_view_patient_id">#P1001</span>
+                            <span class="info-field-value" id="task_view_patient_id"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Patient Name</span>
-                            <span class="info-field-value" id="task_view_patient_name">John Doe</span>
+                            <span class="info-field-value" id="task_view_patient_name"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Patient Age</span>
-                            <span class="info-field-value" id="task_view_patient_age">68 years</span>
+                            <span class="info-field-value" id="task_view_patient_age"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Contact Information</span>
-                            <span class="info-field-value" id="task_view_contact_info">john.doe@example.com</span>
+                            <span class="info-field-value" id="task_view_contact_info"></span>
                         </div>
                     </div>
                     
@@ -647,11 +655,11 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Alert Type</span>
-                            <span class="info-field-value" id="task_view_alert_type">Heart Rate</span>
+                            <span class="info-field-value" id="task_view_alert_type"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Current Value</span>
-                            <span class="info-field-value" id="task_view_current_value">110 BPM</span>
+                            <span class="info-field-value" id="task_view_current_value"></span>
                         </div>
                         <div class="info-field">
                             <span class="fallDetectionValue">Fall Detection</span>
@@ -659,11 +667,11 @@
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Normal Range</span>
-                            <span class="info-field-value" id="task_view_normal_range">60-100 BPM</span>
+                            <span class="info-field-value" id="task_view_normal_range"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Alert Date & Time</span>
-                            <span class="info-field-value" id="task_view_alert_datetime">16-01-2023 10:30 AM</span>
+                            <span class="info-field-value" id="task_view_alert_datetime"></span>
                         </div>
                     </div>
                     
@@ -672,25 +680,25 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Task Name</span>
-                            <span class="info-field-value" id="task_view_task_name">Rest for 10 minutes</span>
+                            <span class="info-field-value" id="task_view_task_name"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Task Priority</span>
                             <span class="info-field-value" id="task_view_task_priority">
-                                <span class="priority-badge priority-high">High</span>
+                                <span class="priority-badge priority-high"></span>
                             </span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Task Date</span>
-                            <span class="info-field-value" id="task_view_task_date">Thursday, 24th April 2025 1:14 PM</span>
+                            <span class="info-field-value" id="task_view_task_date"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Completion Time</span>
-                            <span class="info-field-value" id="task_view_completion_time">16-01-2023 11:00 AM</span>
+                            <span class="info-field-value" id="task_view_completion_time"></span>
                         </div>
                         <div class="info-field info-field-full">
                             <span class="info-field-label">Task Description</span>
-                            <span class="info-field-value" id="task_view_task_description">Patient should stop any physical activity and rest in a seated or lying position for at least 10 minutes. Monitor heart rate after rest period and report if still elevated.</span>
+                            <span class="info-field-value" id="task_view_task_description"></span>
                         </div>
                     </div>
                 </div>
@@ -837,39 +845,39 @@
                     <div class="info-grid">
                         <div class="info-field">
                             <span class="info-field-label">Alert ID</span>
-                            <span class="info-field-value" id="alert_view_id">#A2001</span>
+                            <span class="info-field-value" id="alert_view_id"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Patient Name</span>
-                            <span class="info-field-value" id="alert_view_patient_name">John Doe</span>
+                            <span class="info-field-value" id="alert_view_patient_name"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Alert Type</span>
-                            <span class="info-field-value" id="alert_view_type">High Blood Pressure</span>
+                            <span class="info-field-value" id="alert_view_type"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Current Value</span>
-                            <span class="info-field-value" id="alert_view_current_value">160/100 mmHg</span>
+                            <span class="info-field-value" id="alert_view_current_value"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Fall Detection</span>
-                            <span class="info-field-value" id="alert_view_fall_detection">160/100 mmHg</span>
+                            <span class="info-field-value" id="alert_view_fall_detection"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Normal Range</span>
-                            <span class="info-field-value" id="alert_view_normal_range">120/80 mmHg</span>
+                            <span class="info-field-value" id="alert_view_normal_range"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Alert Date & Time</span>
-                            <span class="info-field-value" id="alert_view_datetime">17-01-2023</span>
+                            <span class="info-field-value" id="alert_view_datetime"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Alert Status</span>
-                            <span class="info-field-value" id="alert_view_status">Unresolved</span>
+                            <span class="info-field-value" id="alert_view_status"></span>
                         </div>
                         <div class="info-field">
                             <span class="info-field-label">Task Assigned</span>
-                            <span class="info-field-value" id="alert_view_task_assigned">Yes</span>
+                            <span class="info-field-value" id="alert_view_task_assigned"></span>
                         </div>
                     </div>
                 </div>

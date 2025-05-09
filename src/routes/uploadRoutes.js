@@ -167,7 +167,7 @@ router.delete('/delete-patient-profile', async (req, res) => {
             fs.unlinkSync(imagePath);
         }
 
-        patient.Profile_Image = null;
+        patient.patientProfileImage = null;
         await patient.save();
 
         res.status(200).json({ success: true, message: 'Profile image deleted', defaultImage: '/image/patient.png' });

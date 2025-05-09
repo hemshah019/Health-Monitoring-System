@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
     if (message === 'logout-success') {
         successMessage = 'You have been logged out successfully.';
     } else if (message === 'password-reset-success') {
-        successMessage = 'Password reset successfully! Please log in.';
+        successMessage = 'Password reset successfully! Please sign in.';
     } else if (message === 'registration-success') {
         successMessage = 'Registration successful! Please sign in with your credentials.';
     }
