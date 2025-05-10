@@ -28,6 +28,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const username = form.Username.value.trim();
     const password = form.Password.value;
     const confirmPassword = form.Confirm_Password.value;
+    const email = form.Email.value.trim();
+
+     // Check for empty required fields
+    const requiredFields = ["First_Name", "Last_Name", "Date_Of_Birth", "Email", "Phone_Number", "Gender", "Address", "Username", "Password", "Confirm_Password"];
+    for (const field of requiredFields) {
+      if (!form[field].value.trim()) {
+        e.preventDefault();
+        showToast(`Please fill in the ${field.replaceAll('_', ' ')} field.`, "error");
+        return;
+      }
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      e.preventDefault();
+      showToast("Please enter a valid email address.", "error");
+      return;
+    }
 
     // Password requirements regex patterns
     const passwordRegex = {

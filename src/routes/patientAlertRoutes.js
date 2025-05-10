@@ -55,14 +55,16 @@ router.get('/patient-alerts', ensurePatient, async (req, res) => {
 router.delete('/:id', ensurePatient, async (req, res) => {
     try {
         const patientId = req.patientId;
-        const alertId = req.params.id;
+        const alertMongoId = req.params.id;
 
-        const alert = await Alert.findOne({ Alert_ID: alertId, Patient_ID: patientId });
+        // Validate if the alert exists and belongs to the patient
+        const alert = await Alert.findOne({ _id: alertMongoId, Patient_ID: patientId });
         if (!alert) {
             return res.status(404).json({ success: false, message: 'Alert not found or unauthorized access.' });
         }
 
-        await Alert.findByIdAndDelete(alertId);
+        // Delete the alert
+        await Alert.deleteOne({ _id: alertMongoId });
         res.status(200).json({ success: true, message: 'Alert deleted successfully.' });
     } catch (error) {
         console.error('Error deleting patient alert:', error);

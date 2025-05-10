@@ -28,7 +28,7 @@ const messages = {
     "invalid-username": { text: "Username not found!", type: "error" },
     "invalid-password": { text: "Incorrect password!", type: "error" },
     "password-reset-success": { text: "Password reset successful!", type: "success" },
-    "missing-fields":  { text: "Missing Role Fields!", type: "error" }
+    "missing-fields":  { text: "Missing Fields!", type: "error" }
 };
 
 // Display toast message if valid message type exists in URL
