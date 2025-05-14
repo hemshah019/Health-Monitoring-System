@@ -264,7 +264,7 @@ function renderHeartRateCharts(data) {
                         color: '#fff',
                         font: {
                             weight: 'bold',
-                            size: 15
+                            size: 10
                         },
                         formatter: function(value, context) {
                             const label = context.chart.data.labels[context.dataIndex];
@@ -613,7 +613,7 @@ function renderTemperatureCharts(data) {
                     },
                     datalabels: {
                         color: '#fff',
-                        font: { weight: 'bold', size: 15 },
+                        font: { weight: 'bold', size: 10 },
                         formatter: (value, context) => {
                             const label = context.chart.data.labels[context.dataIndex];
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -768,10 +768,11 @@ function renderFallDetectionCharts(data) {
                 datasets: [{
                     data: data.pieChartData.map(item => item.count),
                     backgroundColor: [
-                        'rgba(255, 0, 55, 0.8)',  // Forward
-                        'rgba(0, 123, 255, 0.8)', // Backward
-                        'rgba(255, 183, 0, 0.8)', // Left
-                        'rgba(0, 187, 0, 0.8)'    // Right
+                        'rgba(255, 0, 55, 0.8)', 
+                        'rgba(0, 123, 255, 0.8)',
+                        'rgba(255, 183, 0, 0.8)', 
+                        'rgba(0, 187, 0, 0.8)',
+                        'rgba(127, 137, 127, 0.8)'    
                     ],
                     borderColor: '#fff',
                     borderWidth: 2
@@ -791,7 +792,7 @@ function renderFallDetectionCharts(data) {
                             boxWidth: 15,
                             padding: 15,
                             font: {
-                                size: 16,
+                                size: 15,
                                 weight: 'bold'
                             },
                             generateLabels: function(chart) {
@@ -820,7 +821,7 @@ function renderFallDetectionCharts(data) {
                     },
                     datalabels: {
                         color: '#fff',
-                        font: { weight: 'bold', size: 15 },
+                        font: { weight: 'bold', size: 10 },
                         formatter: function(value, context) {
                             const label = context.chart.data.labels[context.dataIndex];
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);

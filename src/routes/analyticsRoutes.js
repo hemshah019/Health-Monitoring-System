@@ -36,7 +36,7 @@ router.get('/heart-rate/:patientId', async (req, res) => {
                 rate: reading.Current_Heart_Rate,
                 status: reading.Status || getHeartRateStatus(reading.Current_Heart_Rate)
             };
-        }).sort((a, b) => a.originalDate - b.originalDate);
+        }).sort((a, b) => a.originalDate - b.originalDate).slice(-10);
 
         const statusCounts = heartRates.reduce((acc, reading) => {
             const status = reading.Status || getHeartRateStatus(reading.Current_Heart_Rate);
@@ -85,7 +85,7 @@ router.get('/spo2/:patientId', async (req, res) => {
                 value: reading.Current_SpO2,
                 status: reading.Status || getStatus(reading.Current_SpO2, 'SpO2')
             };
-        }).sort((a, b) => a.originalDate - b.originalDate);
+        }).sort((a, b) => a.originalDate - b.originalDate).slice(-15);
 
         const pieCounts = readings.reduce((acc, r) => {
             const status = r.Status || getStatus(r.Current_SpO2, 'SpO2');
@@ -127,7 +127,7 @@ router.get('/temperature/:patientId', async (req, res) => {
                 value: reading.Current_Temperature,
                 status: reading.Status || getStatus(reading.Current_Temperature, 'Temperature')
             };
-        }).sort((a, b) => a.originalDate - b.originalDate);
+        }).sort((a, b) => a.originalDate - b.originalDate).slice(-15);
 
         const pieCounts = readings.reduce((acc, r) => {
             const status = r.Status || getStatus(r.Current_Temperature, 'Temperature');
